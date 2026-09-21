@@ -1,0 +1,130 @@
+name: API Sentinel — verificações
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sentinel-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      TEST_PROJECT: pf-api-sentinel-ci-test-${{ github.run_id }}-${{ github.run_attempt }}
+      SMOKE_PROJECT: pf-api-sentinel-ci-smoke-${{ github.run_id }}-${{ github.run_attempt }}
+      PYTHONUNBUFFERED: '1'
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Obter fontes
+        uses: actions/checkout@v4
+
+      - name: Preparar Python para os scripts portáveis
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Preparar artefatos e construir a imagem com lockfile
+        run: |
+          mkdir -p artifacts
+          docker compose version
+          docker build --tag pf-api-sentinel:local . 2>&1 | tee artifacts/build.log
+
+      - name: Lint, formato e tipos
+        run: |
+          docker run --rm --network none --read-only --tmpfs /tmp \
+            --volume "$PWD:/app:ro" --workdir /app pf-api-sentinel:local \
+            ruff check --no-cache .
+          docker run --rm --network none --read-only --tmpfs /tmp \
+            --volume "$PWD:/app:ro" --workdir /app pf-api-sentinel:local \
+            ruff format --check --no-cache .
+          docker run --rm --network none --read-only --tmpfs /tmp \
+            --volume "$PWD:/app:ro" --workdir /app pf-api-sentinel:local \
+            mypy --cache-dir=/tmp/mypy-cache
+
+      - name: Validar regras, configurações e séries sintéticas
+        run: python scripts/check_monitoring.py 2>&1 | tee artifacts/monitoring-checks.log
+
+      - name: Testes unitários e integração com PostgreSQL e Redis isolados
+        run: |
+          docker compose -f compose.test.yml -p "$TEST_PROJECT" \
+            up --abort-on-container-exit --exit-code-from tests tests \
+            2>&1 | tee artifacts/isolated-tests.log
+
+      - name: Preparar massa e credenciais exclusivas do smoke
+        run: |
+          docker compose -f compose.yml -p "$SMOKE_PROJECT" up -d --wait postgres redis
+          docker compose -f compose.yml -p "$SMOKE_PROJECT" \
+            run --rm -e REPLICAS=2 tools python scripts/bootstrap.py
+
+      - name: Iniciar jornada real com proxy e duas réplicas
+        run: |
+          docker compose -f compose.yml -p "$SMOKE_PROJECT" --profile observability \
+            up -d --wait --wait-timeout 90 --scale api=2
+          python - <<'PY'
+          import json
+          import time
+          import urllib.error
+          import urllib.request
+
+          deadline = time.monotonic() + 90
+          while time.monotonic() < deadline:
+              try:
+                  with urllib.request.urlopen("http://127.0.0.1:8104/health/ready", timeout=3) as response:
+                      if response.status == 200 and json.load(response) == {"status": "ready"}:
+                          print("Prontidão confirmada pelo proxy real.")
+                          break
+              except (urllib.error.URLError, TimeoutError, json.JSONDecodeError):
+                  pass
+              time.sleep(0.5)
+          else:
+              raise SystemExit("A jornada pelo proxy não ficou pronta em 90 segundos.")
+          PY
+
+      - name: Segurança e operações pelo proxy real
+        run: |
+          docker compose -f compose.yml -p "$SMOKE_PROJECT" run --rm \
+            -e RUN_HTTP_TESTS=1 -e SENTINEL_EXPECTED_REPLICAS=2 \
+            -e SENTINEL_BASE_URL=http://proxy \
+            -e SENTINEL_CREDENTIALS_FILE=/secrets/demo.json \
+            tools python -m pytest -q --tb=short tests/security tests/operations \
+            --junitxml=/artifacts/http-tests.xml \
+            2>&1 | tee artifacts/http-tests.log
+
+      - name: Coletar diagnóstico, inclusive em caso de falha
+        if: always()
+        run: |
+          mkdir -p artifacts
+          docker compose -f compose.test.yml -p "$TEST_PROJECT" \
+            logs --no-color --tail 150 > artifacts/test-services.log 2>&1 || true
+          docker compose -f compose.yml -p "$SMOKE_PROJECT" --profile observability \
+            logs --no-color --tail 150 > artifacts/smoke-services.log 2>&1 || true
+          docker compose -f compose.yml -p "$SMOKE_PROJECT" --profile observability \
+            ps --all > artifacts/smoke-containers.txt 2>&1 || true
+
+      - name: Encerrar somente os projetos temporários desta execução
+        if: always()
+        run: |
+          result=0
+          docker compose -f compose.test.yml -p "$TEST_PROJECT" \
+            down --volumes --remove-orphans || result=1
+          docker compose -f compose.yml -p "$SMOKE_PROJECT" --profile observability --profile tools \
+            down --volumes --remove-orphans || result=1
+          exit "$result"
+
+      - name: Preservar relatórios e diagnóstico
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sentinel-verification-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/
+          if-no-files-found: warn
+          retention-days: 7
