@@ -1,0 +1,545 @@
+{
+  "options": {
+    "summaryTrendStats": [
+      "med",
+      "p(95)",
+      "p(99)",
+      "max"
+    ],
+    "summaryTimeUnit": "",
+    "noColor": false
+  },
+  "state": {
+    "testRunDurationMs": 5012.861919,
+    "isStdOutTTY": false,
+    "isStdErrTTY": false
+  },
+  "metrics": {
+    "business_failures": {
+      "thresholds": {
+        "count==0": {
+          "ok": true
+        }
+      },
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 0,
+        "rate": 0
+      }
+    },
+    "success_latency{route:sales}": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "med": 7.421943,
+        "p(95)": 11.4313676,
+        "p(99)": 11.94025112,
+        "max": 12.067472
+      },
+      "thresholds": {
+        "p(95)<500": {
+          "ok": true
+        },
+        "p(99)<1500": {
+          "ok": true
+        }
+      }
+    },
+    "http_req_sending": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "med": 0.026651,
+        "p(95)": 0.0693625,
+        "p(99)": 0.0841305,
+        "max": 0.086598
+      }
+    },
+    "http_req_waiting": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "med": 6.745064,
+        "p(95)": 14.927436,
+        "p(99)": 25.75723,
+        "max": 33.102389
+      }
+    },
+    "responses{tenant:tenant_a,route:sales}": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 7,
+        "rate": 1.396407902932305
+      },
+      "thresholds": {
+        "count>=0": {
+          "ok": true
+        }
+      }
+    },
+    "responses{tenant:tenant_a,route:summary}": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 7,
+        "rate": 1.396407902932305
+      },
+      "thresholds": {
+        "count>=0": {
+          "ok": true
+        }
+      }
+    },
+    "started_requests": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 51,
+        "rate": 10.173829007078222
+      }
+    },
+    "http_req_duration{expected_response:true}": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(95)": 15.178562,
+        "p(99)": 25.9120505,
+        "max": 33.248934,
+        "med": 6.897656
+      }
+    },
+    "unexpected_results": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "rate": 0,
+        "count": 0
+      },
+      "thresholds": {
+        "count==0": {
+          "ok": true
+        }
+      }
+    },
+    "tenant_a_capacity": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 0,
+        "rate": 0
+      }
+    },
+    "success_latency": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "med": 6.897656,
+        "p(95)": 15.178562,
+        "p(99)": 25.9120505,
+        "max": 33.248934
+      },
+      "thresholds": {
+        "p(95)<500": {
+          "ok": true
+        },
+        "p(99)<1500": {
+          "ok": true
+        }
+      }
+    },
+    "tenant_a_quota": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 0,
+        "rate": 0
+      }
+    },
+    "tenant_a_valid": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 26,
+        "rate": 5.186657925177133
+      }
+    },
+    "http_req_blocked": {
+      "values": {
+        "med": 0.00552,
+        "p(95)": 0.3071005,
+        "p(99)": 0.6573715,
+        "max": 0.801185
+      },
+      "type": "trend",
+      "contains": "time"
+    },
+    "iteration_duration": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "med": 7.292919,
+        "p(95)": 16.260475,
+        "p(99)": 26.8922625,
+        "max": 33.921987
+      }
+    },
+    "responses{tenant:tenant_b,route:sales}": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 6,
+        "rate": 1.1969210596562614
+      },
+      "thresholds": {
+        "count>=0": {
+          "ok": true
+        }
+      }
+    },
+    "data_received": {
+      "type": "counter",
+      "contains": "data",
+      "values": {
+        "count": 40212,
+        "rate": 8021.764941816265
+      }
+    },
+    "success_latency{route:stores}": {
+      "contains": "time",
+      "values": {
+        "med": 6.9912015,
+        "p(95)": 21.084615349999986,
+        "p(99)": 30.81607027000001,
+        "max": 33.248934
+      },
+      "thresholds": {
+        "p(95)<500": {
+          "ok": true
+        },
+        "p(99)<1500": {
+          "ok": true
+        }
+      },
+      "type": "trend"
+    },
+    "tenant_b_valid": {
+      "values": {
+        "count": 25,
+        "rate": 4.9871710819010895
+      },
+      "type": "counter",
+      "contains": "default"
+    },
+    "tenant_b_other": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 0,
+        "rate": 0
+      }
+    },
+    "vus_max": {
+      "type": "gauge",
+      "contains": "default",
+      "values": {
+        "max": 16,
+        "value": 16,
+        "min": 16
+      }
+    },
+    "http_req_receiving": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "max": 1.958154,
+        "med": 0.071912,
+        "p(95)": 0.126954,
+        "p(99)": 1.0820055
+      }
+    },
+    "tenant_b_capacity": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "rate": 0,
+        "count": 0
+      }
+    },
+    "success_latency{route:summary}": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "med": 6.5195465,
+        "p(95)": 18.38958225,
+        "p(99)": 18.53805005,
+        "max": 18.575167
+      },
+      "thresholds": {
+        "p(95)<500": {
+          "ok": true
+        },
+        "p(99)<1500": {
+          "ok": true
+        }
+      }
+    },
+    "tenant_b_erp_failure": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 0,
+        "rate": 0
+      }
+    },
+    "responses{tenant:tenant_b,route:erp}": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 6,
+        "rate": 1.1969210596562614
+      },
+      "thresholds": {
+        "count>=0": {
+          "ok": true
+        }
+      }
+    },
+    "dropped_iterations": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "rate": 0,
+        "count": 0
+      },
+      "thresholds": {
+        "count==0": {
+          "ok": true
+        }
+      }
+    },
+    "responses": {
+      "contains": "default",
+      "values": {
+        "count": 51,
+        "rate": 10.173829007078222
+      },
+      "type": "counter"
+    },
+    "iterations": {
+      "values": {
+        "count": 51,
+        "rate": 10.173829007078222
+      },
+      "type": "counter",
+      "contains": "default"
+    },
+    "invalid_results": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 0,
+        "rate": 0
+      },
+      "thresholds": {
+        "count==0": {
+          "ok": true
+        }
+      }
+    },
+    "responses{tenant:tenant_a,route:stores}": {
+      "thresholds": {
+        "count>=0": {
+          "ok": true
+        }
+      },
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 6,
+        "rate": 1.1969210596562614
+      }
+    },
+    "tenant_a_other": {
+      "values": {
+        "count": 0,
+        "rate": 0
+      },
+      "type": "counter",
+      "contains": "default"
+    },
+    "tenant_b_quota": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 0,
+        "rate": 0
+      }
+    },
+    "http_req_duration": {
+      "values": {
+        "med": 6.897656,
+        "p(95)": 15.178562,
+        "p(99)": 25.9120505,
+        "max": 33.248934
+      },
+      "thresholds": {
+        "p(99)<3000": {
+          "ok": true
+        }
+      },
+      "type": "trend",
+      "contains": "time"
+    },
+    "tenant_b_invalid": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 0,
+        "rate": 0
+      }
+    },
+    "responses{tenant:tenant_b,route:summary}": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 7,
+        "rate": 1.396407902932305
+      },
+      "thresholds": {
+        "count>=0": {
+          "ok": true
+        }
+      }
+    },
+    "http_req_tls_handshaking": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "med": 0,
+        "p(95)": 0,
+        "p(99)": 0,
+        "max": 0
+      }
+    },
+    "vus": {
+      "type": "gauge",
+      "contains": "default",
+      "values": {
+        "value": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "responses{tenant:tenant_a,route:erp}": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 6,
+        "rate": 1.1969210596562614
+      },
+      "thresholds": {
+        "count>=0": {
+          "ok": true
+        }
+      }
+    },
+    "http_req_connecting": {
+      "values": {
+        "med": 0,
+        "p(95)": 0.22129549999999998,
+        "p(99)": 0.32311599999999996,
+        "max": 0.382163
+      },
+      "type": "trend",
+      "contains": "time"
+    },
+    "responses{tenant:tenant_b,route:stores}": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 6,
+        "rate": 1.1969210596562614
+      },
+      "thresholds": {
+        "count>=0": {
+          "ok": true
+        }
+      }
+    },
+    "data_sent": {
+      "type": "counter",
+      "contains": "data",
+      "values": {
+        "count": 8934,
+        "rate": 1782.2154578281734
+      }
+    },
+    "tenant_a_invalid": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "rate": 0,
+        "count": 0
+      }
+    },
+    "http_reqs": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 51,
+        "rate": 10.173829007078222
+      }
+    },
+    "tenant_a_erp_failure": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 0,
+        "rate": 0
+      }
+    },
+    "http_req_failed": {
+      "values": {
+        "rate": 0,
+        "passes": 0,
+        "fails": 51
+      },
+      "type": "rate",
+      "contains": "default"
+    }
+  },
+  "sentinel": {
+    "completed": 51,
+    "categories": {
+      "tenant_a_other": 0,
+      "tenant_b_valid": 25,
+      "tenant_b_invalid": 0,
+      "tenant_a_invalid": 0,
+      "tenant_b_quota": 0,
+      "tenant_b_capacity": 0,
+      "tenant_b_erp_failure": 0,
+      "tenant_b_other": 0,
+      "tenant_a_valid": 26,
+      "tenant_a_quota": 0,
+      "tenant_a_capacity": 0,
+      "tenant_a_erp_failure": 0
+    },
+    "scenario": "warmup-one",
+    "mode": "mixed",
+    "nominal_offered": 50,
+    "started": 51,
+    "dropped": 0,
+    "oracle_sha256": "3f9cb7ff3eff723d3f2ae377c06bb9661a9da0e840c145b8958eafa481cc3a32",
+    "seconds": 5,
+    "offered_per_second": 10
+  },
+  "root_group": {
+    "name": "",
+    "path": "",
+    "id": "d41d8cd98f00b204e9800998ecf8427e",
+    "groups": [],
+    "checks": []
+  }
+}

@@ -1,0 +1,39 @@
+Attaching to tests-1
+tests-1  | ...............sssssssssssssssssssssssssssssssssssssssssssssssssssssssss [ 24%]
+tests-1  | sssssssssssss.......................................................................................................................... [ 69%]
+tests-1  | ........................................................................ [ 93%]
+tests-1  | ....................                                                     [100%]
+tests-1  | =============================== warnings summary ===============================
+tests-1  | ../opt/venv/lib/python3.12/site-packages/fastapi/testclient.py:1
+tests-1  |   /opt/venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+tests-1  |     from starlette.testclient import TestClient as TestClient  # noqa
+tests-1  | 
+tests-1  | ../opt/venv/lib/python3.12/site-packages/starlette/testclient.py:53
+tests-1  |   /opt/venv/lib/python3.12/site-packages/starlette/testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+tests-1  |     _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+tests-1  | 
+tests-1  | -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+tests-1  | 229 passed, 70 skipped, 2 warnings, 9 subtests passed in 9.84s
+
+[Ktests-1 exited with code 0
+ Network pf-api-sentinel-review-20260921t064944662185z-tests_default Creating 
+ Network pf-api-sentinel-review-20260921t064944662185z-tests_default Creating 
+ Network pf-api-sentinel-review-20260921t064944662185z-tests_default Created 
+ Network pf-api-sentinel-review-20260921t064944662185z-tests_default Created 
+ Container pf-api-sentinel-review-20260921t064944662185z-tests-redis-1 Creating 
+ Container pf-api-sentinel-review-20260921t064944662185z-tests-postgres-1 Creating 
+ Container pf-api-sentinel-review-20260921t064944662185z-tests-redis-1 Created 
+ Container pf-api-sentinel-review-20260921t064944662185z-tests-postgres-1 Created 
+ Container pf-api-sentinel-review-20260921t064944662185z-tests-tests-1 Creating 
+ Container pf-api-sentinel-review-20260921t064944662185z-tests-tests-1 Created 
+ Container pf-api-sentinel-review-20260921t064944662185z-tests-redis-1 Starting 
+ Container pf-api-sentinel-review-20260921t064944662185z-tests-postgres-1 Starting 
+ Container pf-api-sentinel-review-20260921t064944662185z-tests-postgres-1 Started 
+ Container pf-api-sentinel-review-20260921t064944662185z-tests-redis-1 Started 
+ Container pf-api-sentinel-review-20260921t064944662185z-tests-postgres-1 Waiting 
+ Container pf-api-sentinel-review-20260921t064944662185z-tests-postgres-1 Healthy 
+ Container pf-api-sentinel-review-20260921t064944662185z-tests-tests-1 Starting 
+ Container pf-api-sentinel-review-20260921t064944662185z-tests-tests-1 Started 
+ Compose Stopping Aborting on container exit...
+ Container pf-api-sentinel-review-20260921t064944662185z-tests-tests-1 Stopping 
+ Container pf-api-sentinel-review-20260921t064944662185z-tests-tests-1 Stopped 

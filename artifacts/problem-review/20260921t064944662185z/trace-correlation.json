@@ -1,0 +1,93 @@
+{
+  "executed_at": "2026-09-21T06:57:36.879015+00:00",
+  "trace_id": "4eecdc337e959eda0c7fb446fd24f2e9",
+  "request_id": "f9fa2a7b25544093b243d14b1282c4f8",
+  "logs": [
+    {
+      "timestamp": "2026-09-21T06:57:33.013153+00:00",
+      "request_id": "f9fa2a7b25544093b243d14b1282c4f8",
+      "trace_id": "4eecdc337e959eda0c7fb446fd24f2e9",
+      "route": "/v1/stores/{store_id}/availability/{sku}",
+      "method": "GET",
+      "status": 200,
+      "duration_seconds": 0.006205,
+      "error_category": "none",
+      "instance": "90aa42c1704f"
+    }
+  ],
+  "spans": [
+    {
+      "operation": "connect",
+      "start_microseconds": 1789973853007666,
+      "duration_microseconds": 694,
+      "span_id": "4667100f4c07c865",
+      "references": [
+        {
+          "refType": "CHILD_OF",
+          "traceID": "4eecdc337e959eda0c7fb446fd24f2e9",
+          "spanID": "d5d9f65ffc9cf153"
+        }
+      ]
+    },
+    {
+      "operation": "SELECT sentinel",
+      "start_microseconds": 1789973853008708,
+      "duration_microseconds": 578,
+      "span_id": "607acf1d25d6db8e",
+      "references": [
+        {
+          "refType": "CHILD_OF",
+          "traceID": "4eecdc337e959eda0c7fb446fd24f2e9",
+          "spanID": "d5d9f65ffc9cf153"
+        }
+      ]
+    },
+    {
+      "operation": "EVAL",
+      "start_microseconds": 1789973853009864,
+      "duration_microseconds": 345,
+      "span_id": "61244aa65b901e55",
+      "references": [
+        {
+          "refType": "CHILD_OF",
+          "traceID": "4eecdc337e959eda0c7fb446fd24f2e9",
+          "spanID": "d5d9f65ffc9cf153"
+        }
+      ]
+    },
+    {
+      "operation": "GET",
+      "start_microseconds": 1789973853010596,
+      "duration_microseconds": 1537,
+      "span_id": "aa1d1ba8d96b60b5",
+      "references": [
+        {
+          "refType": "CHILD_OF",
+          "traceID": "4eecdc337e959eda0c7fb446fd24f2e9",
+          "spanID": "1774cdaba3da83a9"
+        }
+      ]
+    },
+    {
+      "operation": "erp.availability",
+      "start_microseconds": 1789973853010307,
+      "duration_microseconds": 2460,
+      "span_id": "1774cdaba3da83a9",
+      "references": [
+        {
+          "refType": "CHILD_OF",
+          "traceID": "4eecdc337e959eda0c7fb446fd24f2e9",
+          "spanID": "d5d9f65ffc9cf153"
+        }
+      ]
+    },
+    {
+      "operation": "GET /v1/stores/{store_id}/availability/{sku}",
+      "start_microseconds": 1789973853007046,
+      "duration_microseconds": 6238,
+      "span_id": "d5d9f65ffc9cf153",
+      "references": []
+    }
+  ],
+  "scope": "Campos permitidos de uma consulta local; sem SQL, tokens ou headers."
+}

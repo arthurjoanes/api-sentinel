@@ -1,0 +1,34 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+     execution: local
+        script: /load/contract-check.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 10m30s max duration (incl. graceful stop):
+              * default: 1 iterations shared among 1 VUs (maxDuration: 10m0s, gracefulStop: 30s)
+
+
+
+  █ TOTAL RESULTS 
+
+    EXECUTION
+    iteration_duration...: avg=1.74ms min=1.74ms med=1.74ms max=1.74ms p(90)=1.74ms p(95)=1.74ms
+    iterations...........: 1   501.686671/s
+
+    NETWORK
+    data_received........: 0 B 0 B/s
+    data_sent............: 0 B 0 B/s
+
+
+
+
+running (00m00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+default ✓ [ 100% ] 1 VUs  00m00.0s/10m0s  1/1 shared iters
+ Container pf-api-sentinel-review-20260921t064944662185z-k6-run-b1bca9547d77 Creating 
+ Container pf-api-sentinel-review-20260921t064944662185z-k6-run-b1bca9547d77 Created 
+time="2026-09-21T06:51:21Z" level=info msg="13 verificações de contrato: válidos aceitos e mutações rejeitadas. Sem HTTP." source=console

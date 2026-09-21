@@ -1,0 +1,68 @@
+#1 [internal] load local bake definitions
+#1 reading from stdin 736B 0.0s done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile: 685B done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/python:3.12.12-slim-bookworm
+#3 DONE 0.1s
+
+#4 [internal] load metadata for ghcr.io/astral-sh/uv:0.12.17
+#4 DONE 0.1s
+
+#5 [internal] load .dockerignore
+#5 transferring context: 32B
+#5 transferring context: 128B done
+#5 DONE 0.0s
+
+#6 [stage-1 1/7] FROM docker.io/library/python:3.12.12-slim-bookworm@sha256:593bd06efe90efa80dc4eee3948be7c0fde4134606dd40d8dd8dbcade98e669c
+#6 resolve docker.io/library/python:3.12.12-slim-bookworm@sha256:593bd06efe90efa80dc4eee3948be7c0fde4134606dd40d8dd8dbcade98e669c 0.0s done
+#6 DONE 0.0s
+
+#7 [uv 1/1] FROM ghcr.io/astral-sh/uv:0.12.17@sha256:10787c682e4184e4f290de1171fd4703dc63de99221f10fe1c99002ce7fa9acc
+#7 resolve ghcr.io/astral-sh/uv:0.12.17@sha256:10787c682e4184e4f290de1171fd4703dc63de99221f10fe1c99002ce7fa9acc 0.0s done
+#7 DONE 0.1s
+
+#8 [internal] load build context
+#8 transferring context: 120.10kB 0.0s done
+#8 DONE 0.0s
+
+#9 [stage-1 3/7] WORKDIR /app
+#9 CACHED
+
+#10 [stage-1 4/7] COPY pyproject.toml uv.lock ./
+#10 CACHED
+
+#11 [stage-1 2/7] COPY --from=uv /uv /usr/local/bin/uv
+#11 CACHED
+
+#12 [stage-1 5/7] RUN uv sync --frozen --no-install-project --no-cache
+#12 CACHED
+
+#13 [stage-1 6/7] COPY . .
+#13 DONE 0.1s
+
+#14 [stage-1 7/7] RUN uv sync --frozen --no-cache && useradd --uid 10001 --create-home sentinel
+#14 0.394    Building api-sentinel @ file:///app
+#14 1.681       Built api-sentinel @ file:///app
+#14 1.683 Prepared 1 package in 1.29s
+#14 1.686 Installed 1 package in 2ms
+#14 1.686  + api-sentinel==0.1.0 (from file:///app)
+#14 DONE 1.8s
+
+#15 exporting to image
+#15 exporting layers 0.1s done
+#15 exporting manifest sha256:9bb1823f1aa96db58002c50e78eb9c4fc7d1e0ec11dd2db61a3cc8b5bed8b09f 0.0s done
+#15 exporting config sha256:49775e3dc808c36e12061f0fe87bce391e5a651279195c85ab471e5d41c600d7 0.0s done
+#15 exporting attestation manifest sha256:80319e3df841e1ee2b0e5641a79ec9b13dee71235e1ca2a6de2380189a43b50d 0.0s done
+#15 exporting manifest list sha256:15f9db5ee182684e793ff6dfe496fde34331ed15d89d8d773100cd131d986722 0.0s done
+#15 naming to docker.io/library/pf-api-sentinel-review:local done
+#15 unpacking to docker.io/library/pf-api-sentinel-review:local 0.1s done
+#15 DONE 0.4s
+
+#16 resolving provenance for metadata file
+#16 DONE 0.0s
+ Image pf-api-sentinel-review:local Building 
+ Image pf-api-sentinel-review:local Built 

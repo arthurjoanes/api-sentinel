@@ -1,0 +1,11 @@
+{
+  "at": "2026-09-21T07:16:44.799586+00:00",
+  "links_checked": 82,
+  "missing_links": [],
+  "measured_run_status": "passed",
+  "measured_commands_nonzero": [],
+  "post_measurement_changes_match_declared_delta": true,
+  "measured_application_sources_unchanged": true,
+  "new_host_regressions": 3,
+  "application_load_not_repeated": true
+}

@@ -1,0 +1,21 @@
+{
+  "generator": "sentinel-v1",
+  "seed": 20260101,
+  "days": 60,
+  "starts_on": "2026-01-01",
+  "ends_on": "2026-03-01",
+  "commercial_tenants": 2,
+  "commercial_stores": 6,
+  "probe_stores": 1,
+  "products": 40,
+  "orders_per_store_day": 30,
+  "item_count": 21730,
+  "sha256": "9a22e96438804d549abef014a3638f8c5321d22f6a1572eb2ce29289b4235704",
+  "status": "criado"
+}
+Migração, seed e permissões: ok
+ Container pf-api-sentinel-review-20260921t064944662185z-tools-run-0e3075df34c8 Creating 
+ Container pf-api-sentinel-review-20260921t064944662185z-tools-run-0e3075df34c8 Created 
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 0001, Dados comerciais imutáveis e credenciais de leitura.

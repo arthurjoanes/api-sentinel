@@ -1,0 +1,16 @@
+.env
+.env.*
+!.env.example
+.venv/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.pyc
+*.sqlite*
+artifacts/private/
+.runtime/
+
+# so a evidencia linkada no README vai versionada
+artifacts/*
+!artifacts/problem-review/

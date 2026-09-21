@@ -1,0 +1,35 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+     execution: local
+        script: /load/review.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 16 max VUs, 9s max duration (incl. graceful stop):
+              * mixed: 10.00 iterations/s for 5s (maxVUs: 16, exec: mixed, gracefulStop: 4s)
+
+
+running (1.0s), 00/16 VUs, 10 complete and 0 interrupted iterations
+mixed   [  20% ] 00/16 VUs  1.0s/5s  10.00 iters/s
+
+running (2.0s), 00/16 VUs, 20 complete and 0 interrupted iterations
+mixed   [  40% ] 00/16 VUs  2.0s/5s  10.00 iters/s
+
+running (3.0s), 00/16 VUs, 30 complete and 0 interrupted iterations
+mixed   [  60% ] 00/16 VUs  3.0s/5s  10.00 iters/s
+
+running (4.0s), 00/16 VUs, 40 complete and 0 interrupted iterations
+mixed   [  80% ] 00/16 VUs  4.0s/5s  10.00 iters/s
+
+running (5.0s), 00/16 VUs, 50 complete and 0 interrupted iterations
+mixed   [ 100% ] 00/16 VUs  5.0s/5s  10.00 iters/s
+{"offered_per_second":10,"completed":51,"categories":{"tenant_a_erp_failure":0,"tenant_a_other":0,"tenant_b_valid":25,"tenant_b_invalid":0,"tenant_a_invalid":0,"tenant_b_quota":0,"tenant_b_capacity":0,"tenant_b_erp_failure":0,"tenant_b_other":0,"tenant_a_valid":26,"tenant_a_quota":0,"tenant_a_capacity":0},"scenario":"warmup-one","mode":"mixed","nominal_offered":50,"started":51,"dropped":0,"oracle_sha256":"3f9cb7ff3eff723d3f2ae377c06bb9661a9da0e840c145b8958eafa481cc3a32","seconds":5}
+
+running (5.0s), 00/16 VUs, 51 complete and 0 interrupted iterations
+mixed ✓ [ 100% ] 00/16 VUs  5s  10.00 iters/s
+ Container pf-api-sentinel-review-20260921t064944662185z-k6-run-7e97596204dd Creating 
+ Container pf-api-sentinel-review-20260921t064944662185z-k6-run-7e97596204dd Created 

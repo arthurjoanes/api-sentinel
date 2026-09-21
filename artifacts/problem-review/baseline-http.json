@@ -1,0 +1,107 @@
+{
+  "kind": "read-only-http-baseline",
+  "cases": [
+    {
+      "elapsed_ms": 107.9116,
+      "status": 200,
+      "body": {
+        "items": [
+          {
+            "id": 1,
+            "name": "Loja 1",
+            "coverage": {
+              "starts_on": "2026-01-01",
+              "ends_on": "2026-03-01"
+            }
+          },
+          {
+            "id": 2,
+            "name": "Loja 2",
+            "coverage": {
+              "starts_on": "2026-01-01",
+              "ends_on": "2026-03-01"
+            }
+          },
+          {
+            "id": 3,
+            "name": "Loja 3",
+            "coverage": {
+              "starts_on": "2026-01-01",
+              "ends_on": "2026-03-01"
+            }
+          }
+        ]
+      },
+      "name": "lojas_a"
+    },
+    {
+      "elapsed_ms": 10.199,
+      "status": 200,
+      "body": {
+        "store_id": 7,
+        "start": "2026-01-01",
+        "end": "2026-01-01",
+        "currency": "BRL",
+        "revenue_cents": 12500,
+        "order_count": 2,
+        "average_ticket_cents": 6250,
+        "data_updated_at": "2026-09-20T23:59:02.807038-03:00",
+        "observed_at": "2026-09-21T02:51:25.050947-03:00",
+        "dataset_version": "v1-9a22e96438804d54",
+        "coverage": {
+          "starts_on": "2026-01-01",
+          "ends_on": "2026-01-01",
+          "complete": true
+        },
+        "cache_age_seconds": 2.54
+      },
+      "name": "fixture"
+    },
+    {
+      "elapsed_ms": 12.4127,
+      "status": 200,
+      "body": {
+        "store_id": 1,
+        "start": "2026-01-01",
+        "end": "2026-01-01",
+        "currency": "BRL",
+        "revenue_cents": 422318,
+        "order_count": 30,
+        "average_ticket_cents": 14077,
+        "data_updated_at": "2026-09-20T23:59:02.807038-03:00",
+        "observed_at": "2026-09-21T02:51:27.604004-03:00",
+        "dataset_version": "v1-9a22e96438804d54",
+        "coverage": {
+          "starts_on": "2026-01-01",
+          "ends_on": "2026-03-01",
+          "complete": true
+        },
+        "cache_age_seconds": 0.0
+      },
+      "name": "summary_a"
+    },
+    {
+      "elapsed_ms": 5.6651,
+      "status": 403,
+      "body": {
+        "type": "urn:api-sentinel:problem:store_forbidden",
+        "title": "A credencial não permite consultar esta loja.",
+        "status": 403,
+        "code": "store_forbidden",
+        "request_id": "48f82bf5dda7424292d4b90b86f07fad"
+      },
+      "name": "cross_tenant"
+    },
+    {
+      "elapsed_ms": 59.34,
+      "status": 200,
+      "body": {
+        "store_id": 1,
+        "sku": "SKU-001",
+        "available": 21
+      },
+      "name": "erp"
+    }
+  ],
+  "captured_at": "2026-09-21T05:51:27.6726378Z"
+}

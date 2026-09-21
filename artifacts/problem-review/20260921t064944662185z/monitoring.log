@@ -1,0 +1,49 @@
+Configurações Prometheus: demo e referência
+Checking /etc/sentinel/monitoring/prometheus/demo.yml
+  SUCCESS: 1 rule files found
+ SUCCESS: /etc/sentinel/monitoring/prometheus/demo.yml is valid prometheus config file syntax
+
+Checking /etc/sentinel/monitoring/rules/demo.yml
+  SUCCESS: 11 rules found
+
+Checking /etc/sentinel/monitoring/prometheus/reference.yml
+  SUCCESS: 1 rule files found
+ SUCCESS: /etc/sentinel/monitoring/prometheus/reference.yml is valid prometheus config file syntax
+
+Checking /etc/sentinel/monitoring/rules/reference.yml
+  SUCCESS: 15 rules found
+
+Regras Prometheus: demo e referência
+Checking /etc/sentinel/monitoring/rules/demo.yml
+  SUCCESS: 11 rules found
+
+Checking /etc/sentinel/monitoring/rules/reference.yml
+  SUCCESS: 15 rules found
+
+Séries sintéticas: demo e referência
+  SUCCESS
+
+  SUCCESS
+
+  SUCCESS
+
+  SUCCESS
+
+Configurações Alertmanager: demo e referência
+Checking '/etc/sentinel/monitoring/alertmanager/demo.yml'  SUCCESS
+Found:
+ - global config
+ - route
+ - 0 inhibit rules
+ - 1 receivers
+ - 0 templates
+
+Checking '/etc/sentinel/monitoring/alertmanager/reference.yml'  SUCCESS
+Found:
+ - global config
+ - route
+ - 0 inhibit rules
+ - 1 receivers
+ - 0 templates
+
+Configurações e testes de regras: ok

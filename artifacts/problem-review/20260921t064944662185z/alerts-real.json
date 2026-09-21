@@ -1,0 +1,300 @@
+{
+  "executed_at": "2026-09-21T06:57:28.838852+00:00",
+  "cycles": [
+    {
+      "alert": "SentinelReplicaLost",
+      "detection_seconds": 32.172,
+      "recovery_seconds": 19.859,
+      "firing": {
+        "id": 5,
+        "fingerprint": "59751ee2ebde8cfd",
+        "starts_at": "2026-09-21T06:55:53.164000Z",
+        "status": "firing",
+        "ends_at": null,
+        "first_received_at": "2026-09-21T06:56:03.159332Z",
+        "last_received_at": "2026-09-21T06:56:03.159332Z",
+        "deliveries": 1,
+        "labels": {
+          "alertname": "SentinelReplicaLost",
+          "environment": "demo",
+          "project": "api-sentinel",
+          "service": "api-sentinel",
+          "severity": "warning"
+        },
+        "annotations": {
+          "action": "Confira containers do projeto e DNS discovery; restaure a réplica e confirme todos os targets.",
+          "condition": "A soma de targets API disponíveis é menor que a configuração independente de réplicas esperadas.",
+          "dashboard_url": "http://localhost:3104/d/sentinel/api-sentinel",
+          "impact": "Menos réplicas para atender às consultas.",
+          "runbook_url": "http://localhost:9184/runbooks/replica",
+          "summary": "Menos réplicas disponíveis que o esperado",
+          "window": "15s persistentes; DNS refresh 5 s."
+        }
+      },
+      "resolved": {
+        "id": 5,
+        "fingerprint": "59751ee2ebde8cfd",
+        "starts_at": "2026-09-21T06:55:53.164000Z",
+        "status": "resolved",
+        "ends_at": "2026-09-21T06:56:13.164000Z",
+        "first_received_at": "2026-09-21T06:56:03.159332Z",
+        "last_received_at": "2026-09-21T06:56:23.160235Z",
+        "deliveries": 2,
+        "labels": {
+          "alertname": "SentinelReplicaLost",
+          "environment": "demo",
+          "project": "api-sentinel",
+          "service": "api-sentinel",
+          "severity": "warning"
+        },
+        "annotations": {
+          "action": "Confira containers do projeto e DNS discovery; restaure a réplica e confirme todos os targets.",
+          "condition": "A soma de targets API disponíveis é menor que a configuração independente de réplicas esperadas.",
+          "dashboard_url": "http://localhost:3104/d/sentinel/api-sentinel",
+          "impact": "Menos réplicas para atender às consultas.",
+          "runbook_url": "http://localhost:9184/runbooks/replica",
+          "summary": "Menos réplicas disponíveis que o esperado",
+          "window": "15s persistentes; DNS refresh 5 s."
+        }
+      },
+      "occurrence_count": 1,
+      "created_incidents": [
+        {
+          "id": 3,
+          "fingerprint": "98f3e2928458d43d",
+          "starts_at": "2026-09-21T06:55:28.164000Z",
+          "status": "resolved",
+          "ends_at": "2026-09-21T06:56:23.164000Z",
+          "first_received_at": "2026-09-21T06:55:38.158409Z",
+          "last_received_at": "2026-09-21T06:56:28.158829Z",
+          "deliveries": 2,
+          "labels": {
+            "alertname": "SentinelSaturation",
+            "environment": "demo",
+            "project": "api-sentinel",
+            "service": "api-sentinel",
+            "severity": "warning"
+          },
+          "annotations": {
+            "action": "Reduza a taxa oferecida; confira quotas, admissão, espera de pool e orçamento de conexões.",
+            "condition": "Rejeições coexistem com ocupação elevada, ou o pool registrou timeout de aquisição.",
+            "dashboard_url": "http://localhost:3104/d/sentinel/api-sentinel",
+            "impact": "Requisições recebem 503 ou timeout ao obter conexão.",
+            "runbook_url": "http://localhost:9184/runbooks/saturation",
+            "summary": "Saturação ou timeout de pool",
+            "window": "1m; persistência 15s."
+          }
+        },
+        {
+          "id": 5,
+          "fingerprint": "59751ee2ebde8cfd",
+          "starts_at": "2026-09-21T06:55:53.164000Z",
+          "status": "resolved",
+          "ends_at": "2026-09-21T06:56:13.164000Z",
+          "first_received_at": "2026-09-21T06:56:03.159332Z",
+          "last_received_at": "2026-09-21T06:56:23.160235Z",
+          "deliveries": 2,
+          "labels": {
+            "alertname": "SentinelReplicaLost",
+            "environment": "demo",
+            "project": "api-sentinel",
+            "service": "api-sentinel",
+            "severity": "warning"
+          },
+          "annotations": {
+            "action": "Confira containers do projeto e DNS discovery; restaure a réplica e confirme todos os targets.",
+            "condition": "A soma de targets API disponíveis é menor que a configuração independente de réplicas esperadas.",
+            "dashboard_url": "http://localhost:3104/d/sentinel/api-sentinel",
+            "impact": "Menos réplicas para atender às consultas.",
+            "runbook_url": "http://localhost:9184/runbooks/replica",
+            "summary": "Menos réplicas disponíveis que o esperado",
+            "window": "15s persistentes; DNS refresh 5 s."
+          }
+        },
+        {
+          "id": 4,
+          "fingerprint": "3cadda6b71fcebbe",
+          "starts_at": "2026-09-21T06:55:33.164000Z",
+          "status": "resolved",
+          "ends_at": "2026-09-21T06:55:53.164000Z",
+          "first_received_at": "2026-09-21T06:55:43.157198Z",
+          "last_received_at": "2026-09-21T06:56:03.159272Z",
+          "deliveries": 2,
+          "labels": {
+            "alertname": "SentinelErrorBudgetBurn",
+            "environment": "demo",
+            "project": "api-sentinel",
+            "service": "api-sentinel",
+            "severity": "critical"
+          },
+          "annotations": {
+            "action": "Identifique os 503/5xx em logs e traces; confira admissão, Redis e pools antes de reduzir carga.",
+            "condition": "Fração de 5xx supera o burn rate em janelas longa e curta com volume mínimo.",
+            "dashboard_url": "http://localhost:3104/d/sentinel/api-sentinel",
+            "impact": "Taxa de 5xx acima do objetivo.",
+            "runbook_url": "http://localhost:9184/runbooks/error-budget",
+            "summary": "Burn rate alto",
+            "window": "Demo: 2 min e 30 s; erros >5% nas duas janelas; >=20 e >=5 requisições."
+          }
+        }
+      ]
+    },
+    {
+      "alert": "SentinelUnavailable",
+      "detection_seconds": 30.062,
+      "recovery_seconds": 18.968,
+      "firing": {
+        "id": 7,
+        "fingerprint": "14a9e1f8fb9f5066",
+        "starts_at": "2026-09-21T06:56:48.164000Z",
+        "status": "firing",
+        "ends_at": null,
+        "first_received_at": "2026-09-21T06:56:58.155352Z",
+        "last_received_at": "2026-09-21T06:56:58.155352Z",
+        "deliveries": 1,
+        "labels": {
+          "alertname": "SentinelUnavailable",
+          "environment": "demo",
+          "project": "api-sentinel",
+          "service": "api-sentinel",
+          "severity": "critical"
+        },
+        "annotations": {
+          "action": "Confira o proxy, a saúde das réplicas e dependências; restaure e confirme o probe em 1.",
+          "condition": "O probe retornou falha de transporte, status, schema ou total conhecido.",
+          "dashboard_url": "http://localhost:3104/d/sentinel/api-sentinel",
+          "impact": "A consulta autenticada da fixture falhou.",
+          "runbook_url": "http://localhost:9184/runbooks/unavailable",
+          "summary": "Consulta pelo proxy indisponível",
+          "window": "Probe a cada 3 s; 15s persistentes."
+        }
+      },
+      "resolved": {
+        "id": 7,
+        "fingerprint": "14a9e1f8fb9f5066",
+        "starts_at": "2026-09-21T06:56:48.164000Z",
+        "status": "resolved",
+        "ends_at": "2026-09-21T06:57:08.164000Z",
+        "first_received_at": "2026-09-21T06:56:58.155352Z",
+        "last_received_at": "2026-09-21T06:57:18.157995Z",
+        "deliveries": 2,
+        "labels": {
+          "alertname": "SentinelUnavailable",
+          "environment": "demo",
+          "project": "api-sentinel",
+          "service": "api-sentinel",
+          "severity": "critical"
+        },
+        "annotations": {
+          "action": "Confira o proxy, a saúde das réplicas e dependências; restaure e confirme o probe em 1.",
+          "condition": "O probe retornou falha de transporte, status, schema ou total conhecido.",
+          "dashboard_url": "http://localhost:3104/d/sentinel/api-sentinel",
+          "impact": "A consulta autenticada da fixture falhou.",
+          "runbook_url": "http://localhost:9184/runbooks/unavailable",
+          "summary": "Consulta pelo proxy indisponível",
+          "window": "Probe a cada 3 s; 15s persistentes."
+        }
+      },
+      "occurrence_count": 1,
+      "created_incidents": [
+        {
+          "id": 7,
+          "fingerprint": "14a9e1f8fb9f5066",
+          "starts_at": "2026-09-21T06:56:48.164000Z",
+          "status": "resolved",
+          "ends_at": "2026-09-21T06:57:08.164000Z",
+          "first_received_at": "2026-09-21T06:56:58.155352Z",
+          "last_received_at": "2026-09-21T06:57:18.157995Z",
+          "deliveries": 2,
+          "labels": {
+            "alertname": "SentinelUnavailable",
+            "environment": "demo",
+            "project": "api-sentinel",
+            "service": "api-sentinel",
+            "severity": "critical"
+          },
+          "annotations": {
+            "action": "Confira o proxy, a saúde das réplicas e dependências; restaure e confirme o probe em 1.",
+            "condition": "O probe retornou falha de transporte, status, schema ou total conhecido.",
+            "dashboard_url": "http://localhost:3104/d/sentinel/api-sentinel",
+            "impact": "A consulta autenticada da fixture falhou.",
+            "runbook_url": "http://localhost:9184/runbooks/unavailable",
+            "summary": "Consulta pelo proxy indisponível",
+            "window": "Probe a cada 3 s; 15s persistentes."
+          }
+        },
+        {
+          "id": 6,
+          "fingerprint": "59751ee2ebde8cfd",
+          "starts_at": "2026-09-21T06:56:48.164000Z",
+          "status": "resolved",
+          "ends_at": "2026-09-21T06:57:08.164000Z",
+          "first_received_at": "2026-09-21T06:56:58.155287Z",
+          "last_received_at": "2026-09-21T06:57:18.157937Z",
+          "deliveries": 2,
+          "labels": {
+            "alertname": "SentinelReplicaLost",
+            "environment": "demo",
+            "project": "api-sentinel",
+            "service": "api-sentinel",
+            "severity": "warning"
+          },
+          "annotations": {
+            "action": "Confira containers do projeto e DNS discovery; restaure a réplica e confirme todos os targets.",
+            "condition": "A soma de targets API disponíveis é menor que a configuração independente de réplicas esperadas.",
+            "dashboard_url": "http://localhost:3104/d/sentinel/api-sentinel",
+            "impact": "Menos réplicas para atender às consultas.",
+            "runbook_url": "http://localhost:9184/runbooks/replica",
+            "summary": "Menos réplicas disponíveis que o esperado",
+            "window": "15s persistentes; DNS refresh 5 s."
+          }
+        }
+      ]
+    }
+  ],
+  "dns_before": [
+    "http://172.25.0.10:8000/internal/metrics",
+    "http://172.25.0.11:8000/internal/metrics"
+  ],
+  "dns_after_recreate": [
+    "http://172.25.0.10:8000/internal/metrics",
+    "http://172.25.0.11:8000/internal/metrics"
+  ],
+  "recreation": {
+    "started_at": "2026-09-21T06:57:18.975790+00:00",
+    "completed_at": "2026-09-21T06:57:20.561437+00:00",
+    "container_ids_before": [
+      "2aa2b06649a4b9cfdae477e7edc01adeab02a1ad51785cb135d87bb510d28eba",
+      "e596ef99c66d0c8691738962203fc572b6a9f02f23372e3e1c8c238c0e43b8a2"
+    ],
+    "container_ids_after": [
+      "90aa42c1704f336c29010f27e857196ffc217651050cdd465d0e4426ecba43a8",
+      "dc7e045aee36ae348da7eac719358252faee9637060632cc1876cd1a32a02492"
+    ],
+    "targets_before": [
+      {
+        "scrapeUrl": "http://172.25.0.10:8000/internal/metrics",
+        "health": "up",
+        "lastScrape": "2026-09-21T06:57:18.336124607Z"
+      },
+      {
+        "scrapeUrl": "http://172.25.0.11:8000/internal/metrics",
+        "health": "up",
+        "lastScrape": "2026-09-21T06:57:16.066739386Z"
+      }
+    ],
+    "targets_after": [
+      {
+        "scrapeUrl": "http://172.25.0.10:8000/internal/metrics",
+        "health": "up",
+        "lastScrape": "2026-09-21T06:57:28.33493457Z"
+      },
+      {
+        "scrapeUrl": "http://172.25.0.11:8000/internal/metrics",
+        "health": "up",
+        "lastScrape": "2026-09-21T06:57:26.065981856Z"
+      }
+    ]
+  },
+  "receiver_independent": true
+}

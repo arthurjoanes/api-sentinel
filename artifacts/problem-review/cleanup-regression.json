@@ -1,0 +1,21 @@
+{
+  "measured_run": "20260921t064944662185z",
+  "changes_after_measurement": {
+    "scripts/review.py": {
+      "before": "94d4137de2ca565cea2fe8f63342c1a7f0c50818352a75f43b64ba84c5b4d4f6",
+      "after": "66ffb15eecfc92f77850dea9b8172002d7b3cbc3a763df8744dfda90949f76d2"
+    },
+    "tests/unit/test_review_cleanup.py": {
+      "before": null,
+      "after": "a17a58d10c2afdb8f87d8d3cf81c54e8fdb4493303615cc4409a5fbbbde3f16a"
+    }
+  },
+  "application_and_load_sources_unchanged": true,
+  "regression": {
+    "tests": 3,
+    "passed": 3,
+    "runtime": "3.11.9 (tags/v3.11.9:de54cf5, Apr  2 2024, 10:12:12) [MSC v.1938 64 bit (AMD64)]",
+    "log": "cleanup-regression.log"
+  },
+  "note": "Only orchestration cleanup reporting changed after the measured image. Application/load gates were not rerun or changed."
+}

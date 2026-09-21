@@ -1,0 +1,418 @@
+{
+  "run": "20260921t064944662185z",
+  "status": "passed",
+  "started_at": "2026-09-21T06:49:44.662185+00:00",
+  "finished_at": "2026-09-21T06:57:51.125546+00:00",
+  "image_id": "sha256:15f9db5ee182684e793ff6dfe496fde34331ed15d89d8d773100cd131d986722",
+  "tests": {
+    "isolated_passed": 229,
+    "isolated_subtests": 9,
+    "http_passed": 70,
+    "prometheus_synthetic_cases": 47
+  },
+  "loads": [
+    {
+      "scenario": "mixed-normal",
+      "nominal": 150,
+      "started": 151,
+      "completed": 151,
+      "valid": 151,
+      "quota": 0,
+      "expected_failures": 0,
+      "dropped": 0,
+      "success_latency_ms": {
+        "p(99)": 40.921018000000004,
+        "max": 43.162928,
+        "med": 7.059821,
+        "p(95)": 21.236151
+      },
+      "error_latency_ms": {},
+      "per_tenant": {
+        "tenant_b_valid": 75,
+        "tenant_b_quota": 0,
+        "tenant_b_erp_failure": 0,
+        "tenant_b_invalid": 0,
+        "tenant_a_capacity": 0,
+        "tenant_a_erp_failure": 0,
+        "tenant_a_other": 0,
+        "tenant_b_capacity": 0,
+        "tenant_b_other": 0,
+        "tenant_a_valid": 76,
+        "tenant_a_quota": 0,
+        "tenant_a_invalid": 0
+      },
+      "route_success_latency_ms": {
+        "summary": {
+          "p(95)": 13.039356649999991,
+          "p(99)": 22.513671110000015,
+          "max": 24.786728,
+          "med": 6.7689509999999995
+        },
+        "sales": {
+          "med": 7.5894545,
+          "p(95)": 29.588546799999982,
+          "p(99)": 42.45615585,
+          "max": 43.162928
+        },
+        "stores": {
+          "med": 6.6875905,
+          "p(95)": 24.087124899999996,
+          "p(99)": 35.02475978000004,
+          "max": 40.589303
+        }
+      }
+    },
+    {
+      "scenario": "mixed-erp-degraded",
+      "nominal": 150,
+      "started": 151,
+      "completed": 151,
+      "valid": 114,
+      "quota": 0,
+      "expected_failures": 37,
+      "dropped": 0,
+      "success_latency_ms": {
+        "med": 6.692825,
+        "p(95)": 11.165619699999999,
+        "p(99)": 19.097205130000006,
+        "max": 30.67044
+      },
+      "error_latency_ms": {
+        "med": 4.846989,
+        "p(95)": 906.4735900000001,
+        "p(99)": 907.3041351200001,
+        "max": 907.717337
+      },
+      "per_tenant": {
+        "tenant_a_erp_failure": 19,
+        "tenant_b_valid": 57,
+        "tenant_b_quota": 0,
+        "tenant_b_erp_failure": 18,
+        "tenant_b_invalid": 0,
+        "tenant_a_valid": 57,
+        "tenant_a_invalid": 0,
+        "tenant_a_other": 0,
+        "tenant_b_capacity": 0,
+        "tenant_b_other": 0,
+        "tenant_a_quota": 0,
+        "tenant_a_capacity": 0
+      },
+      "route_success_latency_ms": {
+        "summary": {
+          "med": 6.6301545,
+          "p(95)": 18.24134185,
+          "p(99)": 26.44551952000003,
+          "max": 30.67044
+        },
+        "sales": {
+          "p(99)": 10.647341110000006,
+          "max": 11.616703,
+          "med": 7.1841515000000005,
+          "p(95)": 8.6723593
+        },
+        "stores": {
+          "p(95)": 8.465318649999995,
+          "p(99)": 11.17640026,
+          "max": 11.190646,
+          "med": 6.193099999999999
+        }
+      }
+    },
+    {
+      "scenario": "mixed-recovered",
+      "nominal": 100,
+      "started": 101,
+      "completed": 101,
+      "valid": 101,
+      "quota": 0,
+      "expected_failures": 0,
+      "dropped": 0,
+      "success_latency_ms": {
+        "p(99)": 19.521096,
+        "max": 20.910201,
+        "med": 6.921803,
+        "p(95)": 10.684561
+      },
+      "error_latency_ms": {},
+      "per_tenant": {
+        "tenant_a_capacity": 0,
+        "tenant_a_invalid": 0,
+        "tenant_a_other": 0,
+        "tenant_b_erp_failure": 0,
+        "tenant_b_invalid": 0,
+        "tenant_a_erp_failure": 0,
+        "tenant_b_valid": 50,
+        "tenant_b_quota": 0,
+        "tenant_b_capacity": 0,
+        "tenant_b_other": 0,
+        "tenant_a_valid": 51,
+        "tenant_a_quota": 0
+      },
+      "route_success_latency_ms": {
+        "summary": {
+          "p(95)": 17.00891575,
+          "p(99)": 20.56292475,
+          "max": 20.910201,
+          "med": 6.5229795
+        },
+        "sales": {
+          "p(99)": 9.603463999999999,
+          "max": 9.611975,
+          "med": 7.3085615,
+          "p(95)": 9.46837275
+        },
+        "stores": {
+          "med": 6.276726,
+          "p(95)": 9.892142799999998,
+          "p(99)": 10.5806388,
+          "max": 10.7505
+        }
+      }
+    },
+    {
+      "scenario": "quota-one",
+      "nominal": 600,
+      "started": 601,
+      "completed": 601,
+      "valid": 300,
+      "quota": 301,
+      "expected_failures": 0,
+      "dropped": 0,
+      "success_latency_ms": {
+        "p(99)": 81.97957278999996,
+        "max": 111.998604,
+        "med": 6.0095244999999995,
+        "p(95)": 53.43817245000001
+      },
+      "error_latency_ms": {
+        "med": 3.385284,
+        "p(95)": 7.54974,
+        "p(99)": 38.372018,
+        "max": 54.408933
+      },
+      "per_tenant": {
+        "tenant_b_capacity": 0,
+        "tenant_b_invalid": 0,
+        "tenant_a_other": 0,
+        "tenant_b_valid": 0,
+        "tenant_b_erp_failure": 0,
+        "tenant_b_other": 0,
+        "tenant_a_valid": 300,
+        "tenant_a_quota": 301,
+        "tenant_a_capacity": 0,
+        "tenant_a_erp_failure": 0,
+        "tenant_a_invalid": 0,
+        "tenant_b_quota": 0
+      },
+      "route_success_latency_ms": {
+        "summary": {
+          "max": 111.998604,
+          "med": 5.797652,
+          "p(95)": 59.96734889999997,
+          "p(99)": 85.69425747000014
+        },
+        "sales": {
+          "med": 6.558407,
+          "p(95)": 54.30027394999999,
+          "p(99)": 69.94797132000001,
+          "max": 71.430429
+        },
+        "stores": {
+          "p(99)": 81.97957279,
+          "max": 85.242394,
+          "med": 5.505695,
+          "p(95)": 43.07144784999998
+        }
+      }
+    },
+    {
+      "scenario": "quota-two",
+      "nominal": 600,
+      "started": 601,
+      "completed": 601,
+      "valid": 300,
+      "quota": 301,
+      "expected_failures": 0,
+      "dropped": 0,
+      "success_latency_ms": {
+        "p(95)": 9.246640450000003,
+        "p(99)": 32.78856928999999,
+        "max": 36.443476,
+        "med": 6.004138
+      },
+      "error_latency_ms": {
+        "med": 3.541671,
+        "p(95)": 4.816764,
+        "p(99)": 19.88382,
+        "max": 32.77548
+      },
+      "per_tenant": {
+        "tenant_a_erp_failure": 0,
+        "tenant_a_other": 0,
+        "tenant_b_invalid": 0,
+        "tenant_b_other": 0,
+        "tenant_a_valid": 300,
+        "tenant_a_quota": 301,
+        "tenant_a_capacity": 0,
+        "tenant_a_invalid": 0,
+        "tenant_b_valid": 0,
+        "tenant_b_quota": 0,
+        "tenant_b_capacity": 0,
+        "tenant_b_erp_failure": 0
+      },
+      "route_success_latency_ms": {
+        "summary": {
+          "med": 5.8461,
+          "p(95)": 8.1426687,
+          "p(99)": 36.22710457,
+          "max": 36.443476
+        },
+        "sales": {
+          "med": 6.464843,
+          "p(95)": 9.24664045,
+          "p(99)": 10.233910940000007,
+          "max": 11.599907
+        },
+        "stores": {
+          "med": 5.54909,
+          "p(95)": 31.765826999999998,
+          "p(99)": 32.78856929,
+          "max": 33.285182
+        }
+      }
+    },
+    {
+      "scenario": "tenant-isolation",
+      "nominal": 650,
+      "started": 652,
+      "completed": 652,
+      "valid": 351,
+      "quota": 301,
+      "expected_failures": 0,
+      "dropped": 0,
+      "success_latency_ms": {
+        "med": 6.174105,
+        "p(95)": 18.0787745,
+        "p(99)": 48.8923315,
+        "max": 57.215147
+      },
+      "error_latency_ms": {
+        "med": 3.615812,
+        "p(95)": 5.416621,
+        "p(99)": 15.180858,
+        "max": 31.074314
+      },
+      "per_tenant": {
+        "tenant_a_valid": 300,
+        "tenant_a_erp_failure": 0,
+        "tenant_b_valid": 51,
+        "tenant_b_capacity": 0,
+        "tenant_b_erp_failure": 0,
+        "tenant_a_quota": 301,
+        "tenant_a_capacity": 0,
+        "tenant_a_invalid": 0,
+        "tenant_a_other": 0,
+        "tenant_b_quota": 0,
+        "tenant_b_invalid": 0,
+        "tenant_b_other": 0
+      },
+      "route_success_latency_ms": {
+        "summary": {
+          "med": 5.95897,
+          "p(95)": 18.527644999999982,
+          "p(99)": 37.89106768000002,
+          "max": 48.083325
+        },
+        "sales": {
+          "med": 6.845364,
+          "p(95)": 18.605205799999965,
+          "p(99)": 50.20133204,
+          "max": 50.899782
+        },
+        "stores": {
+          "med": 5.672687,
+          "p(95)": 9.43268619999998,
+          "p(99)": 45.298184880000015,
+          "max": 57.215147
+        }
+      }
+    },
+    {
+      "scenario": "traces-down",
+      "nominal": 100,
+      "started": 100,
+      "completed": 100,
+      "valid": 100,
+      "quota": 0,
+      "expected_failures": 0,
+      "dropped": 0,
+      "success_latency_ms": {
+        "min": 5.67905,
+        "med": 6.585755000000001,
+        "p(95)": 8.283609349999999,
+        "p(99)": 9.357142930000043,
+        "max": 17.66878,
+        "avg": 6.81993099
+      },
+      "error_latency_ms": {},
+      "per_tenant": {},
+      "route_success_latency_ms": {
+        "summary": {},
+        "sales": {},
+        "stores": {}
+      }
+    },
+    {
+      "scenario": "pool-pressure",
+      "nominal": 200,
+      "started": 201,
+      "completed": 201,
+      "valid": 0,
+      "quota": 0,
+      "expected_failures": 201,
+      "dropped": 0,
+      "success_latency_ms": {},
+      "error_latency_ms": {
+        "p(95)": 997.564702,
+        "p(99)": 1008.605499,
+        "max": 1012.314848,
+        "avg": 577.5724692388058,
+        "min": 204.044822,
+        "med": 810.420174
+      },
+      "per_tenant": {},
+      "route_success_latency_ms": {
+        "summary": {},
+        "sales": {},
+        "stores": {}
+      }
+    }
+  ],
+  "cache": {
+    "cold_sql": 1.0,
+    "warm_sql": 0.0,
+    "expiry_sql": 1.0,
+    "requests_each_phase": 4
+  },
+  "alerts": [
+    {
+      "alert": "SentinelReplicaLost",
+      "detection_seconds": 32.172,
+      "recovery_seconds": 19.859,
+      "occurrence_count": 1
+    },
+    {
+      "alert": "SentinelUnavailable",
+      "detection_seconds": 30.062,
+      "recovery_seconds": 18.968,
+      "occurrence_count": 1
+    }
+  ],
+  "secret_scan": {
+    "files": 81,
+    "matching_paths": []
+  },
+  "source_unchanged_during_run": true,
+  "demo_refresh": "../demo-refresh-20260921t070219z/refresh.json",
+  "post_run_cleanup_fix": "../cleanup-regression.json"
+}

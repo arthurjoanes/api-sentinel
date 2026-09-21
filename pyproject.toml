@@ -1,0 +1,39 @@
+[project]
+name = "api-sentinel"
+version = "0.1.0"
+description = "Laboratório de estabilidade, segurança e observabilidade de consultas B2B"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "fastapi==0.141.1", "starlette==1.3.1", "uvicorn==0.35.0", "sqlalchemy==2.0.43", "asyncpg==0.30.0",
+  "alembic==1.16.5", "redis==6.4.0", "httpx==0.28.1", "pydantic==2.11.7",
+  "pydantic-settings==2.10.1", "prometheus-client==0.22.1",
+  "opentelemetry-sdk==1.36.0", "opentelemetry-exporter-otlp-proto-http==1.36.0",
+  "opentelemetry-instrumentation-sqlalchemy==0.57b0",
+  "opentelemetry-instrumentation-redis==0.57b0", "opentelemetry-instrumentation-httpx==0.57b0",
+]
+[dependency-groups]
+dev = ["pytest==9.0.3", "pytest-asyncio==1.4.0", "ruff==0.12.11", "mypy==1.17.1", "matplotlib==3.10.5"]
+[build-system]
+requires = ["hatchling==1.27.0"]
+build-backend = "hatchling.build"
+[tool.hatch.build.targets.wheel]
+packages = ["src/api_sentinel", "alert_receiver", "erp_simulator"]
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["artifacts"]
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "ASYNC"]
+[tool.pytest.ini_options]
+addopts = "--import-mode=importlib"
+asyncio_mode = "auto"
+testpaths = ["tests"]
+[tool.mypy]
+python_version = "3.12"
+check_untyped_defs = true
+disallow_untyped_defs = true
+warn_unused_ignores = true
+files = ["src/api_sentinel", "alert_receiver", "erp_simulator"]
+[[tool.mypy.overrides]]
+module = ["opentelemetry.instrumentation.*", "asyncpg"]
+ignore_missing_imports = true

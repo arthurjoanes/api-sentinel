@@ -1,0 +1,498 @@
+{
+  "sentinel_requests_inflight": [
+    {
+      "metric": {
+        "__name__": "sentinel_requests_inflight",
+        "instance": "172.25.0.10:8000",
+        "job": "api",
+        "stage": "auth"
+      },
+      "values": [
+        [
+          1789973638.55,
+          "0"
+        ],
+        [
+          1789973643.55,
+          "0"
+        ],
+        [
+          1789973648.55,
+          "0"
+        ]
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "sentinel_requests_inflight",
+        "instance": "172.25.0.10:8000",
+        "job": "api",
+        "stage": "entry"
+      },
+      "values": [
+        [
+          1789973638.55,
+          "0"
+        ],
+        [
+          1789973643.55,
+          "1"
+        ],
+        [
+          1789973648.55,
+          "1"
+        ]
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "sentinel_requests_inflight",
+        "instance": "172.25.0.10:8000",
+        "job": "api",
+        "stage": "erp"
+      },
+      "values": [
+        [
+          1789973638.55,
+          "0"
+        ],
+        [
+          1789973643.55,
+          "0"
+        ],
+        [
+          1789973648.55,
+          "0"
+        ]
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "sentinel_requests_inflight",
+        "instance": "172.25.0.10:8000",
+        "job": "api",
+        "stage": "tenant"
+      },
+      "values": [
+        [
+          1789973638.55,
+          "0"
+        ],
+        [
+          1789973643.55,
+          "1"
+        ],
+        [
+          1789973648.55,
+          "0"
+        ]
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "sentinel_requests_inflight",
+        "instance": "172.25.0.11:8000",
+        "job": "api",
+        "stage": "auth"
+      },
+      "values": [
+        [
+          1789973638.55,
+          "0"
+        ],
+        [
+          1789973643.55,
+          "0"
+        ],
+        [
+          1789973648.55,
+          "0"
+        ]
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "sentinel_requests_inflight",
+        "instance": "172.25.0.11:8000",
+        "job": "api",
+        "stage": "entry"
+      },
+      "values": [
+        [
+          1789973638.55,
+          "0"
+        ],
+        [
+          1789973643.55,
+          "0"
+        ],
+        [
+          1789973648.55,
+          "0"
+        ]
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "sentinel_requests_inflight",
+        "instance": "172.25.0.11:8000",
+        "job": "api",
+        "stage": "erp"
+      },
+      "values": [
+        [
+          1789973638.55,
+          "0"
+        ],
+        [
+          1789973643.55,
+          "0"
+        ],
+        [
+          1789973648.55,
+          "0"
+        ]
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "sentinel_requests_inflight",
+        "instance": "172.25.0.11:8000",
+        "job": "api",
+        "stage": "tenant"
+      },
+      "values": [
+        [
+          1789973638.55,
+          "0"
+        ],
+        [
+          1789973643.55,
+          "0"
+        ],
+        [
+          1789973648.55,
+          "0"
+        ]
+      ]
+    }
+  ],
+  "sentinel_db_pool_connections": [
+    {
+      "metric": {
+        "__name__": "sentinel_db_pool_connections",
+        "instance": "172.25.0.10:8000",
+        "job": "api",
+        "pool": "auth",
+        "state": "checked_out"
+      },
+      "values": [
+        [
+          1789973638.55,
+          "0"
+        ],
+        [
+          1789973643.55,
+          "0"
+        ],
+        [
+          1789973648.55,
+          "0"
+        ]
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "sentinel_db_pool_connections",
+        "instance": "172.25.0.10:8000",
+        "job": "api",
+        "pool": "auth",
+        "state": "idle"
+      },
+      "values": [
+        [
+          1789973638.55,
+          "2"
+        ],
+        [
+          1789973643.55,
+          "2"
+        ],
+        [
+          1789973648.55,
+          "2"
+        ]
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "sentinel_db_pool_connections",
+        "instance": "172.25.0.10:8000",
+        "job": "api",
+        "pool": "data",
+        "state": "checked_out"
+      },
+      "values": [
+        [
+          1789973638.55,
+          "0"
+        ],
+        [
+          1789973643.55,
+          "1"
+        ],
+        [
+          1789973648.55,
+          "0"
+        ]
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "sentinel_db_pool_connections",
+        "instance": "172.25.0.10:8000",
+        "job": "api",
+        "pool": "data",
+        "state": "idle"
+      },
+      "values": [
+        [
+          1789973638.55,
+          "4"
+        ],
+        [
+          1789973643.55,
+          "3"
+        ],
+        [
+          1789973648.55,
+          "4"
+        ]
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "sentinel_db_pool_connections",
+        "instance": "172.25.0.11:8000",
+        "job": "api",
+        "pool": "auth",
+        "state": "checked_out"
+      },
+      "values": [
+        [
+          1789973638.55,
+          "0"
+        ],
+        [
+          1789973643.55,
+          "0"
+        ],
+        [
+          1789973648.55,
+          "0"
+        ]
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "sentinel_db_pool_connections",
+        "instance": "172.25.0.11:8000",
+        "job": "api",
+        "pool": "auth",
+        "state": "idle"
+      },
+      "values": [
+        [
+          1789973638.55,
+          "1"
+        ],
+        [
+          1789973643.55,
+          "1"
+        ],
+        [
+          1789973648.55,
+          "1"
+        ]
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "sentinel_db_pool_connections",
+        "instance": "172.25.0.11:8000",
+        "job": "api",
+        "pool": "data",
+        "state": "checked_out"
+      },
+      "values": [
+        [
+          1789973638.55,
+          "0"
+        ],
+        [
+          1789973643.55,
+          "0"
+        ],
+        [
+          1789973648.55,
+          "0"
+        ]
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "sentinel_db_pool_connections",
+        "instance": "172.25.0.11:8000",
+        "job": "api",
+        "pool": "data",
+        "state": "idle"
+      },
+      "values": [
+        [
+          1789973638.55,
+          "1"
+        ],
+        [
+          1789973643.55,
+          "1"
+        ],
+        [
+          1789973648.55,
+          "1"
+        ]
+      ]
+    }
+  ],
+  "sentinel_erp_circuit_open": [
+    {
+      "metric": {
+        "__name__": "sentinel_erp_circuit_open",
+        "instance": "172.25.0.10:8000",
+        "job": "api"
+      },
+      "values": [
+        [
+          1789973638.55,
+          "0"
+        ],
+        [
+          1789973643.55,
+          "0"
+        ],
+        [
+          1789973648.55,
+          "0"
+        ]
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "sentinel_erp_circuit_open",
+        "instance": "172.25.0.11:8000",
+        "job": "api"
+      },
+      "values": [
+        [
+          1789973638.55,
+          "0"
+        ],
+        [
+          1789973643.55,
+          "0"
+        ],
+        [
+          1789973648.55,
+          "0"
+        ]
+      ]
+    }
+  ],
+  "sentinel_event_loop_lag_seconds": [
+    {
+      "metric": {
+        "__name__": "sentinel_event_loop_lag_seconds",
+        "instance": "172.25.0.10:8000",
+        "job": "api"
+      },
+      "values": [
+        [
+          1789973638.55,
+          "0.00021401500089268666"
+        ],
+        [
+          1789973643.55,
+          "0.0004676549997384427"
+        ],
+        [
+          1789973648.55,
+          "0.0009507720005785814"
+        ]
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "sentinel_event_loop_lag_seconds",
+        "instance": "172.25.0.11:8000",
+        "job": "api"
+      },
+      "values": [
+        [
+          1789973638.55,
+          "0.0007463880010618595"
+        ],
+        [
+          1789973643.55,
+          "0.0018070049991365522"
+        ],
+        [
+          1789973648.55,
+          "0.0011103180004283786"
+        ]
+      ]
+    }
+  ],
+  "process_resident_memory_bytes": [
+    {
+      "metric": {
+        "__name__": "process_resident_memory_bytes",
+        "instance": "172.25.0.10:8000",
+        "job": "api"
+      },
+      "values": [
+        [
+          1789973638.55,
+          "98209792"
+        ],
+        [
+          1789973643.55,
+          "98209792"
+        ],
+        [
+          1789973648.55,
+          "97898496"
+        ]
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "process_resident_memory_bytes",
+        "instance": "172.25.0.11:8000",
+        "job": "api"
+      },
+      "values": [
+        [
+          1789973638.55,
+          "102264832"
+        ],
+        [
+          1789973643.55,
+          "102264832"
+        ],
+        [
+          1789973648.55,
+          "102264832"
+        ]
+      ]
+    }
+  ]
+}
