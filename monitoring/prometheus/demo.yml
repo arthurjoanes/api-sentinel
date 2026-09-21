@@ -1,0 +1,48 @@
+# Mantido junto dos testes em monitoring/rules-tests.
+global:
+  scrape_interval: "5s"
+  evaluation_interval: "5s"
+  scrape_timeout: "3s"
+  external_labels:
+    project: "api-sentinel"
+    environment: "demo"
+    service: "api-sentinel"
+rule_files:
+  - "/etc/sentinel/monitoring/rules/demo.yml"
+alerting:
+  alertmanagers:
+    -
+      static_configs:
+        -
+          targets:
+            - "alertmanager:9093"
+scrape_configs:
+  -
+    job_name: "api"
+    metrics_path: "/internal/metrics"
+    scrape_timeout: "3s"
+    dns_sd_configs:
+      -
+        names:
+          - "api"
+        type: "A"
+        port: 8000
+        refresh_interval: "5s"
+  -
+    job_name: "receiver"
+    static_configs:
+      -
+        targets:
+          - "receiver:9184"
+  -
+    job_name: "prometheus"
+    static_configs:
+      -
+        targets:
+          - "localhost:9090"
+  -
+    job_name: "alertmanager"
+    static_configs:
+      -
+        targets:
+          - "alertmanager:9093"

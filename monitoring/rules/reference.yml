@@ -1,0 +1,151 @@
+# Mantido junto dos testes em monitoring/rules-tests.
+groups:
+  -
+    name: "sentinel-recording-reference"
+    rules:
+      -
+        record: "sentinel:eligible_requests:increase5m"
+        expr: "sum(increase(sentinel_http_requests_total{traffic=\"business\",outcome=~\"success|server_error\",route=~\"/v1/stores|/v1/stores/.*/(summary|sales)\"}[5m]))"
+      -
+        record: "sentinel:error_ratio:rate5m"
+        expr: "(sum(rate(sentinel_http_requests_total{traffic=\"business\",outcome=\"server_error\",route=~\"/v1/stores|/v1/stores/.*/(summary|sales)\"}[5m])) or (sum(rate(sentinel_http_requests_total{traffic=\"business\",outcome=~\"success|server_error\",route=~\"/v1/stores|/v1/stores/.*/(summary|sales)\"}[5m])) * 0)) / sum(rate(sentinel_http_requests_total{traffic=\"business\",outcome=~\"success|server_error\",route=~\"/v1/stores|/v1/stores/.*/(summary|sales)\"}[5m]))"
+      -
+        record: "sentinel:eligible_requests:increase30m"
+        expr: "sum(increase(sentinel_http_requests_total{traffic=\"business\",outcome=~\"success|server_error\",route=~\"/v1/stores|/v1/stores/.*/(summary|sales)\"}[30m]))"
+      -
+        record: "sentinel:error_ratio:rate30m"
+        expr: "(sum(rate(sentinel_http_requests_total{traffic=\"business\",outcome=\"server_error\",route=~\"/v1/stores|/v1/stores/.*/(summary|sales)\"}[30m])) or (sum(rate(sentinel_http_requests_total{traffic=\"business\",outcome=~\"success|server_error\",route=~\"/v1/stores|/v1/stores/.*/(summary|sales)\"}[30m])) * 0)) / sum(rate(sentinel_http_requests_total{traffic=\"business\",outcome=~\"success|server_error\",route=~\"/v1/stores|/v1/stores/.*/(summary|sales)\"}[30m]))"
+      -
+        record: "sentinel:eligible_requests:increase1h"
+        expr: "sum(increase(sentinel_http_requests_total{traffic=\"business\",outcome=~\"success|server_error\",route=~\"/v1/stores|/v1/stores/.*/(summary|sales)\"}[1h]))"
+      -
+        record: "sentinel:error_ratio:rate1h"
+        expr: "(sum(rate(sentinel_http_requests_total{traffic=\"business\",outcome=\"server_error\",route=~\"/v1/stores|/v1/stores/.*/(summary|sales)\"}[1h])) or (sum(rate(sentinel_http_requests_total{traffic=\"business\",outcome=~\"success|server_error\",route=~\"/v1/stores|/v1/stores/.*/(summary|sales)\"}[1h])) * 0)) / sum(rate(sentinel_http_requests_total{traffic=\"business\",outcome=~\"success|server_error\",route=~\"/v1/stores|/v1/stores/.*/(summary|sales)\"}[1h]))"
+      -
+        record: "sentinel:eligible_requests:increase6h"
+        expr: "sum(increase(sentinel_http_requests_total{traffic=\"business\",outcome=~\"success|server_error\",route=~\"/v1/stores|/v1/stores/.*/(summary|sales)\"}[6h]))"
+      -
+        record: "sentinel:error_ratio:rate6h"
+        expr: "(sum(rate(sentinel_http_requests_total{traffic=\"business\",outcome=\"server_error\",route=~\"/v1/stores|/v1/stores/.*/(summary|sales)\"}[6h])) or (sum(rate(sentinel_http_requests_total{traffic=\"business\",outcome=~\"success|server_error\",route=~\"/v1/stores|/v1/stores/.*/(summary|sales)\"}[6h])) * 0)) / sum(rate(sentinel_http_requests_total{traffic=\"business\",outcome=~\"success|server_error\",route=~\"/v1/stores|/v1/stores/.*/(summary|sales)\"}[6h]))"
+  -
+    name: "sentinel-alerts-reference"
+    rules:
+      -
+        alert: "SentinelUnavailable"
+        expr: "(max(sentinel_probe_success) == 0) and (max(sentinel_probe_config_valid) == 1) and (time() - max(sentinel_probe_last_run_timestamp_seconds) <= scalar(clamp_min(max(sentinel_probe_stale_after_seconds), 60) or vector(60))) and (time() - max(sentinel_probe_last_run_timestamp_seconds) >= 0)"
+        for: "2m"
+        labels:
+          project: "api-sentinel"
+          environment: "reference"
+          service: "api-sentinel"
+          severity: "critical"
+        annotations:
+          summary: "Consulta pelo proxy indisponível"
+          impact: "A consulta autenticada da fixture falhou."
+          condition: "O probe retornou falha de transporte, status, schema ou total conhecido."
+          window: "Probe a cada 3 s; 2m persistentes."
+          dashboard_url: "http://localhost:3104/d/sentinel/api-sentinel"
+          runbook_url: "http://localhost:9184/runbooks/unavailable"
+          action: "Confira o proxy, a saúde das réplicas e dependências; restaure e confirme o probe em 1."
+      -
+        alert: "SentinelErrorBudgetBurn"
+        expr: "((sentinel:error_ratio:rate1h > 14.4 * 0.001 and sentinel:error_ratio:rate5m > 14.4 * 0.001) and (sentinel:eligible_requests:increase1h >= 100 and sentinel:eligible_requests:increase5m >= 20)) or ((sentinel:error_ratio:rate6h > 6 * 0.001 and sentinel:error_ratio:rate30m > 6 * 0.001) and (sentinel:eligible_requests:increase6h >= 100 and sentinel:eligible_requests:increase30m >= 20))"
+        for: "2m"
+        labels:
+          project: "api-sentinel"
+          environment: "reference"
+          service: "api-sentinel"
+          severity: "critical"
+        annotations:
+          summary: "Burn rate alto"
+          impact: "Taxa de 5xx acima do objetivo."
+          condition: "Fração de 5xx supera o burn rate em janelas longa e curta com volume mínimo."
+          window: "Referência 99,9%/30 dias: burn >14,4 em 1 h + 5 min OU >6 em 6 h + 30 min; volume >=100 + >=20."
+          dashboard_url: "http://localhost:3104/d/sentinel/api-sentinel"
+          runbook_url: "http://localhost:9184/runbooks/error-budget"
+          action: "Identifique os 503/5xx em logs e traces; confira admissão, Redis e pools antes de reduzir carga."
+      -
+        alert: "SentinelLatencyHigh"
+        expr: "(1 - sum(rate(sentinel_http_request_duration_seconds_bucket{traffic=\"business\",outcome=\"success\",le=\"0.5\",route=~\"/v1/stores|/v1/stores/.*/(summary|sales)\"}[10m])) / sum(rate(sentinel_http_request_duration_seconds_count{traffic=\"business\",outcome=\"success\",route=~\"/v1/stores|/v1/stores/.*/(summary|sales)\"}[10m]))) > 0.05 and sum(increase(sentinel_http_request_duration_seconds_count{traffic=\"business\",outcome=\"success\",route=~\"/v1/stores|/v1/stores/.*/(summary|sales)\"}[10m])) >= 100"
+        for: "2m"
+        labels:
+          project: "api-sentinel"
+          environment: "reference"
+          service: "api-sentinel"
+          severity: "warning"
+        annotations:
+          summary: "Consultas OK acima de 500 ms"
+          impact: "Clientes esperam mais que o objetivo de latência."
+          condition: "Mais de 5% das respostas bem-sucedidas elegíveis excedem 500 ms, com volume mínimo."
+          window: "10m; >= 100 respostas; persistência 2m."
+          dashboard_url: "http://localhost:3104/d/sentinel/api-sentinel"
+          runbook_url: "http://localhost:9184/runbooks/latency"
+          action: "Compare espera de pool, SQL, cache e event-loop; abra um trace do período."
+      -
+        alert: "SentinelSaturation"
+        expr: "(sum(increase(sentinel_admission_total{result=\"rejected\"}[5m])) > 0 and (max(max_over_time(sentinel_requests_inflight{stage=\"entry\"}[5m])) >= 40 or max(max_over_time(sentinel_requests_inflight{stage=\"auth\"}[5m])) >= 3 or max(max_over_time(sentinel_requests_inflight{stage=\"tenant\"}[5m])) >= 8 or max(max_over_time(sentinel_db_pool_connections{state=\"checked_out\",pool=\"data\"}[5m])) >= 3 or max(max_over_time(sentinel_db_pool_connections{state=\"checked_out\",pool=\"auth\"}[5m])) >= 2)) or (sum(increase(sentinel_db_pool_timeouts_total[5m])) > 0)"
+        for: "2m"
+        labels:
+          project: "api-sentinel"
+          environment: "reference"
+          service: "api-sentinel"
+          severity: "warning"
+        annotations:
+          summary: "Saturação ou timeout de pool"
+          impact: "Requisições recebem 503 ou timeout ao obter conexão."
+          condition: "Rejeições coexistem com ocupação elevada, ou o pool registrou timeout de aquisição."
+          window: "5m; persistência 2m."
+          dashboard_url: "http://localhost:3104/d/sentinel/api-sentinel"
+          runbook_url: "http://localhost:9184/runbooks/saturation"
+          action: "Reduza a taxa oferecida; confira quotas, admissão, espera de pool e orçamento de conexões."
+      -
+        alert: "SentinelReplicaLost"
+        expr: "((sum(up{job=\"api\"}) or vector(0)) < scalar(max(sentinel_expected_replicas))) and (max(sentinel_probe_config_valid) == 1)"
+        for: "2m"
+        labels:
+          project: "api-sentinel"
+          environment: "reference"
+          service: "api-sentinel"
+          severity: "warning"
+        annotations:
+          summary: "Menos réplicas disponíveis que o esperado"
+          impact: "Menos réplicas para atender às consultas."
+          condition: "A soma de targets API disponíveis é menor que a configuração independente de réplicas esperadas."
+          window: "2m persistentes; DNS refresh 5 s."
+          dashboard_url: "http://localhost:3104/d/sentinel/api-sentinel"
+          runbook_url: "http://localhost:9184/runbooks/replica"
+          action: "Confira containers do projeto e DNS discovery; restaure a réplica e confirme todos os targets."
+      -
+        alert: "SentinelTelemetryUnavailable"
+        expr: "count((max(up{job=\"receiver\"}) == 0) or absent(up{job=\"receiver\"}) or (max(up{job=\"alertmanager\"}) == 0) or absent(up{job=\"alertmanager\"}) or (max(up{job=\"prometheus\"}) == 0) or (sum(increase(alertmanager_notifications_failed_total{integration=\"webhook\"}[5m])) >= 3) or absent(up{job=\"prometheus\"}) or absent(up{job=\"api\"}) or absent(sentinel_probe_config_valid) or (max(sentinel_probe_config_valid) != 1) or absent(sentinel_probe_success) or absent(sentinel_expected_replicas) or absent(sentinel_probe_last_run_timestamp_seconds) or (time() - max(sentinel_probe_last_run_timestamp_seconds) > scalar(clamp_min(max(sentinel_probe_stale_after_seconds), 60) or vector(60))) or (time() - max(sentinel_probe_last_run_timestamp_seconds) < 0)) > 0"
+        for: "2m"
+        labels:
+          project: "api-sentinel"
+          environment: "reference"
+          service: "api-sentinel"
+          severity: "warning"
+        annotations:
+          summary: "Falha no monitoramento"
+          impact: "Coleta, probe ou entrega de alertas com falha."
+          condition: "Coleta ou probe indisponível/atrasado, ou pelo menos três falhas recentes na entrega de alertas."
+          window: "Probe atrasado além de max(60 s, limite configurado) ou relógio futuro, coleta falhando ou >=3 falhas de entrega/5m; persistência 2m."
+          dashboard_url: "http://localhost:3104/d/sentinel/api-sentinel"
+          runbook_url: "http://localhost:9184/runbooks/telemetry"
+          action: "Confira targets, logs do monitoramento e horário do último probe."
+      -
+        alert: "SentinelERPUnavailable"
+        expr: "max(sentinel_erp_circuit_open) == 1"
+        for: "2m"
+        labels:
+          project: "api-sentinel"
+          environment: "reference"
+          service: "api-sentinel"
+          severity: "warning"
+        annotations:
+          summary: "Circuito da integração ERP aberto"
+          impact: "Consulta de SKU indisponível. Resumos e vendas usam PostgreSQL."
+          condition: "Pelo menos uma réplica mantém o circuito do ERP aberto."
+          window: "2m persistentes."
+          dashboard_url: "http://localhost:3104/d/sentinel/api-sentinel"
+          runbook_url: "http://localhost:9184/runbooks/erp"
+          action: "Confira duração/falhas do ERP e restaure o simulador; confirme probe do circuito e consultas principais."

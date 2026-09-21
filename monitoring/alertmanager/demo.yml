@@ -1,0 +1,27 @@
+# Mantido junto dos testes em monitoring/rules-tests.
+global:
+  resolve_timeout: "5m"
+route:
+  receiver: "local-inbox"
+  group_by:
+    - "project"
+    - "environment"
+    - "service"
+    - "alertname"
+  group_wait: "5s"
+  group_interval: "10s"
+  repeat_interval: "5m"
+receivers:
+  -
+    name: "local-inbox"
+    webhook_configs:
+      -
+        url: "http://receiver:9184/webhook"
+        send_resolved: true
+        timeout: "5s"
+        http_config:
+          authorization:
+            type: "Bearer"
+            credentials_file: "/secrets/webhook-token"
+# A caixa local registra o ciclo completo. Inibição pode suprimir resolved já entregue como firing.
+inhibit_rules: []

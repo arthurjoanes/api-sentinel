@@ -1,0 +1,828 @@
+rule_files:
+  - "../rules/reference.yml"
+evaluation_interval: "1m"
+group_eval_order:
+  - "sentinel-recording-reference"
+  - "sentinel-alerts-reference"
+tests:
+  -
+    name: "referência saudável por seis horas"
+    interval: "1m"
+    input_series:
+      -
+        series: "sentinel_probe_config_valid"
+        values: "1x500"
+      -
+        series: "up{job=\"api\",instance=\"one\"}"
+        values: "1x430"
+      -
+        series: "up{job=\"api\",instance=\"two\"}"
+        values: "1x430"
+      -
+        series: "up{job=\"receiver\"}"
+        values: "1x430"
+      -
+        series: "up{job=\"alertmanager\"}"
+        values: "1x430"
+      -
+        series: "up{job=\"prometheus\"}"
+        values: "1x430"
+      -
+        series: "sentinel_probe_success"
+        values: "1x430"
+      -
+        series: "sentinel_expected_replicas"
+        values: "2x430"
+      -
+        series: "sentinel_probe_last_run_timestamp_seconds"
+        values: "0+60x430"
+      -
+        series: "sentinel_http_requests_total{route=\"/v1/stores/{store_id}/summary\",method=\"GET\",outcome=\"success\",traffic=\"business\",instance=\"one\"}"
+        values: "0+50x430"
+      -
+        series: "sentinel_http_requests_total{route=\"/v1/stores/{store_id}/summary\",method=\"GET\",outcome=\"server_error\",traffic=\"business\",instance=\"one\"}"
+        values: "0x430"
+      -
+        series: "sentinel_http_request_duration_seconds_count{route=\"/v1/stores/{store_id}/summary\",method=\"GET\",outcome=\"success\",traffic=\"business\"}"
+        values: "0+50x430"
+      -
+        series: "sentinel_http_request_duration_seconds_bucket{route=\"/v1/stores/{store_id}/summary\",method=\"GET\",outcome=\"success\",traffic=\"business\",le=\"0.5\"}"
+        values: "0+50x430"
+      -
+        series: "sentinel_admission_total{stage=\"tenant\",result=\"rejected\"}"
+        values: "0x430"
+      -
+        series: "sentinel_requests_inflight{stage=\"tenant\"}"
+        values: "0x430"
+      -
+        series: "sentinel_db_pool_timeouts_total{pool=\"data\"}"
+        values: "0x430"
+      -
+        series: "sentinel_erp_circuit_open"
+        values: "0x430"
+    alert_rule_test:
+      -
+        eval_time: "6h"
+        alertname: "SentinelUnavailable"
+        exp_alerts: []
+      -
+        eval_time: "6h"
+        alertname: "SentinelErrorBudgetBurn"
+        exp_alerts: []
+      -
+        eval_time: "6h"
+        alertname: "SentinelLatencyHigh"
+        exp_alerts: []
+      -
+        eval_time: "6h"
+        alertname: "SentinelSaturation"
+        exp_alerts: []
+      -
+        eval_time: "6h"
+        alertname: "SentinelReplicaLost"
+        exp_alerts: []
+      -
+        eval_time: "6h"
+        alertname: "SentinelTelemetryUnavailable"
+        exp_alerts: []
+      -
+        eval_time: "6h"
+        alertname: "SentinelERPUnavailable"
+        exp_alerts: []
+  -
+    name: "burn 20 em 1h e 5m confirma ramo rápido"
+    interval: "1m"
+    input_series:
+      -
+        series: "sentinel_probe_config_valid"
+        values: "1x500"
+      -
+        series: "up{job=\"api\",instance=\"one\"}"
+        values: "1x430"
+      -
+        series: "up{job=\"api\",instance=\"two\"}"
+        values: "1x430"
+      -
+        series: "up{job=\"receiver\"}"
+        values: "1x430"
+      -
+        series: "up{job=\"alertmanager\"}"
+        values: "1x430"
+      -
+        series: "up{job=\"prometheus\"}"
+        values: "1x430"
+      -
+        series: "sentinel_probe_success"
+        values: "1x430"
+      -
+        series: "sentinel_expected_replicas"
+        values: "2x430"
+      -
+        series: "sentinel_probe_last_run_timestamp_seconds"
+        values: "0+60x430"
+      -
+        series: "sentinel_http_requests_total{route=\"/v1/stores/{store_id}/summary\",method=\"GET\",outcome=\"success\",traffic=\"business\",instance=\"one\"}"
+        values: "0+98x430"
+      -
+        series: "sentinel_http_requests_total{route=\"/v1/stores/{store_id}/summary\",method=\"GET\",outcome=\"server_error\",traffic=\"business\",instance=\"one\"}"
+        values: "0+2x430"
+      -
+        series: "sentinel_http_request_duration_seconds_count{route=\"/v1/stores/{store_id}/summary\",method=\"GET\",outcome=\"success\",traffic=\"business\"}"
+        values: "0+50x430"
+      -
+        series: "sentinel_http_request_duration_seconds_bucket{route=\"/v1/stores/{store_id}/summary\",method=\"GET\",outcome=\"success\",traffic=\"business\",le=\"0.5\"}"
+        values: "0+50x430"
+      -
+        series: "sentinel_admission_total{stage=\"tenant\",result=\"rejected\"}"
+        values: "0x430"
+      -
+        series: "sentinel_requests_inflight{stage=\"tenant\"}"
+        values: "0x430"
+      -
+        series: "sentinel_db_pool_timeouts_total{pool=\"data\"}"
+        values: "0x430"
+      -
+        series: "sentinel_erp_circuit_open"
+        values: "0x430"
+    alert_rule_test:
+      -
+        eval_time: "1h"
+        alertname: "SentinelErrorBudgetBurn"
+        exp_alerts:
+          -
+            exp_labels:
+              project: "api-sentinel"
+              environment: "reference"
+              service: "api-sentinel"
+              severity: "critical"
+            exp_annotations:
+              summary: "Burn rate alto"
+              impact: "Taxa de 5xx acima do objetivo."
+              condition: "Fração de 5xx supera o burn rate em janelas longa e curta com volume mínimo."
+              window: "Referência 99,9%/30 dias: burn >14,4 em 1 h + 5 min OU >6 em 6 h + 30 min; volume >=100 + >=20."
+              dashboard_url: "http://localhost:3104/d/sentinel/api-sentinel"
+              runbook_url: "http://localhost:9184/runbooks/error-budget"
+              action: "Identifique os 503/5xx em logs e traces; confira admissão, Redis e pools antes de reduzir carga."
+  -
+    name: "burn 10 dispara ramo 6h e 30m sem ramo rápido"
+    interval: "1m"
+    input_series:
+      -
+        series: "sentinel_probe_config_valid"
+        values: "1x500"
+      -
+        series: "up{job=\"api\",instance=\"one\"}"
+        values: "1x430"
+      -
+        series: "up{job=\"api\",instance=\"two\"}"
+        values: "1x430"
+      -
+        series: "up{job=\"receiver\"}"
+        values: "1x430"
+      -
+        series: "up{job=\"alertmanager\"}"
+        values: "1x430"
+      -
+        series: "up{job=\"prometheus\"}"
+        values: "1x430"
+      -
+        series: "sentinel_probe_success"
+        values: "1x430"
+      -
+        series: "sentinel_expected_replicas"
+        values: "2x430"
+      -
+        series: "sentinel_probe_last_run_timestamp_seconds"
+        values: "0+60x430"
+      -
+        series: "sentinel_http_requests_total{route=\"/v1/stores/{store_id}/summary\",method=\"GET\",outcome=\"success\",traffic=\"business\",instance=\"one\"}"
+        values: "0+99x430"
+      -
+        series: "sentinel_http_requests_total{route=\"/v1/stores/{store_id}/summary\",method=\"GET\",outcome=\"server_error\",traffic=\"business\",instance=\"one\"}"
+        values: "0+1x430"
+      -
+        series: "sentinel_http_request_duration_seconds_count{route=\"/v1/stores/{store_id}/summary\",method=\"GET\",outcome=\"success\",traffic=\"business\"}"
+        values: "0+50x430"
+      -
+        series: "sentinel_http_request_duration_seconds_bucket{route=\"/v1/stores/{store_id}/summary\",method=\"GET\",outcome=\"success\",traffic=\"business\",le=\"0.5\"}"
+        values: "0+50x430"
+      -
+        series: "sentinel_admission_total{stage=\"tenant\",result=\"rejected\"}"
+        values: "0x430"
+      -
+        series: "sentinel_requests_inflight{stage=\"tenant\"}"
+        values: "0x430"
+      -
+        series: "sentinel_db_pool_timeouts_total{pool=\"data\"}"
+        values: "0x430"
+      -
+        series: "sentinel_erp_circuit_open"
+        values: "0x430"
+    alert_rule_test:
+      -
+        eval_time: "6h"
+        alertname: "SentinelErrorBudgetBurn"
+        exp_alerts:
+          -
+            exp_labels:
+              project: "api-sentinel"
+              environment: "reference"
+              service: "api-sentinel"
+              severity: "critical"
+            exp_annotations:
+              summary: "Burn rate alto"
+              impact: "Taxa de 5xx acima do objetivo."
+              condition: "Fração de 5xx supera o burn rate em janelas longa e curta com volume mínimo."
+              window: "Referência 99,9%/30 dias: burn >14,4 em 1 h + 5 min OU >6 em 6 h + 30 min; volume >=100 + >=20."
+              dashboard_url: "http://localhost:3104/d/sentinel/api-sentinel"
+              runbook_url: "http://localhost:9184/runbooks/error-budget"
+              action: "Identifique os 503/5xx em logs e traces; confira admissão, Redis e pools antes de reduzir carga."
+  -
+    name: "janela curta alta sem confirmação longa não dispara"
+    interval: "1m"
+    input_series:
+      -
+        series: "sentinel_probe_config_valid"
+        values: "1x500"
+      -
+        series: "up{job=\"api\",instance=\"one\"}"
+        values: "1x430"
+      -
+        series: "up{job=\"api\",instance=\"two\"}"
+        values: "1x430"
+      -
+        series: "up{job=\"receiver\"}"
+        values: "1x430"
+      -
+        series: "up{job=\"alertmanager\"}"
+        values: "1x430"
+      -
+        series: "up{job=\"prometheus\"}"
+        values: "1x430"
+      -
+        series: "sentinel_probe_success"
+        values: "1x430"
+      -
+        series: "sentinel_expected_replicas"
+        values: "2x430"
+      -
+        series: "sentinel_probe_last_run_timestamp_seconds"
+        values: "0+60x430"
+      -
+        series: "sentinel_http_requests_total{route=\"/v1/stores/{store_id}/summary\",method=\"GET\",outcome=\"success\",traffic=\"business\",instance=\"one\"}"
+        values: "0+100x430"
+      -
+        series: "sentinel_http_requests_total{route=\"/v1/stores/{store_id}/summary\",method=\"GET\",outcome=\"server_error\",traffic=\"business\",instance=\"one\"}"
+        values: "0x355 0+3x74"
+      -
+        series: "sentinel_http_request_duration_seconds_count{route=\"/v1/stores/{store_id}/summary\",method=\"GET\",outcome=\"success\",traffic=\"business\"}"
+        values: "0+50x430"
+      -
+        series: "sentinel_http_request_duration_seconds_bucket{route=\"/v1/stores/{store_id}/summary\",method=\"GET\",outcome=\"success\",traffic=\"business\",le=\"0.5\"}"
+        values: "0+50x430"
+      -
+        series: "sentinel_admission_total{stage=\"tenant\",result=\"rejected\"}"
+        values: "0x430"
+      -
+        series: "sentinel_requests_inflight{stage=\"tenant\"}"
+        values: "0x430"
+      -
+        series: "sentinel_db_pool_timeouts_total{pool=\"data\"}"
+        values: "0x430"
+      -
+        series: "sentinel_erp_circuit_open"
+        values: "0x430"
+    alert_rule_test:
+      -
+        eval_time: "6h"
+        alertname: "SentinelErrorBudgetBurn"
+        exp_alerts: []
+  -
+    name: "janela longa alta mas curtas recuperadas resolvem"
+    interval: "1m"
+    input_series:
+      -
+        series: "sentinel_probe_config_valid"
+        values: "1x500"
+      -
+        series: "up{job=\"api\",instance=\"one\"}"
+        values: "1x430"
+      -
+        series: "up{job=\"api\",instance=\"two\"}"
+        values: "1x430"
+      -
+        series: "up{job=\"receiver\"}"
+        values: "1x430"
+      -
+        series: "up{job=\"alertmanager\"}"
+        values: "1x430"
+      -
+        series: "up{job=\"prometheus\"}"
+        values: "1x430"
+      -
+        series: "sentinel_probe_success"
+        values: "1x430"
+      -
+        series: "sentinel_expected_replicas"
+        values: "2x430"
+      -
+        series: "sentinel_probe_last_run_timestamp_seconds"
+        values: "0+60x430"
+      -
+        series: "sentinel_http_requests_total{route=\"/v1/stores/{store_id}/summary\",method=\"GET\",outcome=\"success\",traffic=\"business\",instance=\"one\"}"
+        values: "0+98x430"
+      -
+        series: "sentinel_http_requests_total{route=\"/v1/stores/{store_id}/summary\",method=\"GET\",outcome=\"server_error\",traffic=\"business\",instance=\"one\"}"
+        values: "0+2x320 640x109"
+      -
+        series: "sentinel_http_request_duration_seconds_count{route=\"/v1/stores/{store_id}/summary\",method=\"GET\",outcome=\"success\",traffic=\"business\"}"
+        values: "0+50x430"
+      -
+        series: "sentinel_http_request_duration_seconds_bucket{route=\"/v1/stores/{store_id}/summary\",method=\"GET\",outcome=\"success\",traffic=\"business\",le=\"0.5\"}"
+        values: "0+50x430"
+      -
+        series: "sentinel_admission_total{stage=\"tenant\",result=\"rejected\"}"
+        values: "0x430"
+      -
+        series: "sentinel_requests_inflight{stage=\"tenant\"}"
+        values: "0x430"
+      -
+        series: "sentinel_db_pool_timeouts_total{pool=\"data\"}"
+        values: "0x430"
+      -
+        series: "sentinel_erp_circuit_open"
+        values: "0x430"
+    alert_rule_test:
+      -
+        eval_time: "5h"
+        alertname: "SentinelErrorBudgetBurn"
+        exp_alerts:
+          -
+            exp_labels:
+              project: "api-sentinel"
+              environment: "reference"
+              service: "api-sentinel"
+              severity: "critical"
+            exp_annotations:
+              summary: "Burn rate alto"
+              impact: "Taxa de 5xx acima do objetivo."
+              condition: "Fração de 5xx supera o burn rate em janelas longa e curta com volume mínimo."
+              window: "Referência 99,9%/30 dias: burn >14,4 em 1 h + 5 min OU >6 em 6 h + 30 min; volume >=100 + >=20."
+              dashboard_url: "http://localhost:3104/d/sentinel/api-sentinel"
+              runbook_url: "http://localhost:9184/runbooks/error-budget"
+              action: "Identifique os 503/5xx em logs e traces; confira admissão, Redis e pools antes de reduzir carga."
+      -
+        eval_time: "6h"
+        alertname: "SentinelErrorBudgetBurn"
+        exp_alerts: []
+  -
+    name: "referência exige volume mínimo em ambas janelas"
+    interval: "1m"
+    input_series:
+      -
+        series: "sentinel_probe_config_valid"
+        values: "1x500"
+      -
+        series: "up{job=\"api\",instance=\"one\"}"
+        values: "1x430"
+      -
+        series: "up{job=\"api\",instance=\"two\"}"
+        values: "1x430"
+      -
+        series: "up{job=\"receiver\"}"
+        values: "1x430"
+      -
+        series: "up{job=\"alertmanager\"}"
+        values: "1x430"
+      -
+        series: "up{job=\"prometheus\"}"
+        values: "1x430"
+      -
+        series: "sentinel_probe_success"
+        values: "1x430"
+      -
+        series: "sentinel_expected_replicas"
+        values: "2x430"
+      -
+        series: "sentinel_probe_last_run_timestamp_seconds"
+        values: "0+60x430"
+      -
+        series: "sentinel_http_requests_total{route=\"/v1/stores/{store_id}/summary\",method=\"GET\",outcome=\"success\",traffic=\"business\",instance=\"one\"}"
+        values: "0x430"
+      -
+        series: "sentinel_http_requests_total{route=\"/v1/stores/{store_id}/summary\",method=\"GET\",outcome=\"server_error\",traffic=\"business\",instance=\"one\"}"
+        values: "0x59 1x370"
+      -
+        series: "sentinel_http_request_duration_seconds_count{route=\"/v1/stores/{store_id}/summary\",method=\"GET\",outcome=\"success\",traffic=\"business\"}"
+        values: "0+50x430"
+      -
+        series: "sentinel_http_request_duration_seconds_bucket{route=\"/v1/stores/{store_id}/summary\",method=\"GET\",outcome=\"success\",traffic=\"business\",le=\"0.5\"}"
+        values: "0+50x430"
+      -
+        series: "sentinel_admission_total{stage=\"tenant\",result=\"rejected\"}"
+        values: "0x430"
+      -
+        series: "sentinel_requests_inflight{stage=\"tenant\"}"
+        values: "0x430"
+      -
+        series: "sentinel_db_pool_timeouts_total{pool=\"data\"}"
+        values: "0x430"
+      -
+        series: "sentinel_erp_circuit_open"
+        values: "0x430"
+    alert_rule_test:
+      -
+        eval_time: "65m"
+        alertname: "SentinelErrorBudgetBurn"
+        exp_alerts: []
+  -
+    name: "reset de contador não vira burn de referência"
+    interval: "1m"
+    input_series:
+      -
+        series: "sentinel_probe_config_valid"
+        values: "1x500"
+      -
+        series: "up{job=\"api\",instance=\"one\"}"
+        values: "1x430"
+      -
+        series: "up{job=\"api\",instance=\"two\"}"
+        values: "1x430"
+      -
+        series: "up{job=\"receiver\"}"
+        values: "1x430"
+      -
+        series: "up{job=\"alertmanager\"}"
+        values: "1x430"
+      -
+        series: "up{job=\"prometheus\"}"
+        values: "1x430"
+      -
+        series: "sentinel_probe_success"
+        values: "1x430"
+      -
+        series: "sentinel_expected_replicas"
+        values: "2x430"
+      -
+        series: "sentinel_probe_last_run_timestamp_seconds"
+        values: "0+60x430"
+      -
+        series: "sentinel_http_requests_total{route=\"/v1/stores/{store_id}/summary\",method=\"GET\",outcome=\"success\",traffic=\"business\",instance=\"one\"}"
+        values: "0+50x200 0+50x229"
+      -
+        series: "sentinel_http_requests_total{route=\"/v1/stores/{store_id}/summary\",method=\"GET\",outcome=\"server_error\",traffic=\"business\",instance=\"one\"}"
+        values: "0x430"
+      -
+        series: "sentinel_http_request_duration_seconds_count{route=\"/v1/stores/{store_id}/summary\",method=\"GET\",outcome=\"success\",traffic=\"business\"}"
+        values: "0+50x430"
+      -
+        series: "sentinel_http_request_duration_seconds_bucket{route=\"/v1/stores/{store_id}/summary\",method=\"GET\",outcome=\"success\",traffic=\"business\",le=\"0.5\"}"
+        values: "0+50x430"
+      -
+        series: "sentinel_admission_total{stage=\"tenant\",result=\"rejected\"}"
+        values: "0x430"
+      -
+        series: "sentinel_requests_inflight{stage=\"tenant\"}"
+        values: "0x430"
+      -
+        series: "sentinel_db_pool_timeouts_total{pool=\"data\"}"
+        values: "0x430"
+      -
+        series: "sentinel_erp_circuit_open"
+        values: "0x430"
+    alert_rule_test:
+      -
+        eval_time: "205m"
+        alertname: "SentinelErrorBudgetBurn"
+        exp_alerts: []
+  -
+    name: "ausência de requests deixa SLI indefinido"
+    interval: "1m"
+    input_series:
+      -
+        series: "sentinel_probe_config_valid"
+        values: "1x500"
+      -
+        series: "up{job=\"api\",instance=\"one\"}"
+        values: "1x430"
+      -
+        series: "up{job=\"api\",instance=\"two\"}"
+        values: "1x430"
+      -
+        series: "up{job=\"receiver\"}"
+        values: "1x430"
+      -
+        series: "up{job=\"alertmanager\"}"
+        values: "1x430"
+      -
+        series: "up{job=\"prometheus\"}"
+        values: "1x430"
+      -
+        series: "sentinel_probe_success"
+        values: "1x430"
+      -
+        series: "sentinel_expected_replicas"
+        values: "2x430"
+      -
+        series: "sentinel_probe_last_run_timestamp_seconds"
+        values: "0+60x430"
+      -
+        series: "sentinel_admission_total{stage=\"tenant\",result=\"rejected\"}"
+        values: "0x430"
+      -
+        series: "sentinel_requests_inflight{stage=\"tenant\"}"
+        values: "0x430"
+      -
+        series: "sentinel_db_pool_timeouts_total{pool=\"data\"}"
+        values: "0x430"
+      -
+        series: "sentinel_erp_circuit_open"
+        values: "0x430"
+    alert_rule_test:
+      -
+        eval_time: "6h"
+        alertname: "SentinelErrorBudgetBurn"
+        exp_alerts: []
+  -
+    name: "configuração inválida não é indisponibilidade mesmo se success anterior era zero"
+    interval: "1m"
+    input_series:
+      -
+        series: "up{job=\"api\",instance=\"one\"}"
+        values: "1x100"
+      -
+        series: "up{job=\"api\",instance=\"two\"}"
+        values: "1x100"
+      -
+        series: "up{job=\"receiver\"}"
+        values: "1x100"
+      -
+        series: "up{job=\"alertmanager\"}"
+        values: "1x100"
+      -
+        series: "up{job=\"prometheus\"}"
+        values: "1x100"
+      -
+        series: "sentinel_probe_config_valid"
+        values: "0x100"
+      -
+        series: "sentinel_probe_success"
+        values: "0x100"
+      -
+        series: "sentinel_expected_replicas"
+        values: "2x100"
+      -
+        series: "sentinel_probe_last_run_timestamp_seconds"
+        values: "0+60x100"
+    alert_rule_test:
+      -
+        eval_time: "3m"
+        alertname: "SentinelUnavailable"
+        exp_alerts: []
+      -
+        eval_time: "3m"
+        alertname: "SentinelReplicaLost"
+        exp_alerts: []
+      -
+        eval_time: "3m"
+        alertname: "SentinelTelemetryUnavailable"
+        exp_alerts:
+          -
+            exp_labels:
+              project: "api-sentinel"
+              environment: "reference"
+              service: "api-sentinel"
+              severity: "warning"
+            exp_annotations:
+              summary: "Falha no monitoramento"
+              impact: "Coleta, probe ou entrega de alertas com falha."
+              condition: "Coleta ou probe indisponível/atrasado, ou pelo menos três falhas recentes na entrega de alertas."
+              window: "Probe atrasado além de max(60 s, limite configurado) ou relógio futuro, coleta falhando ou >=3 falhas de entrega/5m; persistência 2m."
+              dashboard_url: "http://localhost:3104/d/sentinel/api-sentinel"
+              runbook_url: "http://localhost:9184/runbooks/telemetry"
+              action: "Confira targets, logs do monitoramento e horário do último probe."
+  -
+    name: "configuração inválida deixa resultado e quantidade esperada desconhecidos"
+    interval: "1m"
+    input_series:
+      -
+        series: "up{job=\"api\",instance=\"one\"}"
+        values: "1x100"
+      -
+        series: "up{job=\"api\",instance=\"two\"}"
+        values: "1x100"
+      -
+        series: "up{job=\"receiver\"}"
+        values: "1x100"
+      -
+        series: "up{job=\"alertmanager\"}"
+        values: "1x100"
+      -
+        series: "up{job=\"prometheus\"}"
+        values: "1x100"
+      -
+        series: "sentinel_probe_config_valid"
+        values: "0x100"
+      -
+        series: "sentinel_probe_success"
+        values: "NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN"
+      -
+        series: "sentinel_expected_replicas"
+        values: "NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN"
+      -
+        series: "sentinel_probe_last_run_timestamp_seconds"
+        values: "0x100"
+    alert_rule_test:
+      -
+        eval_time: "3m"
+        alertname: "SentinelUnavailable"
+        exp_alerts: []
+      -
+        eval_time: "3m"
+        alertname: "SentinelReplicaLost"
+        exp_alerts: []
+      -
+        eval_time: "3m"
+        alertname: "SentinelTelemetryUnavailable"
+        exp_alerts:
+          -
+            exp_labels:
+              project: "api-sentinel"
+              environment: "reference"
+              service: "api-sentinel"
+              severity: "warning"
+            exp_annotations:
+              summary: "Falha no monitoramento"
+              impact: "Coleta, probe ou entrega de alertas com falha."
+              condition: "Coleta ou probe indisponível/atrasado, ou pelo menos três falhas recentes na entrega de alertas."
+              window: "Probe atrasado além de max(60 s, limite configurado) ou relógio futuro, coleta falhando ou >=3 falhas de entrega/5m; persistência 2m."
+              dashboard_url: "http://localhost:3104/d/sentinel/api-sentinel"
+              runbook_url: "http://localhost:9184/runbooks/telemetry"
+              action: "Confira targets, logs do monitoramento e horário do último probe."
+  -
+    name: "gauge de configuração ausente é falha de observação"
+    interval: "1m"
+    input_series:
+      -
+        series: "up{job=\"api\",instance=\"one\"}"
+        values: "1x100"
+      -
+        series: "up{job=\"api\",instance=\"two\"}"
+        values: "1x100"
+      -
+        series: "up{job=\"receiver\"}"
+        values: "1x100"
+      -
+        series: "up{job=\"alertmanager\"}"
+        values: "1x100"
+      -
+        series: "up{job=\"prometheus\"}"
+        values: "1x100"
+      -
+        series: "sentinel_probe_success"
+        values: "1x100"
+      -
+        series: "sentinel_expected_replicas"
+        values: "2x100"
+      -
+        series: "sentinel_probe_last_run_timestamp_seconds"
+        values: "0+60x100"
+    alert_rule_test:
+      -
+        eval_time: "3m"
+        alertname: "SentinelTelemetryUnavailable"
+        exp_alerts:
+          -
+            exp_labels:
+              project: "api-sentinel"
+              environment: "reference"
+              service: "api-sentinel"
+              severity: "warning"
+            exp_annotations:
+              summary: "Falha no monitoramento"
+              impact: "Coleta, probe ou entrega de alertas com falha."
+              condition: "Coleta ou probe indisponível/atrasado, ou pelo menos três falhas recentes na entrega de alertas."
+              window: "Probe atrasado além de max(60 s, limite configurado) ou relógio futuro, coleta falhando ou >=3 falhas de entrega/5m; persistência 2m."
+              dashboard_url: "http://localhost:3104/d/sentinel/api-sentinel"
+              runbook_url: "http://localhost:9184/runbooks/telemetry"
+              action: "Confira targets, logs do monitoramento e horário do último probe."
+      -
+        eval_time: "3m"
+        alertname: "SentinelUnavailable"
+        exp_alerts: []
+  -
+    name: "restaurar configuração e consulta válida resolve telemetria"
+    interval: "1m"
+    input_series:
+      -
+        series: "up{job=\"api\",instance=\"one\"}"
+        values: "1x100"
+      -
+        series: "up{job=\"api\",instance=\"two\"}"
+        values: "1x100"
+      -
+        series: "up{job=\"receiver\"}"
+        values: "1x100"
+      -
+        series: "up{job=\"alertmanager\"}"
+        values: "1x100"
+      -
+        series: "up{job=\"prometheus\"}"
+        values: "1x100"
+      -
+        series: "sentinel_probe_config_valid"
+        values: "0x11 1x88"
+      -
+        series: "sentinel_probe_success"
+        values: "NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 1x88"
+      -
+        series: "sentinel_expected_replicas"
+        values: "NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN 2x88"
+      -
+        series: "sentinel_probe_last_run_timestamp_seconds"
+        values: "0x11 720+60x88"
+    alert_rule_test:
+      -
+        eval_time: "3m"
+        alertname: "SentinelTelemetryUnavailable"
+        exp_alerts:
+          -
+            exp_labels:
+              project: "api-sentinel"
+              environment: "reference"
+              service: "api-sentinel"
+              severity: "warning"
+            exp_annotations:
+              summary: "Falha no monitoramento"
+              impact: "Coleta, probe ou entrega de alertas com falha."
+              condition: "Coleta ou probe indisponível/atrasado, ou pelo menos três falhas recentes na entrega de alertas."
+              window: "Probe atrasado além de max(60 s, limite configurado) ou relógio futuro, coleta falhando ou >=3 falhas de entrega/5m; persistência 2m."
+              dashboard_url: "http://localhost:3104/d/sentinel/api-sentinel"
+              runbook_url: "http://localhost:9184/runbooks/telemetry"
+              action: "Confira targets, logs do monitoramento e horário do último probe."
+      -
+        eval_time: "13m"
+        alertname: "SentinelTelemetryUnavailable"
+        exp_alerts: []
+      -
+        eval_time: "13m"
+        alertname: "SentinelUnavailable"
+        exp_alerts: []
+      -
+        eval_time: "13m"
+        alertname: "SentinelReplicaLost"
+        exp_alerts: []
+  -
+    name: "resultado antigo de falha sem frescor passa a observação desconhecida"
+    interval: "1m"
+    input_series:
+      -
+        series: "up{job=\"api\",instance=\"one\"}"
+        values: "1x100"
+      -
+        series: "up{job=\"api\",instance=\"two\"}"
+        values: "1x100"
+      -
+        series: "up{job=\"receiver\"}"
+        values: "1x100"
+      -
+        series: "up{job=\"alertmanager\"}"
+        values: "1x100"
+      -
+        series: "up{job=\"prometheus\"}"
+        values: "1x100"
+      -
+        series: "sentinel_probe_config_valid"
+        values: "1x100"
+      -
+        series: "sentinel_probe_success"
+        values: "0x100"
+      -
+        series: "sentinel_expected_replicas"
+        values: "2x100"
+      -
+        series: "sentinel_probe_last_run_timestamp_seconds"
+        values: "0x100"
+    alert_rule_test:
+      -
+        eval_time: "4m"
+        alertname: "SentinelTelemetryUnavailable"
+        exp_alerts:
+          -
+            exp_labels:
+              project: "api-sentinel"
+              environment: "reference"
+              service: "api-sentinel"
+              severity: "warning"
+            exp_annotations:
+              summary: "Falha no monitoramento"
+              impact: "Coleta, probe ou entrega de alertas com falha."
+              condition: "Coleta ou probe indisponível/atrasado, ou pelo menos três falhas recentes na entrega de alertas."
+              window: "Probe atrasado além de max(60 s, limite configurado) ou relógio futuro, coleta falhando ou >=3 falhas de entrega/5m; persistência 2m."
+              dashboard_url: "http://localhost:3104/d/sentinel/api-sentinel"
+              runbook_url: "http://localhost:9184/runbooks/telemetry"
+              action: "Confira targets, logs do monitoramento e horário do último probe."
+      -
+        eval_time: "4m"
+        alertname: "SentinelUnavailable"
+        exp_alerts: []

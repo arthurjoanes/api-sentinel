@@ -1,0 +1,257 @@
+{
+  "rule_files": [
+    "../rules/demo.yml",
+    "../rules/reference.yml"
+  ],
+  "evaluation_interval": "5s",
+  "tests": [
+    {
+      "name": "autoscrape falhou mesmo com target presente",
+      "interval": "5s",
+      "input_series": [
+        {
+          "series": "up{job=\"api\",instance=\"one\"}",
+          "values": "1x160"
+        },
+        {
+          "series": "up{job=\"api\",instance=\"two\"}",
+          "values": "1x160"
+        },
+        {
+          "series": "up{job=\"receiver\"}",
+          "values": "1x160"
+        },
+        {
+          "series": "up{job=\"alertmanager\"}",
+          "values": "1x160"
+        },
+        {
+          "series": "sentinel_probe_success",
+          "values": "1x160"
+        },
+        {
+          "series": "sentinel_probe_config_valid",
+          "values": "1x160"
+        },
+        {
+          "series": "sentinel_expected_replicas",
+          "values": "2x160"
+        },
+        {
+          "series": "sentinel_probe_last_run_timestamp_seconds",
+          "values": "0+5x160"
+        },
+        {
+          "series": "up{job=\"prometheus\"}",
+          "values": "0x160"
+        }
+      ],
+      "promql_expr_test": [
+        {
+          "expr": "count(ALERTS{alertname=\"SentinelTelemetryUnavailable\",alertstate=\"firing\",environment=\"demo\"})",
+          "eval_time": "4m",
+          "exp_samples": [
+            {
+              "labels": "{}",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "expr": "count(ALERTS{alertname=\"SentinelTelemetryUnavailable\",alertstate=\"firing\",environment=\"reference\"})",
+          "eval_time": "4m",
+          "exp_samples": [
+            {
+              "labels": "{}",
+              "value": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "entrega falha enquanto todos os scrapes continuam saudáveis",
+      "interval": "5s",
+      "input_series": [
+        {
+          "series": "up{job=\"api\",instance=\"one\"}",
+          "values": "1x160"
+        },
+        {
+          "series": "up{job=\"api\",instance=\"two\"}",
+          "values": "1x160"
+        },
+        {
+          "series": "up{job=\"receiver\"}",
+          "values": "1x160"
+        },
+        {
+          "series": "up{job=\"alertmanager\"}",
+          "values": "1x160"
+        },
+        {
+          "series": "up{job=\"prometheus\"}",
+          "values": "1x160"
+        },
+        {
+          "series": "sentinel_probe_success",
+          "values": "1x160"
+        },
+        {
+          "series": "sentinel_probe_config_valid",
+          "values": "1x160"
+        },
+        {
+          "series": "sentinel_expected_replicas",
+          "values": "2x160"
+        },
+        {
+          "series": "sentinel_probe_last_run_timestamp_seconds",
+          "values": "0+5x160"
+        },
+        {
+          "series": "alertmanager_notifications_failed_total{integration=\"webhook\",reason=\"clientError\"}",
+          "values": "0+1x160"
+        }
+      ],
+      "promql_expr_test": [
+        {
+          "expr": "count(ALERTS{alertname=\"SentinelTelemetryUnavailable\",alertstate=\"firing\",environment=\"demo\"})",
+          "eval_time": "4m",
+          "exp_samples": [
+            {
+              "labels": "{}",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "expr": "count(ALERTS{alertname=\"SentinelTelemetryUnavailable\",alertstate=\"firing\",environment=\"reference\"})",
+          "eval_time": "4m",
+          "exp_samples": [
+            {
+              "labels": "{}",
+              "value": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "falha única de entrega não gera incidente de observação",
+      "interval": "5s",
+      "input_series": [
+        {
+          "series": "up{job=\"api\",instance=\"one\"}",
+          "values": "1x160"
+        },
+        {
+          "series": "up{job=\"api\",instance=\"two\"}",
+          "values": "1x160"
+        },
+        {
+          "series": "up{job=\"receiver\"}",
+          "values": "1x160"
+        },
+        {
+          "series": "up{job=\"alertmanager\"}",
+          "values": "1x160"
+        },
+        {
+          "series": "up{job=\"prometheus\"}",
+          "values": "1x160"
+        },
+        {
+          "series": "sentinel_probe_success",
+          "values": "1x160"
+        },
+        {
+          "series": "sentinel_probe_config_valid",
+          "values": "1x160"
+        },
+        {
+          "series": "sentinel_expected_replicas",
+          "values": "2x160"
+        },
+        {
+          "series": "sentinel_probe_last_run_timestamp_seconds",
+          "values": "0+5x160"
+        },
+        {
+          "series": "alertmanager_notifications_failed_total{integration=\"webhook\",reason=\"serverError\"}",
+          "values": "0 1x159"
+        }
+      ],
+      "promql_expr_test": [
+        {
+          "expr": "count(ALERTS{alertname=\"SentinelTelemetryUnavailable\",alertstate=\"firing\",environment=\"demo\"})",
+          "eval_time": "4m",
+          "exp_samples": []
+        },
+        {
+          "expr": "count(ALERTS{alertname=\"SentinelTelemetryUnavailable\",alertstate=\"firing\",environment=\"reference\"})",
+          "eval_time": "4m",
+          "exp_samples": []
+        }
+      ]
+    },
+    {
+      "name": "contagem histórica sem falhas novas não mantém alerta",
+      "interval": "5s",
+      "input_series": [
+        {
+          "series": "up{job=\"api\",instance=\"one\"}",
+          "values": "1x160"
+        },
+        {
+          "series": "up{job=\"api\",instance=\"two\"}",
+          "values": "1x160"
+        },
+        {
+          "series": "up{job=\"receiver\"}",
+          "values": "1x160"
+        },
+        {
+          "series": "up{job=\"alertmanager\"}",
+          "values": "1x160"
+        },
+        {
+          "series": "up{job=\"prometheus\"}",
+          "values": "1x160"
+        },
+        {
+          "series": "sentinel_probe_success",
+          "values": "1x160"
+        },
+        {
+          "series": "sentinel_probe_config_valid",
+          "values": "1x160"
+        },
+        {
+          "series": "sentinel_expected_replicas",
+          "values": "2x160"
+        },
+        {
+          "series": "sentinel_probe_last_run_timestamp_seconds",
+          "values": "0+5x160"
+        },
+        {
+          "series": "alertmanager_notifications_failed_total{integration=\"webhook\",reason=\"serverError\"}",
+          "values": "20x160"
+        }
+      ],
+      "promql_expr_test": [
+        {
+          "expr": "count(ALERTS{alertname=\"SentinelTelemetryUnavailable\",alertstate=\"firing\",environment=\"demo\"})",
+          "eval_time": "4m",
+          "exp_samples": []
+        },
+        {
+          "expr": "count(ALERTS{alertname=\"SentinelTelemetryUnavailable\",alertstate=\"firing\",environment=\"reference\"})",
+          "eval_time": "4m",
+          "exp_samples": []
+        }
+      ]
+    }
+  ]
+}

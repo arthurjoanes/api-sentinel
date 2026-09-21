@@ -1,0 +1,295 @@
+{
+  "rule_files": [
+    "../rules/demo.yml",
+    "../rules/reference.yml"
+  ],
+  "evaluation_interval": "5s",
+  "tests": [
+    {
+      "name": "intervalo maior respeita janela declarada",
+      "interval": "5s",
+      "input_series": [
+        {
+          "series": "up{job=\"api\"}",
+          "values": "1x100"
+        },
+        {
+          "series": "up{job=\"receiver\"}",
+          "values": "1x100"
+        },
+        {
+          "series": "up{job=\"alertmanager\"}",
+          "values": "1x100"
+        },
+        {
+          "series": "up{job=\"prometheus\"}",
+          "values": "1x100"
+        },
+        {
+          "series": "sentinel_probe_config_valid",
+          "values": "1x100"
+        },
+        {
+          "series": "sentinel_expected_replicas",
+          "values": "1x100"
+        },
+        {
+          "series": "sentinel_probe_success",
+          "values": "1x100"
+        },
+        {
+          "series": "sentinel_probe_last_run_timestamp_seconds",
+          "values": "20x100"
+        },
+        {
+          "series": "sentinel_probe_stale_after_seconds",
+          "values": "120x100"
+        }
+      ],
+      "promql_expr_test": [
+        {
+          "expr": "count(ALERTS{alertname=\"SentinelTelemetryUnavailable\",environment=\"demo\"})",
+          "eval_time": "2m",
+          "exp_samples": []
+        },
+        {
+          "expr": "count(ALERTS{alertname=\"SentinelUnavailable\",environment=\"demo\"})",
+          "eval_time": "2m",
+          "exp_samples": []
+        },
+        {
+          "expr": "count(ALERTS{alertname=\"SentinelTelemetryUnavailable\",environment=\"reference\"})",
+          "eval_time": "2m",
+          "exp_samples": []
+        },
+        {
+          "expr": "count(ALERTS{alertname=\"SentinelUnavailable\",environment=\"reference\"})",
+          "eval_time": "2m",
+          "exp_samples": []
+        }
+      ]
+    },
+    {
+      "name": "sucesso antigo além da janela não mantém telemetria saudável",
+      "interval": "5s",
+      "input_series": [
+        {
+          "series": "up{job=\"api\"}",
+          "values": "1x100"
+        },
+        {
+          "series": "up{job=\"receiver\"}",
+          "values": "1x100"
+        },
+        {
+          "series": "up{job=\"alertmanager\"}",
+          "values": "1x100"
+        },
+        {
+          "series": "up{job=\"prometheus\"}",
+          "values": "1x100"
+        },
+        {
+          "series": "sentinel_probe_config_valid",
+          "values": "1x100"
+        },
+        {
+          "series": "sentinel_expected_replicas",
+          "values": "1x100"
+        },
+        {
+          "series": "sentinel_probe_success",
+          "values": "1x100"
+        },
+        {
+          "series": "sentinel_probe_last_run_timestamp_seconds",
+          "values": "20x100"
+        },
+        {
+          "series": "sentinel_probe_stale_after_seconds",
+          "values": "120x100"
+        }
+      ],
+      "promql_expr_test": [
+        {
+          "expr": "count(ALERTS{alertname=\"SentinelTelemetryUnavailable\",environment=\"demo\"})",
+          "eval_time": "5m",
+          "exp_samples": [
+            {
+              "labels": "{}",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "expr": "count(ALERTS{alertname=\"SentinelUnavailable\",environment=\"demo\"})",
+          "eval_time": "5m",
+          "exp_samples": []
+        },
+        {
+          "expr": "count(ALERTS{alertname=\"SentinelTelemetryUnavailable\",environment=\"reference\"})",
+          "eval_time": "5m",
+          "exp_samples": [
+            {
+              "labels": "{}",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "expr": "count(ALERTS{alertname=\"SentinelUnavailable\",environment=\"reference\"})",
+          "eval_time": "5m",
+          "exp_samples": []
+        }
+      ]
+    },
+    {
+      "name": "timestamp futuro não comprova frescor",
+      "interval": "5s",
+      "input_series": [
+        {
+          "series": "up{job=\"api\"}",
+          "values": "1x100"
+        },
+        {
+          "series": "up{job=\"receiver\"}",
+          "values": "1x100"
+        },
+        {
+          "series": "up{job=\"alertmanager\"}",
+          "values": "1x100"
+        },
+        {
+          "series": "up{job=\"prometheus\"}",
+          "values": "1x100"
+        },
+        {
+          "series": "sentinel_probe_config_valid",
+          "values": "1x100"
+        },
+        {
+          "series": "sentinel_expected_replicas",
+          "values": "1x100"
+        },
+        {
+          "series": "sentinel_probe_success",
+          "values": "1x100"
+        },
+        {
+          "series": "sentinel_probe_last_run_timestamp_seconds",
+          "values": "600+5x100"
+        },
+        {
+          "series": "sentinel_probe_stale_after_seconds",
+          "values": "120x100"
+        }
+      ],
+      "promql_expr_test": [
+        {
+          "expr": "count(ALERTS{alertname=\"SentinelTelemetryUnavailable\",environment=\"demo\"})",
+          "eval_time": "5m",
+          "exp_samples": [
+            {
+              "labels": "{}",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "expr": "count(ALERTS{alertname=\"SentinelUnavailable\",environment=\"demo\"})",
+          "eval_time": "5m",
+          "exp_samples": []
+        },
+        {
+          "expr": "count(ALERTS{alertname=\"SentinelTelemetryUnavailable\",environment=\"reference\"})",
+          "eval_time": "5m",
+          "exp_samples": [
+            {
+              "labels": "{}",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "expr": "count(ALERTS{alertname=\"SentinelUnavailable\",environment=\"reference\"})",
+          "eval_time": "5m",
+          "exp_samples": []
+        }
+      ]
+    },
+    {
+      "name": "falha com timestamp futuro não comprova indisponibilidade",
+      "interval": "5s",
+      "input_series": [
+        {
+          "series": "up{job=\"api\"}",
+          "values": "1x100"
+        },
+        {
+          "series": "up{job=\"receiver\"}",
+          "values": "1x100"
+        },
+        {
+          "series": "up{job=\"alertmanager\"}",
+          "values": "1x100"
+        },
+        {
+          "series": "up{job=\"prometheus\"}",
+          "values": "1x100"
+        },
+        {
+          "series": "sentinel_probe_config_valid",
+          "values": "1x100"
+        },
+        {
+          "series": "sentinel_expected_replicas",
+          "values": "1x100"
+        },
+        {
+          "series": "sentinel_probe_success",
+          "values": "0x100"
+        },
+        {
+          "series": "sentinel_probe_last_run_timestamp_seconds",
+          "values": "600+5x100"
+        },
+        {
+          "series": "sentinel_probe_stale_after_seconds",
+          "values": "120x100"
+        }
+      ],
+      "promql_expr_test": [
+        {
+          "expr": "count(ALERTS{alertname=\"SentinelTelemetryUnavailable\",environment=\"demo\"})",
+          "eval_time": "5m",
+          "exp_samples": [
+            {
+              "labels": "{}",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "expr": "count(ALERTS{alertname=\"SentinelUnavailable\",environment=\"demo\"})",
+          "eval_time": "5m",
+          "exp_samples": []
+        },
+        {
+          "expr": "count(ALERTS{alertname=\"SentinelTelemetryUnavailable\",environment=\"reference\"})",
+          "eval_time": "5m",
+          "exp_samples": [
+            {
+              "labels": "{}",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "expr": "count(ALERTS{alertname=\"SentinelUnavailable\",environment=\"reference\"})",
+          "eval_time": "5m",
+          "exp_samples": []
+        }
+      ]
+    }
+  ]
+}

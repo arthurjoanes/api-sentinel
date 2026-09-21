@@ -1,0 +1,152 @@
+name: pf-api-sentinel
+x-python: &python
+  image: pf-api-sentinel:local
+  build: .
+  init: true
+  mem_limit: 256m
+  cpus: 0.75
+  read_only: true
+  tmpfs: [/tmp]
+  security_opt: [no-new-privileges:true]
+  cap_drop: [ALL]
+  logging:
+    driver: json-file
+    options: {max-size: 5m, max-file: '2'}
+x-api-env: &api-env
+  DATABASE_URL: postgresql+asyncpg://sentinel_app:sentinel-read-local-only@postgres/sentinel
+  REDIS_URL: redis://redis:6379/0
+  CACHE_REDIS_URL: redis://cache:cache-local-only@redis:6379/1
+  ERP_URL: http://erp:8080
+  TRACE_ENDPOINT: http://jaeger:4318/v1/traces
+  SENTINEL_ENV: demo
+services:
+  postgres:
+    image: postgres:17.6-bookworm
+    environment:
+      POSTGRES_DB: sentinel
+      POSTGRES_USER: sentinel_admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sentinel-admin-local-only}
+    command: [postgres, -c, max_connections=40, -c, shared_buffers=64MB]
+    volumes: [postgres-data:/var/lib/postgresql/data]
+    mem_limit: 256m
+    cpus: 0.75
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U sentinel_admin -d sentinel']
+      interval: 3s
+      timeout: 2s
+      retries: 20
+  redis:
+    image: redis:7.4.5-alpine
+    command: [redis-server, --maxmemory, 48mb, --maxmemory-policy, noeviction, --save, '', --appendonly, 'no', --aclfile, /etc/redis/users.acl]
+    volumes: ['./deploy/redis/users.acl:/etc/redis/users.acl:ro']
+    mem_limit: 96m
+    cpus: 0.25
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 3s
+      timeout: 2s
+      retries: 20
+  api:
+    <<: *python
+    environment: *api-env
+    volumes: [secrets:/secrets:ro]
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/live', timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    stop_grace_period: 10s
+  proxy:
+    image: nginx:1.28.0-alpine
+    ports: ['127.0.0.1:${API_PORT:-8104}:80']
+    volumes: ['./deploy/proxy/nginx.conf:/etc/nginx/nginx.conf:ro']
+    depends_on: [api]
+    mem_limit: 48m
+    cpus: 0.25
+  erp:
+    <<: *python
+    command: [uvicorn, 'erp_simulator.app:app', --host, 0.0.0.0, --port, '8080', --no-access-log]
+    volumes: [faults:/faults:ro]
+    mem_limit: 128m
+    cpus: 0.25
+  tools:
+    <<: *python
+    profiles: [tools]
+    user: root
+    cap_add: [CHOWN]
+    read_only: false
+    environment:
+      <<: *api-env
+      DATABASE_URL: postgresql+asyncpg://sentinel_admin:${POSTGRES_PASSWORD:-sentinel-admin-local-only}@postgres/sentinel
+    volumes: [secrets:/secrets, faults:/faults, receiver-data:/receiver-data, './artifacts:/artifacts']
+    command: [python, scripts/bootstrap.py]
+  receiver:
+    <<: *python
+    profiles: [observability]
+    command: [uvicorn, 'alert_receiver.app:app', --host, 0.0.0.0, --port, '9184', --no-access-log]
+    ports: ['127.0.0.1:${RECEIVER_PORT:-9184}:9184']
+    environment:
+      WEBHOOK_TOKEN_FILE: /secrets/webhook-token
+      PROBE_URL: http://proxy/v1/stores/7/summary?start=2026-01-01&end=2026-01-01
+      EXPECTED_REPLICAS_FILE: /secrets/expected-replicas
+      PUBLIC_URLS_FILE: /secrets/public-urls.json
+      ALERT_RETENTION_DAYS: ${ALERT_RETENTION_DAYS:-30}
+    volumes: [secrets:/secrets:ro, receiver-data:/data]
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    profiles: [observability]
+    command: ['--config.file=/etc/sentinel/monitoring/prometheus/${MONITORING_CONFIG:-demo}.yml', '--storage.tsdb.path=/prometheus', '--storage.tsdb.retention.time=2d', '--storage.tsdb.retention.size=256MB', '--web.enable-lifecycle']
+    ports: ['127.0.0.1:${PROMETHEUS_PORT:-9104}:9090']
+    volumes: ['./monitoring:/etc/sentinel/monitoring:ro', prometheus-data:/prometheus]
+    mem_limit: 256m
+    cpus: 0.5
+  alertmanager:
+    image: prom/alertmanager:v0.28.1
+    profiles: [observability]
+    command: ['--config.file=/etc/sentinel/monitoring/alertmanager/${MONITORING_CONFIG:-demo}.yml', '--storage.path=/alertmanager', '--cluster.listen-address=']
+    ports: ['127.0.0.1:${ALERTMANAGER_PORT:-9194}:9093']
+    volumes: ['./monitoring:/etc/sentinel/monitoring:ro', secrets:/secrets:ro, alertmanager-data:/alertmanager]
+    mem_limit: 96m
+    cpus: 0.25
+  grafana:
+    image: grafana/grafana:12.1.1
+    profiles: [observability]
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: 'true'
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_AUTH_DISABLE_LOGIN_FORM: 'true'
+      GF_ANALYTICS_REPORTING_ENABLED: 'false'
+      GF_ANALYTICS_CHECK_FOR_UPDATES: 'false'
+      GF_USERS_ALLOW_SIGN_UP: 'false'
+    ports: ['127.0.0.1:${GRAFANA_PORT:-3104}:3000']
+    volumes: ['./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro', './monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro', grafana-data:/var/lib/grafana]
+    mem_limit: 256m
+    cpus: 0.5
+  jaeger:
+    image: jaegertracing/all-in-one:1.71.0
+    profiles: [observability]
+    environment:
+      COLLECTOR_OTLP_ENABLED: 'true'
+      MEMORY_MAX_TRACES: '3000'
+    ports: ['127.0.0.1:${JAEGER_PORT:-16684}:16686']
+    mem_limit: 192m
+    cpus: 0.5
+  k6:
+    image: grafana/k6:1.2.3
+    profiles: [tools]
+    volumes: ['./load:/load:ro', './artifacts:/artifacts', secrets:/secrets:ro]
+    mem_limit: 256m
+    cpus: 0.75
+    environment: {BASE_URL: 'http://proxy'}
+    command: [run, /load/steady.js]
+volumes:
+  postgres-data:
+  secrets:
+  faults:
+  receiver-data:
+  prometheus-data:
+  alertmanager-data:
+  grafana-data:

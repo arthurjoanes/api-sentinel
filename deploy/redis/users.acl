@@ -1,0 +1,2 @@
+user default on nopass ~* +@all
+user cache on >cache-local-only ~summary:* ~fill:* +get +set +del +eval +ping +select +client|setinfo
