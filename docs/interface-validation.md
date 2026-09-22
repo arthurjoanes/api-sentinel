@@ -1,5 +1,7 @@
 # Validação da interface — 22/09/2026
 
+Limpeza posterior sobre `28261f9`: removida somente a variável CSS `--surface`, sem consumidores nos templates ou no JavaScript. O [registro separado](evidence/interface-css-cleanup-20260922.json) guarda hashes antes/depois e conferência de sintaxe. As imagens, capturas e manifestos anteriores permanecem históricos e não representam os bytes do CSS após essa remoção; não houve novo build ou ensaio visual.
+
 ## Triagem, navegação e documentação
 
 Esta revisão parte de `b5f0eed`. A prova [interface-navigation.json](evidence/interface-navigation.json) identifica a imagem `pf-api-sentinel-triage:20260922`, arquivos empacotados, checks e capturas. `interface-review.json`, `interface-package.json` e a prova operacional permanecem históricos; seus hashes não representam os arquivos alterados nesta rodada.

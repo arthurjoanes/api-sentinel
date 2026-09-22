@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-09-22T06:20:56.188Z",
+  "baseline_commit": "28261f90405fab924db2bb1055ee5d03426aad38",
+  "change": "Remove the single unused :root declaration --surface: #fff; without changing consumers or other CSS bytes.",
+  "file": "alert_receiver/styles.css",
+  "before": {
+    "sha256": "b710300deb7dc7acb84941daf6c15fbe14f2483cc617d4835cde0dae256cd377",
+    "bytes": 19481
+  },
+  "after": {
+    "sha256": "67c0245ea2931e883373c197b7955378b75a674e4b1ce217fc7046e1cd0740f5",
+    "bytes": 19462
+  },
+  "reference_review": {
+    "scope": "Tracked repository text searched for --surface; runtime Python, JavaScript and CSS inspected for references; snapshot.js read in full for dynamic style access.",
+    "command": [
+      "git",
+      "grep",
+      "-n",
+      "-e",
+      "--surface",
+      "-e",
+      "setProperty",
+      "-e",
+      "getPropertyValue",
+      "-e",
+      "getComputedStyle",
+      "-e",
+      "document.styleSheets",
+      "-e",
+      "CSSStyleDeclaration",
+      "--",
+      "."
+    ],
+    "baseline_matches": [
+      "alert_receiver/styles.css:6:  --surface: #fff;"
+    ],
+    "remaining_runtime_references": [],
+    "dynamic_javascript_consumers_found": false,
+    "runtime_files_examined": 10
+  },
+  "validation": {
+    "exact_byte_change": "Only the declaration line removed; remaining bytes unchanged.",
+    "parser": "PostCSS",
+    "parser_version": "8.5.23",
+    "before_and_after_parse": "passed",
+    "ast_comparison": "Identical after removing the one --surface declaration from the baseline AST.",
+    "candidate_ast_nodes": 965,
+    "command": [
+      "node",
+      ".runtime/ui-cleanup/check.cjs"
+    ]
+  },
+  "historical_package": {
+    "file": "docs/evidence/interface-navigation.json",
+    "recorded_files": 116,
+    "still_matching_files": 115,
+    "files_with_new_bytes": [
+      "alert_receiver/styles.css"
+    ],
+    "recorded_images_and_screenshots_reused_as_new_proof": false,
+    "prior_manifests_and_screenshots_modified": false
+  },
+  "limits": [
+    "No Docker, image build, operational stack, load test or new screenshot was run for this unused declaration removal.",
+    "Prior package evidence remains historical and does not describe the new CSS bytes."
+  ]
+}
