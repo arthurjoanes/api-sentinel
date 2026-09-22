@@ -51,16 +51,38 @@ Esperado: `revenue_cents: 12500`, `order_count: 2` e `average_ticket_cents: 6250
 
 ```mermaid
 flowchart TB
-  C[Cliente] --> A[NGINX e API]
-  A --> P[(PostgreSQL)]
-  A --> R[(Redis)]
-  A --> E[ERP sintético]
-  O[Monitoramento e central] --> A
+  C["Cliente com Bearer"] -->|"HTTP :8104"| N["NGINX<br/>entrada e balanceamento"]
+  subgraph API["Réplica FastAPI · módulos internos"]
+    G["Autorização<br/>quota + admissão"]
+    S["Consultas comerciais<br/>resumo e vendas"]
+    E["Cliente ERP<br/>prazo total 900 ms"]
+    G -->|"lojas / vendas"| S
+    G -->|"estoque"| E
+  end
+  N -->|"HTTP :8000"| G
+  G -->|"autenticação · pool 2"| DB[("PostgreSQL<br/>identidade e vendas")]
+  G -->|"quota atômica"| R[("Redis único<br/>DB 0 quota · DB 1 cache")]
+  S -->|"SQL · pool 4"| DB
+  S -->|"TTL 15 s + lock"| R
+  E -->|"HTTP /availability"| ERP["ERP sintético :8080<br/>estoque e falhas"]
+  subgraph OBS["Perfil observability · opcional"]
+    P["Prometheus<br/>métricas por réplica"]
+    J["Jaeger<br/>traces amostrados"]
+  end
+  P -.->|"/internal/metrics"| G
+  G -.->|"OTLP · 25%"| J
 ```
 
-No [fluxo HTTP](src/api_sentinel/app.py), a autorização precede quota, cache e consulta. O ERP tem cliente e limite próprios; o resumo usa PostgreSQL. Prometheus observa a aplicação e entrega alertas ao [receiver](alert_receiver/app.py) via Alertmanager. Grafana e Jaeger complementam a investigação no [diagrama completo](docs/architecture.md).
+As setas contínuas representam chamadas e acesso a dados; as pontilhadas, coleta e exportação de telemetria. Os blocos dentro de `api` são módulos do mesmo processo. A [implantação Compose](compose.yml) usa uma rede Docker comum e publica entradas em loopback; as réplicas continuam no mesmo host.
 
-O [Compose](compose.yml) mantém as réplicas no mesmo host; o diagrama não representa alta disponibilidade entre máquinas.
+| Responsabilidade | Implementação e contrato |
+| --- | --- |
+| Identidade e carga | [Rotas](src/api_sentinel/app.py), [autorização](src/api_sentinel/auth.py) e [admissão](src/api_sentinel/admission.py): loja/escopo são conferidos antes da quota Redis e de qualquer acesso ao cache. Limites de concorrência pertencem a cada réplica. |
+| Leitura comercial | [Queries](src/api_sentinel/queries.py) e [cache](src/api_sentinel/cache.py): chave inclui versão, tenant, loja e período; um miss coordena o cálculo entre réplicas. O cursor de vendas preserva esses filtros. |
+| Dependência ERP | [Cliente HTTP](src/api_sentinel/erp.py): até 4 chamadas por processo, circuito próprio, validação do corpo e até um retry dentro do prazo total de 900 ms. Uma falha no estoque não obriga o resumo de vendas a consultar o ERP. |
+| Incidente e investigação | [Receiver](alert_receiver/app.py): consulta a fixture pelo proxy e recebe webhooks do Alertmanager; [SQLite](alert_receiver/storage.py) guarda ocorrência e entregas. Grafana consulta Prometheus e Jaeger recebe os traces. |
+
+**Uma consulta de resumo:** Bearer → autorização → quota → admissão → versão do dataset no PostgreSQL → cache; em miss, SQL e preenchimento protegido por token. **Um alerta:** probe/métricas → Prometheus → Alertmanager → webhook autenticado → SQLite → central HTML. [Sequências, persistência e falhas](docs/architecture.md) detalham esses dois caminhos e suas fronteiras.
 
 ## Stack e decisões
 
