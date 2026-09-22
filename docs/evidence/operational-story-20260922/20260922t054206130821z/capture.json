@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "run_id": "20260922t054206130821z",
+  "project": "pf-api-sentinel-review-20260922t054206130821z",
+  "status": "passed",
+  "started_at": "2026-09-22T05:42:29.385Z",
+  "source_script": "scripts/capture_operational_story.cjs",
+  "source_script_sha256": "25cedd16ef31538670437a8dd14466e2c1e4111eb4019ae6ca642595a54ebcf2",
+  "capture_tool_scope": "Collector runs outside the image and records its own hash; it may be newer than the copy in a frozen source archive.",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "method": "Read-only live browser captures; synthetic commercial fixture, real local services and alert delivery. No DOM text replacement or artificial webhooks.",
+  "screenshots": [
+    {
+      "name": "01-fixture-validada",
+      "captured_at": "2026-09-22T05:44:20.107Z",
+      "route": "/",
+      "png_sha256": "0db6a49f9935536b2aee35a8a0c126246313f33bffd10bb3b9bad737669a1acd",
+      "html_sha256": "ab3f0e36c99c02a05145f45e07bce2c05634fcde68814cf97c49d28880fd598f",
+      "observations_sha256": "86550fbf3c9c12ec09a2f34c7de081ee6cbbc55667897bd0d6eb8ac951ed2471"
+    },
+    {
+      "name": "02-incidente-ativo",
+      "captured_at": "2026-09-22T05:45:39.238Z",
+      "route": "/incidents/3?status=firing",
+      "png_sha256": "7ff610793cf222d005eebfafa5934740d818e0a7330a2da4f84bbba428c38f74",
+      "html_sha256": "6d8543a19cd27df2ed59852f678cb5506aba2cad751f7a79005da3241fd2e23d",
+      "observations_sha256": "2c0e12c6882f9fd4a96d6c3b84948bfc70f3501318258600f07472b02b5ba9f9"
+    },
+    {
+      "name": "03-mesma-ocorrencia-recuperada",
+      "captured_at": "2026-09-22T05:45:58.902Z",
+      "route": "/incidents/3?status=resolved",
+      "png_sha256": "d4bcb4573be1b5ed910565f9f205f0ffb65882071f24b856800ff80a5df875fa",
+      "html_sha256": "02c599f6b383f6d39977c8b0d89f1d391a891b12dd119a0d9fadf18b9d8edc8c",
+      "observations_sha256": "49509ce5b37652e8eb67e77529791ff079441d870a48589da9338d8b06e6e5e2"
+    }
+  ],
+  "browser_errors": [],
+  "toolchain": {
+    "node": "v24.19.0",
+    "playwright_package": "@playwright/test",
+    "playwright_version": "1.63.0",
+    "browser_version": "153.0.4234.48"
+  },
+  "receiver_origin": "http://127.0.0.1:58426",
+  "image_id": "sha256:94dcc15433c1927806cf2c108dca1ad82d44874d37bfe8f28e2d1fbf93d391a7",
+  "incident_identity": {
+    "id": 3,
+    "fingerprint": "14a9e1f8fb9f5066",
+    "starts_at": "2026-09-22T05:45:33.164000Z"
+  },
+  "finished_at": "2026-09-22T05:45:59.235Z"
+}

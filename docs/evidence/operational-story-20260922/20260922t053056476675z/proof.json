@@ -1,0 +1,436 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "run_id": "20260922t053056476675z",
+  "project": "pf-api-sentinel-review-20260922t053056476675z",
+  "started_at": "2026-09-22T05:30:56.477674+00:00",
+  "finished_at": "2026-09-22T05:35:01.450292+00:00",
+  "scenario": "alerts",
+  "load_benchmark_executed": false,
+  "image_id": "sha256:8514769c7f12b904429085a7103752d7b8737fbe1eb404a8105ece1bc2901095",
+  "source": {
+    "kind": "frozen_working_tree_source_archive",
+    "base_commit": "b5f0eed29edf1eb5e66a027864c1d521e26a6225",
+    "source_files_file": "source-files.json",
+    "source_files_sha256": "b9b0060d903083ecb257a00a3ee2d894aa50a33a207cd0312a7bdc9c41534efc",
+    "source_tree_sha256": "3473cdc8aa6c4d31adf0f4c51ae7359d49169c48d21118ae1e3706e8c955a48f",
+    "count": 113,
+    "source_unchanged": true,
+    "line_endings": "Exact working-tree bytes preserved; not claimed to be canonical Git LF bytes.",
+    "fixture_sha256": "fef4ac03b36ac3bb901a7800726545faff8a41d07de72423351464d09c623480",
+    "comparison_to_original_after_run": {
+      "changed_names": [
+        "alert_receiver/styles.css",
+        "alert_receiver/ui.py",
+        "scripts/capture_operational_story.cjs"
+      ],
+      "scope": "This run validates its frozen UI, not later edits in the working repository. Markdown outside docs/runbooks is not part of runtime identity."
+    },
+    "git_lf_comparison": {
+      "file": "source-files-lf.json",
+      "sha256": "b9b0060d903083ecb257a00a3ee2d894aa50a33a207cd0312a7bdc9c41534efc",
+      "definition": "Supplementary SHA-256 of source text normalized from CRLF to LF; binary bytes unchanged. Enables comparison with Git checkout serialization. Does not replace the exact executed-byte manifest."
+    }
+  },
+  "capture_tool": {
+    "source": "scripts/capture_operational_story.cjs",
+    "sha256": "25cedd16ef31538670437a8dd14466e2c1e4111eb4019ae6ca642595a54ebcf2",
+    "runtime_copy_sha256": "2a8ce5002ecab429ed9f5d67be2e2d97700a405b110ae42082ee1db19f130730",
+    "scope": "Collector runs outside the image and records its own hash; it may be newer than the copy in a frozen source archive.",
+    "toolchain": {
+      "node": "v24.19.0",
+      "playwright_package": "@playwright/test",
+      "playwright_version": "1.63.0",
+      "browser_version": "153.0.4234.48"
+    },
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "browser_errors": []
+  },
+  "fixture_initial": {
+    "store_id": 7,
+    "start": "2026-01-01",
+    "end": "2026-01-01",
+    "currency": "BRL",
+    "revenue_cents": 12500,
+    "order_count": 2,
+    "average_ticket_cents": 6250,
+    "data_updated_at": "2026-09-22T05:32:32.923598+00:00",
+    "observed_at": "2026-09-22T05:33:00.159678+00:00",
+    "dataset_version": "v1-9a22e96438804d54",
+    "coverage": {
+      "starts_on": "2026-01-01",
+      "ends_on": "2026-01-01",
+      "complete": true
+    },
+    "cache_age_seconds": 10.868
+  },
+  "fixture_final": {
+    "store_id": 7,
+    "start": "2026-01-01",
+    "end": "2026-01-01",
+    "currency": "BRL",
+    "revenue_cents": 12500,
+    "order_count": 2,
+    "average_ticket_cents": 6250,
+    "data_updated_at": "2026-09-22T05:32:32.923598+00:00",
+    "observed_at": "2026-09-22T05:34:54.222493+00:00",
+    "dataset_version": "v1-9a22e96438804d54",
+    "coverage": {
+      "starts_on": "2026-01-01",
+      "ends_on": "2026-01-01",
+      "complete": true
+    },
+    "cache_age_seconds": 4.826
+  },
+  "story_incident": {
+    "alertname": "SentinelUnavailable",
+    "id": 3,
+    "fingerprint": "14a9e1f8fb9f5066",
+    "starts_at": "2026-09-22T05:34:18.164000Z",
+    "firing_capture_at": "2026-09-22T05:34:29.202Z",
+    "resolved_capture_at": "2026-09-22T05:34:48.857Z",
+    "resolved_ends_at": "2026-09-22T05:34:43.164000Z",
+    "detection_seconds": 34.547,
+    "recovery_seconds": 18.454,
+    "occurrence_count": 1,
+    "deliveries_after_recovery": 2,
+    "recovery_method": "Real resolved webhook with transition=recovered, not operator reconciliation"
+  },
+  "alert_cycles": [
+    {
+      "alert": "SentinelReplicaLost",
+      "detection_seconds": 22.532,
+      "recovery_seconds": 19.954,
+      "incident_id": 1,
+      "occurrence_count": 1
+    },
+    {
+      "alert": "SentinelUnavailable",
+      "detection_seconds": 34.547,
+      "recovery_seconds": 18.454,
+      "incident_id": 3,
+      "occurrence_count": 1
+    }
+  ],
+  "tests": [
+    {
+      "file": "tests-isolated.xml",
+      "sha256": "c0faeb680cbfe3dc372a44e981ce2f8b088a76bc6bb05111f2fed7825331c530",
+      "junit_total_including_subtests": 341,
+      "testcase_elements": 330,
+      "passed_testcase_elements": 257,
+      "passed_subtests_included_in_junit_total": 11,
+      "skipped": 73,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 10.269
+    },
+    {
+      "file": "tests-http.xml",
+      "sha256": "ffd976acc1e8a91ceaaad9a0d5bb6d361ba866e9976d263c7d5833165bb46b4a",
+      "junit_total_including_subtests": 73,
+      "testcase_elements": 73,
+      "passed_testcase_elements": 73,
+      "passed_subtests_included_in_junit_total": 0,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 17.342
+    }
+  ],
+  "checks": [
+    {
+      "name": "concurrent-services",
+      "started_at": "2026-09-22T05:30:56.498674+00:00",
+      "finished_at": "2026-09-22T05:30:56.554259+00:00",
+      "exit_code": 0
+    },
+    {
+      "name": "docker-resources",
+      "started_at": "2026-09-22T05:30:56.554777+00:00",
+      "finished_at": "2026-09-22T05:30:56.750697+00:00",
+      "exit_code": 0
+    },
+    {
+      "name": "compose-version",
+      "started_at": "2026-09-22T05:30:56.751216+00:00",
+      "finished_at": "2026-09-22T05:30:56.858344+00:00",
+      "exit_code": 0
+    },
+    {
+      "name": "demo-before",
+      "started_at": "2026-09-22T05:30:56.858344+00:00",
+      "finished_at": "2026-09-22T05:30:56.899578+00:00",
+      "exit_code": 0
+    },
+    {
+      "name": "build",
+      "started_at": "2026-09-22T05:30:56.900103+00:00",
+      "finished_at": "2026-09-22T05:31:22.608927+00:00",
+      "exit_code": 0
+    },
+    {
+      "name": "image-id",
+      "started_at": "2026-09-22T05:31:22.609442+00:00",
+      "finished_at": "2026-09-22T05:31:22.749826+00:00",
+      "exit_code": 0
+    },
+    {
+      "name": "lint",
+      "started_at": "2026-09-22T05:31:22.750375+00:00",
+      "finished_at": "2026-09-22T05:31:23.794985+00:00",
+      "exit_code": 0
+    },
+    {
+      "name": "format",
+      "started_at": "2026-09-22T05:31:23.795514+00:00",
+      "finished_at": "2026-09-22T05:31:24.507822+00:00",
+      "exit_code": 0
+    },
+    {
+      "name": "types",
+      "started_at": "2026-09-22T05:31:24.508895+00:00",
+      "finished_at": "2026-09-22T05:31:58.823570+00:00",
+      "exit_code": 0
+    },
+    {
+      "name": "monitoring",
+      "started_at": "2026-09-22T05:31:58.824104+00:00",
+      "finished_at": "2026-09-22T05:32:08.616166+00:00",
+      "exit_code": 0
+    },
+    {
+      "name": "isolated-tests",
+      "started_at": "2026-09-22T05:32:08.616166+00:00",
+      "finished_at": "2026-09-22T05:32:24.136395+00:00",
+      "exit_code": 0
+    },
+    {
+      "name": "isolated-cleanup",
+      "started_at": "2026-09-22T05:32:24.136912+00:00",
+      "finished_at": "2026-09-22T05:32:25.036061+00:00",
+      "exit_code": 0
+    },
+    {
+      "name": "database",
+      "started_at": "2026-09-22T05:32:25.036576+00:00",
+      "finished_at": "2026-09-22T05:32:30.306879+00:00",
+      "exit_code": 0
+    },
+    {
+      "name": "seed",
+      "started_at": "2026-09-22T05:32:30.306879+00:00",
+      "finished_at": "2026-09-22T05:32:34.171201+00:00",
+      "exit_code": 0
+    },
+    {
+      "name": "start",
+      "started_at": "2026-09-22T05:32:34.171201+00:00",
+      "finished_at": "2026-09-22T05:32:37.164151+00:00",
+      "exit_code": 0
+    },
+    {
+      "name": "investigation-links",
+      "started_at": "2026-09-22T05:32:47.416505+00:00",
+      "finished_at": "2026-09-22T05:32:48.331861+00:00",
+      "exit_code": 0
+    },
+    {
+      "name": "oracle",
+      "started_at": "2026-09-22T05:32:48.391404+00:00",
+      "finished_at": "2026-09-22T05:32:50.407384+00:00",
+      "exit_code": 0
+    },
+    {
+      "name": "contract-mutations",
+      "started_at": "2026-09-22T05:32:50.407384+00:00",
+      "finished_at": "2026-09-22T05:32:51.594395+00:00",
+      "exit_code": 0
+    },
+    {
+      "name": "http-tests",
+      "started_at": "2026-09-22T05:32:51.594920+00:00",
+      "finished_at": "2026-09-22T05:33:10.630247+00:00",
+      "exit_code": 0
+    },
+    {
+      "name": "trace-correlation",
+      "started_at": "2026-09-22T05:34:52.219539+00:00",
+      "finished_at": "2026-09-22T05:34:58.991771+00:00",
+      "exit_code": 0
+    },
+    {
+      "name": "resources-after",
+      "started_at": "2026-09-22T05:34:59.235515+00:00",
+      "finished_at": "2026-09-22T05:35:00.752007+00:00",
+      "exit_code": 0
+    },
+    {
+      "name": "demo-after",
+      "started_at": "2026-09-22T05:35:00.753058+00:00",
+      "finished_at": "2026-09-22T05:35:00.793983+00:00",
+      "exit_code": 0
+    },
+    {
+      "name": "cleanup-tests",
+      "started_at": "2026-09-22T05:35:01.324359+00:00",
+      "finished_at": "2026-09-22T05:35:01.449286+00:00",
+      "exit_code": 0
+    }
+  ],
+  "final_state": {
+    "targets": [
+      {
+        "scrapeUrl": "http://172.23.0.10:8000/internal/metrics",
+        "health": "up",
+        "lastScrape": "2026-09-22T05:34:56.750811965Z"
+      },
+      {
+        "scrapeUrl": "http://172.23.0.11:8000/internal/metrics",
+        "health": "up",
+        "lastScrape": "2026-09-22T05:34:57.002119849Z"
+      }
+    ],
+    "active_incidents": 0,
+    "fixture_confirmed": true
+  },
+  "screenshots": [
+    {
+      "name": "01-fixture-validada",
+      "captured_at": "2026-09-22T05:33:11.637Z",
+      "route": "/",
+      "png_sha256": "15a9ee4406d0ac37f4ef41dce17fdc66d7351e85be8b3cf854d2b522b4d56167",
+      "html_sha256": "489833299384ef6f54dffc9172c810fdefe4951e7caef4bd08045170280e658b",
+      "observations_sha256": "c63d5c54f4d835842e92d576f8d78e62b8ff52890754cdb721167d8fc6c0b3d4",
+      "path": "../../../screenshots/operational-story-20260922/20260922t053056476675z/01-fixture-validada.png",
+      "observations": "01-fixture-validada.json",
+      "html_published": false
+    },
+    {
+      "name": "02-incidente-ativo",
+      "captured_at": "2026-09-22T05:34:29.202Z",
+      "route": "/incidents/3?status=firing",
+      "png_sha256": "d99db8a48d1af36a0f9758aaace6068f08516f9bb5c7af69f8502b6a2104552e",
+      "html_sha256": "304b4a1ea31570a171c9ff2c4b9f4c5d71ca88aae0d9b8c769f7ef7730b4d418",
+      "observations_sha256": "8900c62665c3ce977481150f889fa26cbe2eed65afc301dfafb0ba3a99f94c43",
+      "path": "../../../screenshots/operational-story-20260922/20260922t053056476675z/02-incidente-ativo.png",
+      "observations": "02-incidente-ativo.json",
+      "html_published": false
+    },
+    {
+      "name": "03-mesma-ocorrencia-recuperada",
+      "captured_at": "2026-09-22T05:34:48.857Z",
+      "route": "/incidents/3?status=resolved",
+      "png_sha256": "5a0ed1b5bd425b3134fc3865131f6b371282741e31b0a6682e3d8f1672362349",
+      "html_sha256": "78ae478cba512b81eeaf13a3ad1bfa1b4625ff787a8273de0b820cfea9f6116f",
+      "observations_sha256": "712c84949f026d1584e9f4211187bbdb915b58dad086abf0a32c94543a22a444",
+      "path": "../../../screenshots/operational-story-20260922/20260922t053056476675z/03-mesma-ocorrencia-recuperada.png",
+      "observations": "03-mesma-ocorrencia-recuperada.json",
+      "html_published": false
+    }
+  ],
+  "cleanup": {
+    "status": "completed",
+    "started_at": "2026-09-22T05:40:16.757796+00:00",
+    "finished_at": "2026-09-22T05:40:28.846140+00:00",
+    "exit_code": 0,
+    "project": "pf-api-sentinel-review-20260922t053056476675z",
+    "ownership_verified": true,
+    "containers_before": 12,
+    "volumes_before": 10,
+    "remaining": {
+      "containers": [],
+      "volumes": [],
+      "networks": []
+    },
+    "required_environment_keys": [
+      "SENTINEL_RUN_DIR"
+    ],
+    "external_containers_after": [
+      "967516ba07a3 ui-api-journey-review pf-api-sentinel-ui:20260922"
+    ],
+    "scope": "Only this disposable Compose namespace was removed; no prune or other project command."
+  },
+  "reproduction": {
+    "runner": [
+      "python",
+      "scripts/review.py",
+      "--scenario",
+      "alerts",
+      "--keep"
+    ],
+    "collector": [
+      "node",
+      "scripts/capture_operational_story.cjs",
+      "--run-dir",
+      "<source-root>/artifacts/problem-review/<run-id>",
+      "--playwright-module",
+      "<installed @playwright/test directory>",
+      "--browser-executable",
+      "<installed browser executable>"
+    ],
+    "collector_start": "Start after run.json exists and before the HTTP stage ends; collector waits for HTTP success and observes live transitions.",
+    "cleanup_environment": {
+      "SENTINEL_RUN_DIR": "Absolute directory containing this run.json"
+    },
+    "cleanup": "Validate project labels, set SENTINEL_RUN_DIR and execute the exact cleanup_command from the run record; never use generic prune."
+  },
+  "secret_scan": {
+    "files": 39,
+    "matching_paths": []
+  },
+  "prior_failed_attempt": "../attempt-01.json",
+  "limits": [
+    "Commercial data and ERP are synthetic; PostgreSQL, Redis, proxy, probe and alert delivery used real local services.",
+    "No load benchmark, production deployment, monthly SLO, external provider, operator usability study or new vulnerability scan was executed in this bounded run.",
+    "The initial healthy screenshot proves a fresh known probe result, not health of every replica or every user journey.",
+    "Capture times and images are real browser observations from this run; no DOM text was replaced. The page is a snapshot and does not update the incident automatically.",
+    "Resource observations are point samples, not continuous peaks or capacity claims."
+  ],
+  "private_artifacts": [
+    {
+      "name": "run.json",
+      "sha256": "28b1ff04fe1157e4bcce61dbcf16b6d94b8a450f2e7ef3b1e2e38b413a43c7a0",
+      "published": false
+    },
+    {
+      "name": "build.log",
+      "sha256": "ff696001ec5723b34368467b25aed8ac66b182e14c7134010da8a40dfe363123",
+      "published": false
+    },
+    {
+      "name": "isolated-tests.log",
+      "sha256": "e65f76e3d954f131f6c55da5cbceb913736271ab713538c274c0a274261dae15",
+      "published": false
+    },
+    {
+      "name": "http-tests.log",
+      "sha256": "fc1be112cb8329b3c07a4731250d9f6f10b85d448b770d8445a588d9aefe8d0c",
+      "published": false
+    },
+    {
+      "name": "trace-correlation.json",
+      "sha256": "193e596eea565a48c1c58f74d40623fd0e467429deedc75ea99940122729c8a8",
+      "published": false
+    },
+    {
+      "name": "ownership-before-cleanup.json",
+      "sha256": "f833dbc5c6cb9d60fa238b2e331d7bed46983fe6d25f9ed0f1110d0f37e00063",
+      "published": false
+    }
+  ],
+  "published_artifact_secret_check": {
+    "method": "Exact known runtime demo credentials, cursor key and webhook token checked in memory before cleanup",
+    "files": 12,
+    "matching_paths": []
+  },
+  "published_text_serialization": {
+    "line_endings": "LF",
+    "scope": "Public text copies use repository LF policy; structured values unchanged. Private raw logs/JSON and their recorded hashes retain original bytes.",
+    "raw_alerts_json_sha256": "88aabfc8022900def57c89c9ee82a558d548fcac45c62ef8846ff5757943e7cd",
+    "published_alerts_json_sha256": "e338bc2839f349676d8d317acf538831a9a4607c1599c7b9ddba7056ea41b5f5"
+  }
+}

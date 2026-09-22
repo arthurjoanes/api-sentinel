@@ -90,7 +90,7 @@ def test_compact_row_preserves_state_and_escapes_alert_metadata() -> None:
     assert "Resolvido" in document and "Crítico" in document
     assert "21/09/2026 · 03:20:00 UTC" in document
     assert "3 entregas" in document
-    assert 'href="/incidents/12"' in document
+    assert 'href="/incidents/12?status=all"' in document
     assert "<script>" not in document and "<img " not in document
     assert "&lt;script&gt;" in document and "&lt;b&gt;Impacto&lt;/b&gt;" in document
 
@@ -176,15 +176,15 @@ def test_fresh_result_has_bounded_display_lifetime_without_navigation() -> None:
 def test_retention_and_loaded_count_are_distinct_from_filtered_total() -> None:
     document = ui.home(page(resolved=103), ProbeState(), "resolved")
     assert "0 de 103 incidentes · limite de 100" in document
-    assert "Resolvidos: últimos 30 dias · Em andamento: sem expiração" in document
-    assert "última entrega ou reconciliação operacional dos resolvidos" in document
+    assert "Finalizados: últimos 30 dias · Em andamento: sem expiração" in document
+    assert "última entrega ou reconciliação operacional dos finalizados" in document
     assert "não à data de início" in document
 
 
 def test_empty_active_filter_offers_actual_resolved_history() -> None:
     document = ui.home(page(resolved=21), ProbeState(), "firing")
-    assert 'href="/?status=resolved">Ver 21 incidentes resolvidos' in document
-    assert "<strong>0 em andamento</strong>" in document
+    assert 'href="/?status=resolved">Ver 21 incidentes finalizados' in document
+    assert "Em andamento</span><strong>0</strong>" in document
     disclosures = [attrs for tag, attrs in Elements(document).tags if tag == "details"]
     assert len(disclosures) == 2
     assert all("open" not in attrs for attrs in disclosures)
@@ -192,8 +192,8 @@ def test_empty_active_filter_offers_actual_resolved_history() -> None:
 
 def test_empty_history_does_not_invent_resolved_records() -> None:
     document = ui.home(page(), ProbeState(), "resolved")
-    assert "Nenhum incidente resolvido no período" in document
-    assert "Ver 0 incidentes resolvidos" not in document
+    assert "Nenhum incidente finalizado no período" in document
+    assert "Ver 0 incidentes finalizados" not in document
 
 
 def test_history_read_error_offers_retry_without_an_empty_success_state() -> None:

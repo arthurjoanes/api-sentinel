@@ -1,102 +1,83 @@
-# Decisões técnicas
+# Decisões técnicas e seus custos
 
-Uma integração precisa obter vendas corretas e disponibilidade de produtos sem misturar organizações. Quando o ERP degrada, o operador precisa distinguir essa falha da perda da API ou do banco e confirmar a volta do resultado conhecido. O projeto demonstra esse comportamento em laboratório; utilidade com operadores reais e benefício comercial não foram medidos.
+Estas decisões correspondem ao código executável do laboratório. Os exemplos de entrada e resultado estão em [problema e solução](problem-solution.md); os limites configurados e os fluxos completos, em [arquitetura](architecture.md).
 
-## Acompanhar uma consulta
+## Problema central e dificuldades registradas
 
-Leia `app.py`, `auth.py`, `admission.py`, `cache.py`, `queries.py` e `db.py` nessa ordem. Uma consulta de resumo entra pelo NGINX e passa por admissão global imediata. A autenticação usa pool separado e prazo curto. A credencial determina tenant, lojas e escopos; o cliente não escolhe sua identidade por query string. Só depois da autorização entram quota Redis, admissão local de negócio e cache/SQL.
+O resultado procurado é uma consulta correta e autorizada, com recursos limitados, mesmo durante falhas parciais. Uma resposta rápida com valor errado, acesso a outra organização ou perda silenciosa da observação não atende a esse objetivo. Os motivos abaixo explicam o desenho técnico; não representam relato de um cliente real ou medição de economia.
 
-A receita soma quantidade × preço em centavos. Pedidos distintos usam `(store_id, order_id)`, não a quantidade de itens. O ticket médio arredonda `revenue/order_count` com Decimal e HALF_UP. O período é um intervalo de dias comerciais de São Paulo convertido para UTC semiaberto, e não um filtro por datas UTC. A fixture de três itens e dois pedidos torna esses erros visíveis sem depender do gerador para calcular o resultado esperado.
+| Dificuldade observada | Decisão ou tratamento | O que a evidência permite concluir |
+| --- | --- | --- |
+| Um ERP que envia pequenos trechos continuamente pode nunca atingir um timeout de inatividade | Prazo total para corpo e validação, com limite de chamadas simultâneas e circuito próprios | Os testes cobrem o contrato de encerramento. A coexistência com consultas comerciais pertence à execução identificada em [desempenho](performance.md). |
+| Tentativas de quota tiveram recusas de capacidade e outra execução perdeu iterações no gerador | Separar quota, admissão, espera de conexão, resultado correto e iterações não iniciadas; preservar as tentativas reprovadas | O ensaio posterior passou, mas isso não comprova a causa inicial. Não atribuir todo o ganho a uma única alteração. |
+| Uma entrega de alerta pode repetir ou chegar depois da recuperação | Persistir a ocorrência e seu histórico por identidade estável; diferenciar recuperação de encerramento manual | Regressões verificam o estado final; capturas sintéticas verificam apresentação, sem comprovar entrega pela rede. |
+| O CI aprovou 73 casos HTTP, mas não conseguiu escrever o XML de resultado | Preparar o arquivo de saída com dono/permissões necessários, preservando as restrições gerais do container | A correção `b5f0eed` trata a exportação. A [nota de validação](interface-validation.md#correção-da-exportação-junit-no-ci) conserva a falha e o teste específico de permissões. |
+| A preparação de um snapshot omitiu a fixture financeira porque ela não fazia parte do inventário de fontes do runner | Incluir `data/` no [fingerprint](../scripts/review.py); conferir que mudar o valor da fixture altera a identidade das fontes | A [regressão](../tests/unit/test_review_cleanup.py) falhou com o inventário anterior e passou após a inclusão. A falha de preparação é distinta de uma regressão da API; os registros históricos não foram renomeados. |
 
-Vendas usam cursor com ordenação decrescente por `(sold_at, id)` e desempate único. O SQL busca no máximo `limit+1`, sem trazer toda a tabela. O cursor assinado carrega tenant, loja, período e versão dos dados; não é SQL nem credencial. Assinatura não torna o conteúdo secreto. A versão imutável do dataset define o contrato durante a paginação; avançar a versão invalida cursores antigos.
+Para cada escolha a seguir, o motivo explica qual erro ela evita; o custo indica o que precisa ser operado ou reavaliado. O [mapa de componentes](architecture.md#o-requisito-que-justifica-cada-parte) identifica quando uma alternativa menor pode bastar.
 
-## Comportamento da API
+## Autorizar antes de consultar cache ou dependência
 
-| Pergunta | Resposta específica deste projeto |
-|---|---|
-| Onde medir antes de otimizar? | Aquisição de conexão, execução SQL, Redis, HTTP ERP e duração total. Examine EXPLAIN da consulta real antes de atribuir tudo ao framework. |
-| Async torna o sistema ilimitado? | Não. Conexões, tarefas, memória e tempo são finitos. Async permite aguardar I/O sem bloquear o loop; a admissão impede multiplicar trabalho além do limite. |
-| Por que o pool não basta? | Um pool limita conexões, mas milhares de requests podem esperar por elas. A admissão deste projeto rejeita imediatamente antes de formar uma fila ilimitada. |
-| Quota e concorrência são a mesma coisa? | Quota controla chegadas por tenant no Redis; concorrência limita trabalho simultâneo no processo. ERP lento pode esgotar concorrência mesmo com poucas chegadas. |
-| O que significa 429 ou 503? | 429 indica quota contratada excedida. 503 indica saturação ou dependência indisponível. Usar 429 para toda rejeição esconderia falta de capacidade no SLI. |
-| Duas réplicas dobram a quota? | Não. Ambas usam a mesma chave/execução atômica Redis por tenant. Já os limites de concorrência e pools são locais e se multiplicam. |
-| Qual é o orçamento do banco? | Por processo: 4 conexões de negócio + 2 de autenticação, sem overflow. Duas réplicas somam 12; ferramentas, diagnóstico e reservas entram no orçamento até max_connections=40. |
-| Qual o risco do cache multi-tenant? | Uma chave incompleta pode servir dados privados de outra loja. A autorização vem antes do lookup; a chave inclui versão, tenant, loja e filtros normalizados. |
-| Como demonstrar stampede controlado? | Compare cache frio, quente e expiração simultânea por número de consultas SQL e contenção de preenchimento. Latência menor sozinha não indica redução de carga. |
-| Por que o lock tem token e TTL? | O TTL limita a vida do lock após falha. A remoção condicional pelo token impede um processo atrasado de apagar o lock de outro dono. A espera pelo preenchimento tem prazo. |
-| O que acontece quando Redis cai? | A quota falha fechada com 503. O fallback limitado do cache só se aplica quando a quota ainda funciona. Redis inteiro indisponível não pode liberar carga irrestrita no banco. |
-| Por que read timeout não basta no ERP? | Um servidor pode enviar pequenos trechos periodicamente e evitar o timeout de leitura. O deadline total encerra o orçamento mesmo com progresso parcial. |
-| O circuito é global? | É por processo. Cada réplica mantém falhas e probe de recuperação próprios. O estado só protege o ERP, sem transformar sua falha em indisponibilidade de consultas PostgreSQL. |
-| Como evitar SSRF? | O destino vem da configuração confiável. O consumidor envia loja/SKU validados; não fornece URL, Host ou credencial de saída. Redirects e proxies herdados ficam desabilitados. |
-| Como evitar ruído de alerta? | Use persistência, janelas, volume mínimo, agrupamento e relação com impacto. Ocupação elevada sozinha não é o mesmo que rejeição de trabalho. |
+**Decisão:** em [app.py](../src/api_sentinel/app.py), a credencial passa por [auth.py](../src/api_sentinel/auth.py) antes do cache/SQL/ERP. Tenant, lojas e escopos vêm do banco. Autenticação usa pool separado e prazo de 500 ms; a conexão é devolvida antes de aguardar o ERP.
 
-O rate limiter usa janela fixa de 1000 ms iniciada no primeiro acesso, por chave de tenant. O script Redis executa INCR/PEXPIRE/PTTL atomicamente. Isso permite rajadas na fronteira entre janelas; não equivale a um limite contínuo em qualquer intervalo móvel de um segundo. A justiça por tenant da admissão também é local, não um escalonador global entre containers.
+**Motivo:** um cache aquecido não pode contornar o acesso à loja, e uma integração lenta não deve reter conexões de autenticação. Revogação precisa ser observada por ambas as réplicas na próxima consulta.
 
-O cache tem TTL de 15 s e dados versionados. `data_updated_at` representa a massa; `observed_at`, o cálculo; `cache_age_seconds` mostra a idade desse cálculo. Um hit não torna os dados mais novos. Se o sistema passar a aceitar escrita, será preciso definir transação, invalidação e tolerância a dados antigos.
+**Custo e limite:** toda chamada autenticada faz uma leitura no banco; hash da credencial não dispensa proteção do segredo original. São duas conexões de autenticação e quatro de negócio por processo, sem overflow: duas réplicas podem usar 12, além das ferramentas. [Integração de dados](../tests/integration/test_data_postgres.py) verifica revogação e autorização; [admissão de autenticação](../tests/unit/test_auth_admission.py) verifica limite e cancelamento.
 
-## Investigar incidentes
+## Dinheiro inteiro, período comercial e cursor ligado ao escopo
 
-O caminho completo é probe → Prometheus → regra persistente → Alertmanager → webhook autenticado → transação SQLite → UI. O probe tem tenant próprio e verifica status, schema e resultado conhecido pelo proxy. Assim, o alerta continua observando a jornada quando o processo da API para, e um tenant sob quota não produz falso alerta de indisponibilidade.
+**Decisão:** [queries.py](../src/api_sentinel/queries.py) calcula centavos inteiros e pedidos distintos; o ticket médio usa `ROUND_HALF_UP`. Datas comerciais são convertidas em início inclusivo/fim exclusivo UTC. SQL usa parâmetros vinculados. Vendas são ordenadas por `(sold_at, id)` decrescente e a consulta lê no máximo `limit + 1` itens.
 
-O receiver identifica ocorrências por fingerprint e startsAt. Repetições atualizam a mesma ocorrência; um firing atrasado não reabre a que já resolveu. Uma recuperação antiga não encerra uma ocorrência nova. Isso é idempotência da recepção, sem garantia de entrega exatamente uma vez. O histórico e as notificações dependem dos volumes/serviços locais.
+**Motivo:** itens do mesmo pedido não devem inflar o denominador; datas UTC não representam necessariamente o dia de São Paulo. O desempate por ID evita repetir ou pular vendas com o mesmo horário. O [cursor assinado](../src/api_sentinel/cursor.py) inclui tenant, loja, período e versão, para impedir seu reaproveitamento em outra consulta.
 
-Durante um pico de latência, compare: duração total de sucesso → aquisição de conexão → SQL → cache → ERP → event-loop. Uma query curta depois de espera longa sugere pressão anterior ao SQL; cache miss e aumento de queries apontam outra hipótese. Abra um trace existente no intervalo e busque seu trace_id nos logs. A amostragem de 25% limita a cobertura; a ausência de trace individual não significa que a requisição não existiu.
+**Custo e limite:** alterar a versão do dataset invalida o cursor; assinatura não torna seu conteúdo secreto. A massa imutável simplifica a paginação. Escritas concorrentes exigiriam outro contrato. [Fixture e contrato](../tests/unit/test_data_contract.py) conferem arredondamento e escopo; [PostgreSQL real](../tests/integration/test_data_postgres.py) confere fronteira de data e desempate sem duplicatas.
 
-O alerta informa um sintoma e uma ação inicial. `SentinelSaturation` combina rejeição/ocupação ou timeout de pool; não diagnostica sozinho qual consulta é culpada. A restauração exige probe correto e targets recuperados, além do estado resolved no receiver. “Não há séries” e “não houve tráfego” são estados diferentes de “saudável”.
+## Quota distribuída e admissão imediata têm funções diferentes
 
-Leia [slo.md](slo.md) para a população elegível e o cálculo: a disponibilidade interna exclui 429 contratado e erros do cliente, mas inclui 503. O contador da API não vê falhas que o proxy produz sem encaminhar a chamada. O probe e o cliente de carga oferecem medições separadas desse caminho. O SLO de 30 dias não é validado por uma demonstração de minutos.
+**Decisão:** [enforce_quota](../src/api_sentinel/admission.py) coordena chegadas por tenant com Lua atômico no Redis. [admission.py](../src/api_sentinel/admission.py) limita simultaneidade no processo e recusa imediatamente ao atingir o limite. HTTP 429 representa quota; HTTP 503 representa capacidade ou dependência indisponível.
 
-## Aplicar a sistemas de lojas
+**Motivo:** duplicar réplicas não pode duplicar o limite comercial. Um pool limita conexões, mas não impede uma fila crescente de requisições à espera. Separar os códigos mantém recusas de quota distintas de falhas no [SLI](slo.md).
 
-Em uma aplicação existente, comece pelo fluxo que precisa preservar: autorização, precisão do agregado e limites de consumo. Defina população, fonte e denominador do indicador antes de escolher um gráfico. Meça a aquisição de conexão separada do SQL e escolha índices alinhados a tenant/loja/período/ordenação. Dimensione pools considerando todas as réplicas, processos e ferramentas.
+**Custo e limite:** pode haver rajada na fronteira da janela fixa de 1 s. Redis é dependência obrigatória e indisponibilidade falha fechada. A justiça da admissão é local; não há escalonador global. [Redis concorrente](../tests/integration/test_runtime.py) confere a quota entre clientes; [runtime](../tests/unit/test_runtime.py) confere recusa e devolução de capacidade após cancelamento.
 
-Depois defina comportamento sob excesso: fila pequena com prazo ou rejeição imediata; quota global ou local; dependências que precisam falhar fechadas. Acrescente cache somente com chave e frescor explícitos. Para integrações, mantenha cliente reutilizado, pool limitado, deadline total, validação de resposta e retries centralizados. Cada proteção deve ter um experimento que revele seu efeito e uma forma clara de recuperação.
+## Cache com propriedade do lock e frescor explícito
 
-## Mapeamento conceitual para Azure e KQL
+**Decisão:** [cache.py](../src/api_sentinel/cache.py) usa lock com token aleatório, TTL de 2 s e remoção condicional. Espera pelo preenchimento: até 250 ms. TTL do resultado: 15 s. O chamador inclui versão, tenant, loja e período na chave.
 
-Nenhuma integração Azure foi configurada ou executada neste projeto. O mapeamento abaixo serve para estudar como os conceitos podem se relacionar ao contexto de Log Analytics/KQL. Exportação, identidade, amostragem, custo e retenção precisariam de desenho e validação próprios.
+**Motivo:** reduzir SQL duplicado sem servir o resultado de outro escopo e sem permitir que um preenchimento atrasado apague o lock do novo dono. `observed_at` e `cache_age_seconds` mostram a idade do cálculo; um hit não torna a massa mais nova.
 
-| No laboratório | Correspondência conceitual possível |
-|---|---|
-| Requests e spans de dependência OpenTelemetry | Application Insights, `AppRequests` e `AppDependencies`, correlacionados por OperationId |
-| Logs JSON com IDs | Logs no workspace com schema e retenção definidos; correlação ao identificador de operação |
-| Dashboard Grafana | Grafana/Workbooks conforme a fonte escolhida e a necessidade de investigação |
-| Regras PromQL | Regras para métricas Prometheus gerenciadas, ou outra regra equivalente cuja semântica seja revalidada |
-| Regra + receiver local | Alertas e grupos de ação; payload, autenticação, repetição e recuperação exigem adaptação |
+**Custo e limite:** contenção prolongada recebe `cache_fill_busy`. Falha apenas no cache permite fallback protegido pela admissão; falha da quota não permite. Os usuários ACL são distintos, mas o processo Redis é compartilhado. A [integração Redis](../tests/integration/test_runtime.py) mede o número de cálculos e verifica propriedade do lock e negação de comandos/chaves indevidos.
 
-As tabelas oficiais têm `DurationMs`, `ResultCode`, `OperationId` e `ItemCount`; este último representa quantos itens uma amostra representa. `TenantId` nessas tabelas identifica o workspace Log Analytics, não o tenant comercial do Sentinel. Consulte [AppRequests](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/apprequests) e [AppDependencies](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/appdependencies).
+## Prazo total e circuito próprios para o ERP
 
-Exemplo conceitual de investigação, se existisse ingestão no Application Insights. As propriedades `http.route` e `traffic` abaixo seriam um contrato de mapeamento a implementar; não são exportadas para Azure pelo projeto:
+**Decisão:** [erp.py](../src/api_sentinel/erp.py) mantém cliente/pool reutilizados, no máximo quatro consultas por processo, deadline total de 900 ms e circuito local após falhas. O retry elegível cabe nesse mesmo orçamento. O consumidor fornece loja/SKU; o destino vem da configuração, com redirects e proxies herdados desabilitados.
 
-```kusto
-AppRequests
-| where TimeGenerated > ago(30m) and AppRoleName == "api-sentinel"
-| extend Route = tostring(Properties["http.route"]),
-         Traffic = tostring(Properties["traffic"]),
-         Code = toint(ResultCode), Weight = coalesce(ItemCount, 1)
-| where Traffic == "business"
-| where Route in ("/v1/stores", "/v1/stores/{store_id}/summary", "/v1/stores/{store_id}/sales")
-| where Code between (200 .. 399) or Code between (500 .. 599)
-| summarize Eligible = sum(Weight), Errors = sumif(Weight, Code >= 500)
-    by bin(TimeGenerated, 1m)
-| extend ObservedAvailability = 1.0 - todouble(Errors) / Eligible
-```
+**Motivo:** chunks periódicos podem impedir um read timeout sem concluir o corpo. O orçamento total cobre esse caso; limite de bytes e validação impedem aceitar resposta excessiva ou incompatível. Consultas comerciais não precisam do ERP para responder.
 
-Não converta períodos sem linhas em 100%. Contagens ponderadas por amostragem são estimativas e não substituem automaticamente um contador de todas as requisições para SLO. Seria preciso validar a estratégia de coleta.
+**Custo e limite:** cada réplica observa o circuito separadamente. Uma falha transitória pode resultar em recusa até a tentativa de recuperação. Não há fila persistente nem garantia de disponibilidade do fornecedor. [Testes de runtime](../tests/unit/test_runtime.py) exercitam trickle, cancelamento, compressão e tamanho; a coexistência sob carga tem prova separada em [performance.md](performance.md).
 
-Para investigar as dependências da requisição lenta mais recente no período:
+## Histórico durável e uma interface que não inventa recuperação
 
-```kusto
-let SlowOperation = AppRequests
-    | where TimeGenerated > ago(30m) and AppRoleName == "api-sentinel"
-    | where DurationMs > 500
-    | top 1 by TimeGenerated desc
-    | project OperationId;
-AppDependencies
-| where TimeGenerated > ago(30m)
-| where OperationId in (SlowOperation)
-| project TimeGenerated, OperationId, DependencyType, Name, Target, DurationMs, Success
-| order by TimeGenerated asc
-```
+**Decisão:** [storage.py](../alert_receiver/storage.py) grava a ocorrência e seus eventos em uma transação SQLite antes de confirmar o webhook. Fingerprint + início identifica a ocorrência. A reconciliação manual registra a ação administrativa sem incrementar entregas nem fabricar um webhook.
 
-O vínculo requests/dependências é documentado em [Dependency tracking](https://learn.microsoft.com/en-us/azure/azure-monitor/app/dependencies). Para alertas, a escolha entre métricas, consultas de logs e Prometheus depende da fonte e das janelas necessárias; [tipos de alerta](https://learn.microsoft.com/en-us/azure/azure-monitor/alerts/alert-options) e [grupos de ação](https://learn.microsoft.com/en-us/azure/azure-monitor/alerts/action-groups) são referências conceituais.
+**Motivo:** entregas podem repetir ou chegar fora de ordem. Um firing atrasado não pode reabrir um incidente recuperado; uma resolução antiga não pode encerrar a nova ocorrência. Por isso, a UI usa “Finalizados” no agrupamento e distingue “Resolvido” de “Encerrado pelo operador” em cada registro.
+
+**Custo e limite:** armazenamento local em volume, sem cluster de receivers. Retenção de 30 dias para finalizados, ativos sem expiração; a lista mostra até 100 registros e o detalhe até 100 eventos recentes. Contagem acumulada de entregas pode superar eventos retidos. [Testes do receiver](../tests/unit/test_receiver.py) cobrem concorrência, rollback e transições; [retenção](../tests/unit/test_receiver_retention.py) cobre a janela.
+
+## HTML no servidor, retorno explícito e investigação no ambiente certo
+
+**Decisão:** [ui.py](../alert_receiver/ui.py) gera HTML sem framework frontend, escapa metadados e oferece links normais. Filtro tipado e ID limitado preservam central → detalhe → runbook → retorno, sem aceitar uma URL arbitrária de redirecionamento. A atualização é manual; [snapshot.js](../alert_receiver/snapshot.js) apenas vence a observação, abre seus detalhes e orienta o foco de retorno.
+
+**Motivo:** a central precisa de histórico e procedimentos, sem uma segunda fonte de métricas. Grafana, Jaeger e Prometheus seguem acessíveis pelos destinos validados em [diagnostics.py](../alert_receiver/diagnostics.py). Configuração ausente apresenta erro, sem encaminhar para outra stack.
+
+**Custo e limite:** a página é uma leitura do instante; alterações exigem atualização. Sem JavaScript, o resultado do probe só é reavaliado no próximo carregamento. O renderer dos runbooks suporta títulos, listas e código, não Markdown completo. A UI não calcula métricas por tenant ou disponibilidade global. [Testes da interface](../tests/unit/test_receiver_ui.py), [rotas](../tests/unit/test_receiver.py) e [investigação](../tests/unit/test_receiver_diagnostics.py) conferem esses contratos.
+
+**Composição da triagem:** [ui.py](../alert_receiver/ui.py) e [styles.css](../alert_receiver/styles.css) mantêm estado, impacto, momento relevante e investigação em uma lista linear. Filtros têm contagens subordinadas ao rótulo; IDs e entregas abrem por expansão. O motivo é permitir escolher uma ocorrência antes de ler seu diagnóstico. O custo é uma interação adicional para metadados; estado e impacto continuam visíveis. A cronologia usa separadores simples, preservando a diferença entre recuperação, entrega atrasada e ação manual. A [comparação com o baseline](interface-validation.md) mede ocupação da tela com os mesmos dados sintéticos; não demonstra ganho de produtividade nem aprovação de usuários.
+
+## Separar observação, diagnóstico e prova
+
+**Decisão:** o [probe](../alert_receiver/probe.py) usa tenant próprio e confere pelo proxy o resultado fixo de R$ 125,00, dois pedidos e ticket de R$ 62,50. O vencimento da observação é explícito. Métricas usam populações definidas; traces são amostrados em 25%.
+
+**Motivo:** “sem incidentes” não significa “saudável”, e um alerta informa sintoma, não causa. Investigar envolve comparar duração total, aquisição de conexão, SQL, cache e ERP, com um trace existente e logs correlacionados. Uma consulta bem-sucedida também não prova disponibilidade de todas as réplicas ou entrega dos alertas.
+
+**Custo e limite:** um request pode não ter trace; Jaeger usa memória. Duas réplicas no mesmo host compartilham falhas. A referência de SLO de 30 dias não é resultado de uma demo curta. [Probe](../tests/unit/test_receiver_probe.py), [SLO](slo.md) e [verificação](verification.md) documentam o que foi testado e o que não foi medido. Nenhuma integração Azure ou ingestão em serviços externos está implementada.

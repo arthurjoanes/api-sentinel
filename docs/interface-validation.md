@@ -1,5 +1,73 @@
 # Validação da interface — 22/09/2026
 
+## Triagem, navegação e documentação
+
+Esta revisão parte de `b5f0eed`. A prova [interface-navigation.json](evidence/interface-navigation.json) identifica a imagem `pf-api-sentinel-triage:20260922`, arquivos empacotados, checks e capturas. `interface-review.json`, `interface-package.json` e a prova operacional permanecem históricos; seus hashes não representam os arquivos alterados nesta rodada.
+
+A central usa navegação horizontal e uma lista linear: estado, impacto, momento relevante e investigação ficam visíveis; identificação e entregas abrem por expansão. Os filtros são uma barra compacta com contagens, sem aparência de indicadores de desempenho. A observação do probe permanece separada; no celular, um atalho permite chegar a ela sem atravessar a lista inteira. O detalhe coloca impacto e próximo passo antes de uma cronologia compacta. Encerramento manual tem indicação neutra; recuperação exige a entrega correspondente.
+
+A revisão visual consultou exemplos oficiais de [Grafana Alert List](https://grafana.com/docs/grafana/latest/visualizations/panels-visualizations/visualizations/alert-list/), [Karma](https://github.com/prymitive/karma) e [cState](https://github.com/cstate/cstate), além de orientações de [hierarquia do Carbon](https://carbondesignsystem.com/data-visualization/dashboards/) e [detalhe sob demanda do NN/g](https://www.nngroup.com/articles/progressive-disclosure/). São referências de padrões, não aprovação por usuários do Sentinel. A implementação é original; não foram copiados código, estilos, textos ou assets. Não foram trazidos gráficos, silenciamento de alertas ou indicadores que o receiver não calcula.
+
+Uma versão intermediária com filtros em cards e ocorrências altas adiava a triagem. A inspeção levou à barra compacta e à lista atual. Cabeçalho e conteúdo compartilham eixos centralizados, limitados a 1380 pixels. Títulos menores, corpo de leitura de 14 pixels e metadados subordinados reduzem a competição visual; cor acompanha texto de estado. Hover/foco têm transições de 180 ms, desativadas por movimento reduzido, sem simulação de atividade ao vivo.
+
+## Comparação com o mesmo recorte
+
+O renderizador e os assets de `b5f0eed` foram executados com os mesmos registros SQLite, títulos, horários, filtro Finalizados e probe desativado do candidato. Viewport de 900 pixels de altura; posições arredondadas em pixels CSS. O aviso sintético aparece nas duas versões.
+
+| Largura | Início da primeira ocorrência: baseline → candidato | Linhas inteiras visíveis: baseline → candidato |
+| --- | --- | --- |
+| 1440 | 504 → 383 | 2 → 2 |
+| 768 | 498 → 374 | 2 → 2 |
+| 390 | 778 → 462 | 0 → 2 |
+| 320 | 817 → 462 | 0 → 1 |
+
+A linha de desktop passou de cerca de 110 para 139 pixels: a ação explícita e a expansão ocupam espaço. A redução principal ocorre antes da lista, que começa mais cedo; não se afirma que todo elemento ficou menor. Em 1920 pixels o conteúdo mantém os eixos e o limite de largura. Essas medidas descrevem composição com duas ocorrências sintéticas; não medem produtividade ou preferência de operadores.
+
+Comparações: [baseline 1440](screenshots/navigation-review/baseline-resolved-1440.png) / [candidato 1440](screenshots/navigation-review/candidate-resolved-1440.png), [baseline 768](screenshots/navigation-review/baseline-resolved-768.png) / [candidato 768](screenshots/navigation-review/candidate-resolved-768.png), [baseline 390](screenshots/navigation-review/baseline-resolved-390.png) / [candidato 390](screenshots/navigation-review/candidate-resolved-390.png), [baseline 320](screenshots/navigation-review/baseline-resolved-320.png) / [candidato 320](screenshots/navigation-review/candidate-resolved-320.png).
+
+## Contratos e provas desta revisão
+
+O baseline reproduziu três problemas funcionais: voltar do detalhe removia o filtro; o runbook não oferecia volta à ocorrência; investigação sem configuração abria JSON cru no navegador. A correção transporta somente filtro validado e ID numérico limitado. O retorno foca a ocorrência ou, se ela tiver saído do filtro, o conteúdo. Runbooks conservam a volta ao incidente e o foco nas seções. Erros de ferramentas oferecem HTML ao navegador; clientes JSON e redirects válidos mantêm o contrato.
+
+“Finalizados” reúne recuperações recebidas e encerramentos administrativos. Estados persistidos, regras de deduplicação, entrega atrasada e caminho comercial da API não mudaram. README, problema/solução, decisões técnicas e arquitetura explicam entrada → resultado, código, testes, motivo e limite.
+
+| Verificação | Resultado e escopo |
+| --- | --- |
+| Edge + Playwright, receiver/SQLite descartáveis | 12 jornadas: três filtros em 1440, 768, 390 e 320 pixels; detalhe → runbook → detalhe → lista mantém contexto e foco |
+| Estados e refluxo | 16 rotas/estados × 5 larguras (1440, 768, 640, 390, 320); sem rolagem horizontal da página ou erros JavaScript |
+| Teclado e retorno | Skip link, âncoras dos procedimentos, retorno à linha e fallback quando a linha sai do filtro |
+| Semântica | Manual diferente de recuperação; firing atrasado ignorado permanece no histórico; probe desativado neutro e resultado recente vencendo sem recarga |
+| Composição e contraste | 40 combinações de oito rotas em 1920, 1440, 768, 390 e 320; eixos coincidentes e pares computados de texto/fundo sem falhas nos limiares examinados |
+| Imagem nova, sem bind de fontes | Ruff global; formato de 70 arquivos; mypy de 27 fontes; 166 testes e 2 subtests, com 2 avisos de depreciação existentes; 116 arquivos correspondentes ao workspace |
+| HTTP em processo na imagem | 20 rotas: assets idênticos aos bytes empacotados, sete runbooks, contexto e erros 404/422/503 |
+| Trivy 0.74.0 | Zero achados, incluindo zero HIGH/CRITICAL; mesma política do CI, sem exceções; identidade e resultados no JSON |
+
+O pacote inclui também alterações concorrentes no fingerprint operacional e seu teste: a pasta `data/` passa a participar da identidade das fontes. O coletor `scripts/capture_operational_story.cjs` foi lido e teve a sintaxe Node conferida; as execuções reais foram feitas por uma coleta independente, identificada abaixo. Os 116 arquivos empacotados desta revisão foram novamente comparados ao workspace após a conclusão dessa coleta. A imagem da UI e as imagens operacionais mantêm provas separadas.
+
+O scanner reutilizou a base de 22/09 às 02:00:05 UTC, válida até 23/09 às 02:00:05 UTC, com rede desativada, `--skip-db-update`, `--offline-scan` e `--ignorefile /dev/null`. O aviso de Alpine 3.24 fora da lista EOL não impediu a análise de pacotes Alpine, Python e Rust. Nenhuma carga ou stack operacional foi iniciada para esta revisão da UI.
+
+Limites: 640/320 pixels conferem refluxo equivalente a 1280 pixels a 200%/400%; não houve zoom nativo ou leitor de tela. O contraste computado usa 4,5:1, ou 3:1 para texto grande, e não constitui auditoria WCAG completa. Destinos válidos de Grafana/Jaeger foram conferidos por HTTP de redirect; a configuração ausente foi testada no navegador. Não houve ensaio com usuários ou nova medição de SLO/desempenho.
+
+Capturas sintéticas: [central](screenshots/navigation-review/central-desktop.png), [celular](screenshots/navigation-review/central-mobile.png), [recuperação](screenshots/navigation-review/recovered-detail.png), [manual](screenshots/navigation-review/manual-detail.png), [runbook com retorno](screenshots/navigation-review/runbook-context.png), [ferramenta indisponível](screenshots/navigation-review/tool-unavailable.png) e [procedimento em 320 pixels](screenshots/navigation-review/reflow-320.png). O aviso de prévia distingue esses registros da stack.
+
+Relatórios e scripts locais ficam em `.runtime/ui-journey/`, ignorado pelo Git: `preview.py`, `review.cjs`, `compare.cjs`, `visual-audit.cjs`, `check_candidate.py`, `candidate-checks.json`, `build.log`, `trivy.json` e `browser-review.json`. O JSON versionado registra comandos, checks e hashes. Testes HTTP de contexto e contratos estão em `tests/unit/test_receiver.py` e `test_receiver_diagnostics.py`.
+
+## Coleta operacional complementar, com identidade própria
+
+A coleta independente [20260922t054206130821z](evidence/operational-story-20260922/20260922t054206130821z/proof.json) terminou aprovada às 05:46:13 UTC. Seu cenário `alerts` usa a imagem `sha256:94dcc15433c1927806cf2c108dca1ad82d44874d37bfe8f28e2d1fbf93d391a7`, distinta da imagem de triagem `sha256:7f88c2148a310679b0a0d989c4ce57ce3eadd7f1b9daf44cdbee1b55990c11ee`. O manifesto dessa coleta contém 113 arquivos de runtime correspondentes ao workspace na conferência final; o manifesto do pacote contém 116 arquivos, com escopo próprio.
+
+As três capturas mostram [consulta de referência confirmada](screenshots/operational-story-20260922/20260922t054206130821z/01-fixture-validada.png), [indisponibilidade ativa](screenshots/operational-story-20260922/20260922t054206130821z/02-incidente-ativo.png) e [recuperação da mesma ocorrência](screenshots/operational-story-20260922/20260922t054206130821z/03-mesma-ocorrencia-recuperada.png). O incidente 3 recebeu duas entregas e foi recuperado por webhook `resolved`; não houve encerramento manual. A detecção levou 29,797 s e a recuperação 18,360 s nesse ciclo local. A suíte isolada registrou 257 casos aprovados, 11 subtests e 73 skips; os 73 testes HTTP passaram separadamente. São resultados dessa execução, sem extrapolação para SLO mensal ou capacidade.
+
+A limpeza do namespace terminou às 05:47:49 UTC, sem containers, volumes ou redes remanescentes registrados. A [coleta anterior](evidence/operational-story-20260922/20260922t053056476675z/proof.json), com imagem `sha256:8514769c7f12b904429085a7103752d7b8737fbe1eb404a8105ece1bc2901095`, permanece histórica: estilos, renderizador e coletor diferem da revisão final. A [tentativa inicial que falhou](evidence/operational-story-20260922/attempt-01.json) também foi preservada. Os manifestos exatos e suas comparações em LF não substituem os hashes de execução registrados. Nenhuma dessas duas coletas executou carga de desempenho ou novo Trivy; o scan da imagem de triagem está na prova de empacotamento desta revisão.
+
+## Gate de segredos dos manifestos
+
+Gitleaks 8.30.1 encontrou hashes SHA-256 de quatro arquivos de autenticação/contrato como `generic-api-key` nos manifestos operacionais. Os valores foram comparados aos bytes dos arquivos correspondentes. A exceção em `.gitleaks.toml` exige `AND` entre um dos quatro caminhos completos enumerados — `source-files.json` e `source-files-lf.json` das execuções `20260922t053056476675z` e `20260922t054206130821z` — e um dos quatro valores exatos. Nenhum arquivo inteiro ou diretório foi excluído, e as regras padrão permanecem ativas.
+
+O scan do snapshot completo de rastreados e novos não ignorados terminou sem achados. Vinte controles verificaram cada caminho: antes da exceção há quatro achados; caminho e hashes exatos não geram achados; outra execução, outro nome de arquivo ou outros valores continuam gerando quatro achados. Scripts e resultados locais: `.runtime/ui-journey/check_secrets.py`, `check_story_allowlist.py`, `gitleaks.json` e `gitleaks-story-controls.json`. As provas da coleta foram somente lidas por esta revisão; nenhuma credencial foi adicionada à allowlist.
+
+## Primeira adaptação e empacotamento (histórico preservado)
+
 Adaptação sobre o commit `d03e3c5`. O registro [interface-review.json](evidence/interface-review.json) identifica os arquivos da primeira rodada por SHA-256. Essa rodada cobre a central, seus estados, navegação e renderização. O registro complementar [interface-package.json](evidence/interface-package.json) verifica a nova imagem, sem atribuir a ela uma nova prova de carga.
 
 ## O que mudou

@@ -67,23 +67,24 @@ def layout(title: str, content: str, *, snapshot: bool = False, section: str = "
 <title>{escape_html(title)} · API Sentinel</title>
 <link rel="stylesheet" href="/styles.css">{script}</head><body>
 <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
-<header class="sidebar">
+<header class="masthead">
 <a class="brand" href="/" aria-label="API Sentinel: incidentes">
 <span class="brand-mark" aria-hidden="true">S</span>
-<span>API <strong>Sentinel</strong><small>Operação da API</small></span></a>
+<span>API <strong>Sentinel</strong><small>Vendas · integrações · operação</small></span></a>
 <nav class="primary-nav" aria-label="Navegação principal">
-<a href="/"{incidents_current}><span aria-hidden="true">01</span> Incidentes</a>
-<a href="/runbooks"{runbooks_current}><span aria-hidden="true">02</span> Runbooks</a></nav>
-<nav class="tools-nav" aria-label="Investigar"><p class="nav-label">Investigar</p>
+<a href="/"{incidents_current}>Incidentes</a>
+<a href="/runbooks"{runbooks_current}>Runbooks</a></nav>
+<p class="environment">Laboratório local<span>Dados sintéticos</span></p></header>
+<div class="utility-bar"><p>Operação da API <span aria-hidden="true">/</span>
+<strong>{escape_html(title)}</strong></p>
+<nav class="tools-nav" aria-label="Investigar"><span class="nav-label">Investigar em</span>
 <a href="/tools/grafana/d/sentinel/api-sentinel">Métricas <span>Grafana ↗</span></a>
 <a href="/tools/jaeger/">Traces <span>Jaeger ↗</span></a>
 <a href="/tools/prometheus/targets">Coleta <span>Prometheus ↗</span></a></nav>
-<p class="environment">Laboratório local<br><span>Vendas e ERP sintéticos</span></p></header>
-<div class="workspace"><div class="workspace-bar"><span>API Sentinel
-<span aria-hidden="true">/</span> {escape_html(title)}</span><span>Horários em UTC</span></div>
+</div><div class="workspace">
 <main id="conteudo" tabindex="-1">{content}</main>
 <footer><span>API de vendas · operação e recuperação</span>
-<a href="/runbooks/telemetry">Sobre a observação e os alertas →</a></footer></div>
+<span>Horários em UTC</span><a href="/runbooks/telemetry">Sobre a observação →</a></footer></div>
 </body></html>'''
 
 
@@ -103,22 +104,26 @@ def resolution_label(incident: Incident) -> str:
     return "Recuperação"
 
 
-def incident_row(incident: Incident) -> str:
+def incident_row(incident: Incident, status: str = "all") -> str:
     state, tone = incident_state(incident)
     observed = incident.last_received_at if incident.status == "firing" else incident.ends_at
     severity = SEVERITY_LABELS.get(incident.labels.get("severity", ""), "Atenção")
-    return f"""<li class="incident-row {tone}">
-<div class="row-state"><span class="badge {tone}">{state}</span>
-<span class="incident-id">#{incident.id}</span></div><div class="row-description">
-<h3><a href="/incidents/{incident.id}">{escape_html(incident.annotations["summary"])}</a></h3>
+    detail_url = f"/incidents/{incident.id}?status={status}"
+    return f"""<li class="incident-row {tone}" id="incidente-{incident.id}" tabindex="-1">
+<div class="row-description"><div class="row-state"><span class="badge {tone}">{state}</span>
+<span class="row-severity">{escape_html(severity)}</span></div>
+<h3>{escape_html(incident.annotations["summary"])}</h3>
 <p>{escape_html(incident.annotations.get("impact", "Impacto não informado."))}</p>
-<div class="row-labels"><span>{escape_html(incident.labels.get("service", "api-sentinel"))}</span>
-<span>{escape_html(severity)}</span></div></div>
-<div class="row-observation"><span>{resolution_label(incident)}</span>
-<time>{escape_html(timestamp(observed))}</time>
-<a href="/incidents/{incident.id}" aria-label="Ver histórico do incidente {incident.id}">
-{incident.deliveries} entrega{"s" if incident.deliveries != 1 else ""} · ver histórico →</a>
-</div></li>"""
+</div><div class="row-next"><p class="row-recent"><span>{resolution_label(incident)}</span>
+<time>{escape_html(timestamp(observed))}</time></p>
+<a class="incident-action" href="{escape_html(detail_url)}"
+aria-label="Investigar ocorrência {incident.id}">Investigar →</a></div>
+<details class="row-metadata"><summary>Identificação e entregas</summary>
+<dl class="row-facts"><div><dt>Referência</dt><dd>Incidente #{incident.id}</dd></div>
+<div><dt>Serviço</dt><dd>{escape_html(incident.labels.get("service", "api-sentinel"))}</dd></div>
+<div><dt>Entregas recebidas</dt>
+<dd>{incident.deliveries} entrega{"s" if incident.deliveries != 1 else ""}</dd>
+</div></dl></details></li>"""
 
 
 def probe_observation(probe: ProbeState, observed_at: datetime) -> str:
@@ -147,6 +152,7 @@ def probe_observation(probe: ProbeState, observed_at: datetime) -> str:
         title, description = unavailable[observation]
         tone = "neutral" if observation in {"pending", "disabled"} else "warn"
     return f'''<section class="observation" aria-label="Consulta de referência"{expires}>
+<p class="panel-label">Consulta de referência</p>
 <span class="status-dot {tone}" aria-hidden="true"></span>
 <div class="observation-result" aria-live="polite"><h2 data-observation-title>{title}</h2>
 <p data-observation-description>{description}</p></div>
@@ -159,12 +165,12 @@ def incident_filters(counts: dict[str, int], status: str) -> str:
     choices = (
         ("all", "Todos", sum(counts.values())),
         ("firing", "Em andamento", counts["firing"]),
-        ("resolved", "Resolvidos", counts["resolved"]),
+        ("resolved", "Finalizados", counts["resolved"]),
     )
     return "".join(
         f'<a class="filter {"selected" if status == code else ""}" '
         f'{"aria-current=page" if status == code else ""} href="/?status={code}">'
-        f"{label}<span>{count}</span></a>"
+        f'<span class="filter-label">{label}</span><strong>{count}</strong></a>'
         for code, label, count in choices
     )
 
@@ -172,12 +178,12 @@ def incident_filters(counts: dict[str, int], status: str) -> str:
 def empty_incidents(status: str, resolved_count: int) -> str:
     title = {
         "firing": "Nenhum incidente em andamento",
-        "resolved": "Nenhum incidente resolvido no período",
+        "resolved": "Nenhum incidente finalizado no período",
         "all": "Nenhum incidente no período",
     }[status]
     action = (
         '<a class="text-link" href="/?status=resolved">'
-        f"Ver {resolved_count} incidentes resolvidos →</a>"
+        f"Ver {resolved_count} incidentes finalizados →</a>"
         if status == "firing" and resolved_count
         else (
             '<a class="text-link" href="/tools/prometheus/alerts">'
@@ -215,64 +221,71 @@ Seu resultado não comprova a disponibilidade de todas as réplicas nem a entreg
 <details><summary>Período e histórico <span>Como ler esta lista</span></summary>
 <div class="disclosure-content">
 <p>Incidentes em andamento não expiram. A retenção de {page.retention_days} dias é aplicada
-à última entrega ou reconciliação operacional dos resolvidos, não à data de início.</p>
+à última entrega ou reconciliação operacional dos finalizados, não à data de início.</p>
 <p>Janela: {escape_html(timestamp(page.cutoff_at))} até
 {escape_html(timestamp(page.generated_at))}.</p>
 <p>Um incidente agrupa entregas do mesmo alerta e início. Totais e lista usam a mesma leitura;
 a lista mostra até {page.limit} registros, com os ativos primeiro e os mais recentes em seguida.</p>
-<p>O filtro Resolvidos também inclui encerramentos pelo operador, identificados em cada
-ocorrência. Entregas acumuladas podem exceder os eventos disponíveis no histórico.</p>
+<p>O filtro Finalizados reúne recuperações recebidas e encerramentos pelo operador,
+identificados em cada ocorrência. Entregas acumuladas podem exceder os eventos disponíveis
+no histórico.</p>
 </div></details></section>"""
 
 
 def home(page: IncidentPage, probe: ProbeState, status: str) -> str:
     counts = page.counts
-    entries = "".join(incident_row(incident) for incident in page.records)
+    entries = "".join(incident_row(incident, status) for incident in page.records)
     inbox = (
         f'<ol class="incident-list">{entries}</ol>'
         if entries
         else empty_incidents(status, counts["resolved"])
     )
     filtered_total = page.total if status == "all" else counts[status]
+    list_title = {
+        "all": "Todas as ocorrências",
+        "firing": "Em andamento",
+        "resolved": "Finalizados",
+    }[status]
     content = f"""<div class="page-heading">
-<div><p class="eyebrow">Central de operação</p><h1>Incidentes</h1>
-<p class="lead">Do alerta à recuperação, com o histórico de cada ocorrência.</p></div>
+<div><h1>Incidentes</h1><p class="reading-meta">Atualização manual</p></div>
 <a class="button secondary" href="/?status={escape_html(status)}">↻ Atualizar leitura</a></div>
-<div class="reading-meta"><p><strong>{counts["firing"]} em andamento</strong>
-<span class="meta-divider">/</span> {counts["resolved"]} resolvidos no período</p>
-<p>Leitura de {escape_html(timestamp(page.generated_at))} · Atualização manual</p></div>
-{probe_observation(probe, datetime.now(UTC))}
-<section class="inbox" aria-label="Incidentes">
-<div class="inbox-toolbar"><nav class="filters" aria-label="Filtrar incidentes">
-{incident_filters(counts, status)}</nav>
-<span class="list-count">
+<nav class="filters" aria-label="Filtrar incidentes">{incident_filters(counts, status)}</nav>
+<div class="triage-layout"><section class="inbox" aria-label="Incidentes">
+<div class="inbox-toolbar"><h2>{list_title}</h2><div class="list-scope"><span class="list-count">
 {len(page.records)} de {filtered_total} incidentes · limite de {page.limit}</span>
-</div><div class="list-head" aria-hidden="true"><span>Estado / referência</span>
-<span>Ocorrência / impacto</span><span>Último registro</span></div>{inbox}</section>
+<a class="probe-shortcut" href="#observacao">Ver probe ↓</a></div>
+</div>{inbox}
 <p class="retention">
-Resolvidos: últimos {page.retention_days} dias · Em andamento: sem expiração</p>
-{observation_details(page, probe)}"""
+Finalizados: últimos {page.retention_days} dias · Em andamento: sem expiração</p></section>
+<aside class="triage-aside" aria-label="Observação e escopo">
+{probe_observation(probe, datetime.now(UTC))}
+{observation_details(page, probe)}</aside></div>"""
     return layout("Incidentes", content, snapshot=True)
 
 
-def incident_card(incident: Incident) -> str:
+def incident_runbook(incident: Incident, status: str) -> str:
     annotations = incident.annotations
     runbook = local_link(
         annotations.get("runbook_url", annotations.get("runbook", "")), "/runbooks/telemetry"
     )
+    # A runbook annotation selects a known local procedure, never a return destination.
+    slug = urlsplit(runbook).path.removeprefix("/runbooks/")
+    if slug not in RUNBOOKS:
+        slug = "telemetry"
+    return f"/runbooks/{slug}?incident_id={incident.id}&status={status}"
+
+
+def incident_card(incident: Incident) -> str:
+    annotations = incident.annotations
     dashboard = local_link(
         annotations.get("dashboard_url", annotations.get("dashboard", "")),
         "/tools/grafana/d/sentinel/api-sentinel",
     )
-    return f'''<section class="incident-context" aria-label="Impacto e resposta">
-<div class="context-block"><h2>Impacto</h2>
-<p>{escape_html(annotations.get("impact", "Impacto não informado. Veja o runbook."))}</p></div>
+    return f'''<section class="incident-context" aria-label="Condição e investigação">
 <div class="context-block"><h2>Condição do alerta</h2>
 <p>{escape_html(annotations.get("condition", "Veja a regra no Prometheus."))}</p>
 <p class="muted">Janela: {escape_html(annotations.get("window", "Veja a configuração ativa."))}</p>
-</div><div class="context-block action"><h2>Ação recomendada</h2>
-<p>{escape_html(annotations.get("action", "Abra o runbook para investigar esta ocorrência."))}</p>
-<a class="button" href="{escape_html(runbook)}">Abrir runbook →</a></div>
+</div>
 <div class="context-block investigation"><h2>Investigar</h2>
 <a href="{escape_html(dashboard)}">Métricas no Grafana ↗</a>
 <a href="/tools/jaeger/">Traces no Jaeger ↗</a>
@@ -303,7 +316,7 @@ def event_item(event: IncidentEvent) -> str:
 <p>{escape_html(description)}</p><span class="event-source">{escape_html(source)}</span></li>"""
 
 
-def incident_detail(incident: Incident, events: list[IncidentEvent]) -> str:
+def incident_detail(incident: Incident, events: list[IncidentEvent], status: str = "all") -> str:
     state, tone = incident_state(incident)
     severity = SEVERITY_LABELS.get(incident.labels.get("severity", ""), "Atenção")
     reconciliation = incident.annotations.get("reconciliation")
@@ -322,20 +335,27 @@ def incident_detail(incident: Incident, events: list[IncidentEvent]) -> str:
         )
     return layout(
         f"Incidente #{incident.id}",
-        f"""<a class="back" href="/">← Voltar à central</a>
+        f"""<a class="back" href="/?status={escape_html(status)}#incidente-{incident.id}">
+← Voltar à central</a>
 <div class="detail-heading"><div class="detail-labels">
 <span class="badge {tone}">{state}</span><span>Incidente #{incident.id}</span>
 <span>{escape_html(severity)}</span>
 <span>{escape_html(incident.labels.get("service", "api-sentinel"))}</span></div>
 <h1>{escape_html(incident.annotations["summary"])}</h1>
+<div class="decision-strip"><div><h2>Impacto</h2>
+<p>{escape_html(incident.annotations.get("impact", "Impacto não informado. Veja o runbook."))}</p>
+</div><div><h2>Próximo passo</h2>
+<p>{escape_html(incident.annotations.get("action", "Abra o runbook desta ocorrência."))}</p>
+<a class="button" href="{escape_html(incident_runbook(incident, status))}">Abrir runbook →</a>
+</div></div><details class="incident-metadata"><summary>Datas e entregas</summary>
 <dl class="incident-times"><div><dt>Início do alerta</dt>
 <dd>{escape_html(timestamp(incident.starts_at))}</dd></div>
 <div><dt>{resolution_label(incident)}</dt><dd>{escape_html(timestamp(observed))}</dd></div>
 <div><dt>Entregas recebidas</dt><dd><a href="#historico">
 {incident.deliveries} entrega{"s" if incident.deliveries != 1 else ""} · histórico ↓</a>
-</dd></div></dl></div>
-{notice}<div class="incident-workspace">{incident_card(incident)}
-<section class="history" id="historico"><div class="section-heading">
+</dd></div></dl></details></div>
+{notice}<div class="incident-workspace">
+<section class="history" id="historico" tabindex="-1"><div class="section-heading">
 <div><p class="eyebrow">Entregas e ações do operador</p><h2>Histórico do incidente</h2></div>
 <span>{len(events)} evento{"s" if len(events) != 1 else ""}</span></div>
 <p class="history-scope">Até 100 eventos recentes, do mais novo para o mais antigo.</p>
@@ -344,7 +364,7 @@ def incident_detail(incident: Incident, events: list[IncidentEvent]) -> str:
 <p>Fingerprint: <code>{escape_html(incident.fingerprint)}</code></p>
 <p>Início: {escape_html(timestamp(incident.starts_at))}</p>
 <a class="text-link" href="/api/incidents/{incident.id}">Abrir registro JSON →</a></div></details>
-</section></div>""",
+</section>{incident_card(incident)}</div>""",
     )
 
 
@@ -375,7 +395,9 @@ def inline_markdown(value: str) -> str:
     )
 
 
-def runbook_page(slug: str, markdown: str) -> str:
+def runbook_page(
+    slug: str, markdown: str, *, incident_id: int | None = None, status: str = "all"
+) -> str:
     parts: list[str] = []
     sections: list[str] = []
     code: list[str] | None = None
@@ -398,7 +420,7 @@ def runbook_page(slug: str, markdown: str) -> str:
             parts.append(f"<h3>{escape_html(line[4:])}</h3>")
         elif line.startswith("## "):
             anchor = f"etapa-{len(sections) + 1}"
-            parts.append(f'<h2 id="{anchor}">{escape_html(line[3:])}</h2>')
+            parts.append(f'<h2 id="{anchor}" tabindex="-1">{escape_html(line[3:])}</h2>')
             sections.append(f'<a href="#{anchor}">{escape_html(line[3:])}</a>')
         elif line.startswith("# "):
             parts.append(f"<h1>{escape_html(line[2:])}</h1>")
@@ -415,16 +437,23 @@ def runbook_page(slug: str, markdown: str) -> str:
     if code is not None:
         parts.append("<pre><code>" + escape_html("\n".join(code)) + "</code></pre>")
     title = RUNBOOKS.get(slug, (slug, ""))[0]
+    back = (
+        f'<a class="back" href="/incidents/{incident_id}?status={escape_html(status)}">'
+        f"← Voltar ao incidente #{incident_id}</a>"
+        if incident_id is not None
+        else '<a class="back" href="/runbooks">← Todos os runbooks</a>'
+    )
+    central = f"/?status={status}" + (f"#incidente-{incident_id}" if incident_id else "")
     return layout(
         f"Runbook · {title}",
-        '<a class="back" href="/runbooks">← Todos os runbooks</a>'
-        '<div class="runbook-workspace"><article class="runbook">'
+        back + '<div class="runbook-workspace"><article class="runbook">'
         '<p class="eyebrow">Procedimento operacional</p>'
         + "".join(parts)
         + '</article><aside class="runbook-outline"><nav aria-label="Neste procedimento">'
         '<p class="eyebrow">Neste procedimento</p>'
         + "".join(sections)
-        + '</nav><a class="text-link" href="/">Voltar à central →</a></aside></div>',
+        + f'</nav><a class="text-link" href="{escape_html(central)}">'
+        "Voltar à central →</a></aside></div>",
         section="runbooks",
     )
 

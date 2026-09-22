@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "run_id": "20260922t052634019159z",
+  "project": "pf-api-sentinel-review-20260922t052634019159z",
+  "status": "failed",
+  "started_at": "2026-09-22T05:26:34.020159+00:00",
+  "finished_at": "2026-09-22T05:28:05.842536+00:00",
+  "image_id": "sha256:5a637efd57508aee42cec64dfc23f2faed4f798f27a60ec6af77b57b32e82f1d",
+  "failed_command": "isolated-tests",
+  "reason": "The initial isolated source snapshot omitted data/fixtures/manual-sales.json because the runner fingerprint omitted the data directory. This is a snapshot/provenance preparation failure, not a demonstrated application regression. Tests retained their original requirements.",
+  "exception_excerpt": "FileNotFoundError: [Errno 2] No such file or directory: '/app/data/fixtures/manual-sales.json'",
+  "test_result": {
+    "junit_suite_attributes": {
+      "name": "pytest",
+      "errors": "9",
+      "failures": "2",
+      "skipped": "73",
+      "tests": "340",
+      "time": "9.470",
+      "timestamp": "2026-09-22T05:27:54.286318+00:00",
+      "hostname": "219877fd93f9"
+    },
+    "pytest_summary": "2 failed, 245 passed, 73 skipped, 9 errors, 11 subtests passed",
+    "scope": "The 73 HTTP cases were intentionally reserved for the later HTTP stage, which was not reached."
+  },
+  "screenshots": [],
+  "cleanup": [
+    {
+      "name": "cleanup-tests",
+      "exit_code": 0
+    },
+    {
+      "name": "cleanup-lab",
+      "exit_code": 0
+    }
+  ],
+  "preserved_private_artifacts": [
+    {
+      "name": "run.json",
+      "sha256": "3baa3d27b35d23670cfc7df76a7c25eb669ece0874ab7f200d8dd8525e404a0b",
+      "published": false
+    },
+    {
+      "name": "isolated-tests.log",
+      "sha256": "f625d9003904cd42e160f6cae4799ce76b49680e550ffbebd998635de175587b",
+      "published": false
+    },
+    {
+      "name": "tests.xml",
+      "sha256": "9861f64e10b817b5750a21cdcc3a00ae9d1bfcc1ea2f55c8b35ad1ada8166dea",
+      "published": false
+    },
+    {
+      "name": "failure.log",
+      "sha256": "f33950a124a0da6a5bf4e07e3fb99aeceeb18ad01a06cd386f0f4f488fc5819c",
+      "published": false
+    },
+    {
+      "name": "operational-story/capture.json",
+      "sha256": "0650124eeec9eede87e7944a5e737df3c8f5a0bf5a6e79f07828b6b68d4e126a",
+      "published": false
+    }
+  ],
+  "followup": "Runner source identity now includes data and has a regression detecting fixture changes; a new isolated attempt retains the full fixture."
+}

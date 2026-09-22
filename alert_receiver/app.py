@@ -10,7 +10,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Annotated, Literal
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Query, Request
 from fastapi import Path as PathParameter
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import HTMLResponse, JSONResponse, Response
@@ -28,6 +28,8 @@ from alert_receiver.storage import AlertStore
 logger = logging.getLogger("sentinel.receiver")
 RUNBOOKS = frozenset(ui.RUNBOOKS)
 IncidentId = Annotated[int, PathParameter(ge=1, le=2**63 - 1)]
+IncidentFilter = Literal["all", "firing", "resolved"]
+OriginIncidentId = Annotated[int | None, Query(ge=1, le=2**63 - 1)]
 
 
 def problem(status: int, code: str, detail: str) -> JSONResponse:
@@ -254,12 +256,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         )
 
     @application.get("/", response_class=HTMLResponse)
-    async def index(status: Literal["all", "firing", "resolved"] = "all") -> str:
+    async def index(status: IncidentFilter = "all") -> str:
         page = await asyncio.to_thread(store.page, None if status == "all" else status)
         return ui.home(page, probe, status)
 
     @application.get("/incidents/{incident_id}", response_class=HTMLResponse)
-    async def incident_html(incident_id: IncidentId) -> Response:
+    async def incident_html(incident_id: IncidentId, status: IncidentFilter = "all") -> Response:
         record = await asyncio.to_thread(store.incident, incident_id)
         if record is None:
             return HTMLResponse(
@@ -271,7 +273,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 status_code=404,
             )
         events = await asyncio.to_thread(store.events, incident_id)
-        return HTMLResponse(ui.incident_detail(record, events))
+        return HTMLResponse(ui.incident_detail(record, events, status))
 
     @application.get("/styles.css")
     async def styles() -> FileResponse:
@@ -284,8 +286,26 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 tool_url, service, path, request.url.query, settings.public_urls_file
             )
         except KeyError:
+            if "text/html" in request.headers.get("accept", ""):
+                return HTMLResponse(
+                    ui.problem_page(
+                        404, "Ferramenta desconhecida", "Use os links de investigação da central."
+                    ),
+                    status_code=404,
+                )
             return problem(404, "tool_not_found", "Ferramenta desconhecida.")
         except (OSError, ValueError, TypeError):
+            if "text/html" in request.headers.get("accept", ""):
+                return HTMLResponse(
+                    ui.problem_page(
+                        503,
+                        "Investigação indisponível",
+                        "O endereço da ferramenta não está configurado para esta execução. "
+                        "Confira os destinos locais antes de tentar novamente; "
+                        "o histórico de incidentes continua acessível.",
+                    ),
+                    status_code=503,
+                )
             return problem(
                 503,
                 "tool_unavailable",
@@ -298,7 +318,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return FileResponse(Path(__file__).with_name("snapshot.js"), media_type="text/javascript")
 
     @application.get("/runbooks/{slug}", response_class=HTMLResponse)
-    async def runbook(slug: str) -> Response:
+    async def runbook(
+        slug: str, incident_id: OriginIncidentId = None, status: IncidentFilter = "all"
+    ) -> Response:
         if slug not in RUNBOOKS:
             return HTMLResponse(
                 ui.problem_page(
@@ -321,7 +343,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 ),
                 status_code=503,
             )
-        return HTMLResponse(ui.runbook_page(slug, markdown))
+        return HTMLResponse(ui.runbook_page(slug, markdown, incident_id=incident_id, status=status))
 
     @application.get("/runbooks", response_class=HTMLResponse)
     async def runbooks() -> str:

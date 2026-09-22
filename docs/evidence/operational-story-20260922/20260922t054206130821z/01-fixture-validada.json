@@ -1,0 +1,40 @@
+{
+  "captured_at": "2026-09-22T05:44:20.107Z",
+  "route": "/",
+  "metrics": "# HELP sentinel_probe_success Último probe validou a fixture pelo proxy.\n# TYPE sentinel_probe_success gauge\nsentinel_probe_success 1.0\n# HELP sentinel_probe_last_run_timestamp_seconds Instante da última consulta concluída pelo probe, sem tentativas de configuração.\n# TYPE sentinel_probe_last_run_timestamp_seconds gauge\nsentinel_probe_last_run_timestamp_seconds 1.790055857493319e+09\n# HELP sentinel_probe_stale_after_seconds Limite de frescor da observação, derivado do intervalo e deadline configurados.\n# TYPE sentinel_probe_stale_after_seconds gauge\nsentinel_probe_stale_after_seconds 15.0\n# HELP sentinel_probe_config_valid Configuração do probe foi lida e validada na última tentativa: 0 ou 1.\n# TYPE sentinel_probe_config_valid gauge\nsentinel_probe_config_valid 1.0\n# HELP sentinel_expected_replicas Réplicas desejadas no arquivo local de operação.\n# TYPE sentinel_expected_replicas gauge\nsentinel_expected_replicas 2.0\n# HELP sentinel_probe_duration_seconds Duração ponta a ponta do probe.\n# TYPE sentinel_probe_duration_seconds histogram\nsentinel_probe_duration_seconds_bucket{le=\"0.1\"} 10.0\nsentinel_probe_duration_seconds_bucket{le=\"0.25\"} 11.0\nsentinel_probe_duration_seconds_bucket{le=\"0.5\"} 11.0\nsentinel_probe_duration_seconds_bucket{le=\"1.0\"} 12.0\nsentinel_probe_duration_seconds_bucket{le=\"2.0\"} 12.0\nsentinel_probe_duration_seconds_bucket{le=\"3.0\"} 12.0\nsentinel_probe_duration_seconds_bucket{le=\"+Inf\"} 12.0\nsentinel_probe_duration_seconds_count 12.0\nsentinel_probe_duration_seconds_sum 0.9617580209960579\n# HELP sentinel_probe_duration_seconds_created Duração ponta a ponta do probe.\n# TYPE sentinel_probe_duration_seconds_created gauge\nsentinel_probe_duration_seconds_created 1.7900558243693244e+09\n# HELP sentinel_probe_results_total Resultados do probe por categoria limitada.\n# TYPE sentinel_probe_results_total counter\nsentinel_probe_results_total{result=\"deadline\"} 1.0\nsentinel_probe_results_total{result=\"network\"} 1.0\nsentinel_probe_results_total{result=\"success\"} 10.0\n# HELP sentinel_probe_results_created Resultados do probe por categoria limitada.\n# TYPE sentinel_probe_results_created gauge\nsentinel_probe_results_created{result=\"deadline\"} 1.7900558252085526e+09\nsentinel_probe_results_created{result=\"network\"} 1.790055827480789e+09\nsentinel_probe_results_created{result=\"success\"} 1.7900558305806367e+09\n# HELP sentinel_alert_webhooks_total Entrega de webhooks ao receiver.\n# TYPE sentinel_alert_webhooks_total counter\nsentinel_alert_webhooks_total{result=\"persisted\"} 0.0\nsentinel_alert_webhooks_total{result=\"unauthorized\"} 0.0\nsentinel_alert_webhooks_total{result=\"invalid\"} 0.0\nsentinel_alert_webhooks_total{result=\"too_large\"} 0.0\nsentinel_alert_webhooks_total{result=\"storage_error\"} 0.0\nsentinel_alert_webhooks_total{result=\"busy\"} 0.0\n# HELP sentinel_alert_webhooks_created Entrega de webhooks ao receiver.\n# TYPE sentinel_alert_webhooks_created gauge\nsentinel_alert_webhooks_created{result=\"persisted\"} 1.7900558243693998e+09\nsentinel_alert_webhooks_created{result=\"unauthorized\"} 1.790055824369413e+09\nsentinel_alert_webhooks_created{result=\"invalid\"} 1.79005582436942e+09\nsentinel_alert_webhooks_created{result=\"too_large\"} 1.7900558243694253e+09\nsentinel_alert_webhooks_created{result=\"storage_error\"} 1.7900558243694305e+09\nsentinel_alert_webhooks_created{result=\"busy\"} 1.7900558243694355e+09\n# HELP sentinel_alert_truncated_total Alertas omitidos pelo limite do Alertmanager.\n# TYPE sentinel_alert_truncated_total counter\nsentinel_alert_truncated_total 0.0\n# HELP sentinel_alert_truncated_created Alertas omitidos pelo limite do Alertmanager.\n# TYPE sentinel_alert_truncated_created gauge\nsentinel_alert_truncated_created 1.7900558243693795e+09\n",
+  "fixture": {
+    "store_id": 7,
+    "start": "2026-01-01",
+    "end": "2026-01-01",
+    "currency": "BRL",
+    "revenue_cents": 12500,
+    "order_count": 2,
+    "average_ticket_cents": 6250,
+    "data_updated_at": "2026-09-22T05:43:41.244327+00:00",
+    "observed_at": "2026-09-22T05:44:05.647987+00:00",
+    "dataset_version": "v1-9a22e96438804d54",
+    "coverage": {
+      "starts_on": "2026-01-01",
+      "ends_on": "2026-01-01",
+      "complete": true
+    },
+    "cache_age_seconds": 13.856
+  },
+  "incidents": {
+    "incidents": [],
+    "counts": {
+      "firing": 0,
+      "resolved": 0
+    },
+    "scope": {
+      "generated_at": "2026-09-22T05:44:19.284855Z",
+      "cutoff_at": "2026-08-23T05:44:19.284855Z",
+      "retention_days": 30,
+      "limit": 100,
+      "shown": 0,
+      "total": 0,
+      "filtered_total": 0
+    }
+  },
+  "scope": "The fresh probe validated status, schema and expected amounts. This is not global health."
+}

@@ -1,5 +1,25 @@
 # Verificação
 
+## Qual prova responde a cada pergunta
+
+| Pergunta | Versão ou identidade | Evidência e limite |
+| --- | --- | --- |
+| As consultas, quota, dependências e recuperação passaram juntas? | Execução `20260922t021943129883z`, imagem `sha256:011252…`; identidade completa no JSON | [Prova operacional](evidence/publication.json), descrita abaixo. Inclui carga local e falhas reais, com massa/ERP sintéticos; antecede a revisão visual. |
+| A interface foi observada durante uma falha e recuperação reais? | Execução `20260922t054206130821z`, imagem `sha256:94dcc1…`, 113 fontes identificadas por hash | [Sequência operacional](operational-story.md) e [prova](evidence/operational-story-20260922/20260922t054206130821z/proof.json). Fixture conferida antes/depois e mesma ocorrência recuperada; sem novo benchmark ou scan. |
+| Qual revisão visual tem checks próprios? | Registro de 22/09 às 05:36 UTC; base `b5f0eed`, imagem `pf-api-sentinel-triage:20260922` e hashes discriminados no JSON | [Revisão de navegação](evidence/interface-navigation.json) e [explicação dos checks](interface-validation.md). Capturas com ocorrências sintéticas; checks de pacote e scan não repetem o ensaio de carga nem aprovam edições posteriores. |
+| O CI publicou resultados para um commit? | Cada execução de CI identifica o SHA e seus próprios artefatos | [Workflow](../.github/workflows/ci.yml) e [histórico da correção de exportação](interface-validation.md#correção-da-exportação-junit-no-ci). Alteração local posterior não herda a aprovação desse commit. |
+| Uma pessoa conseguiu usar os procedimentos sem ajuda contínua? | Ainda não há sessão humana registrada | [Protocolo preparado](demo.md#exercício-com-outra-pessoa--preparado-ainda-não-realizado). Execução automatizada não substitui essa avaliação. |
+
+Uma fonte pode estar identificada por commit ou por um manifesto de hashes quando a execução usou um snapshot ainda não commitado. O registro precisa dizer qual caso se aplica. Quantidades de testes, subtests, requisições de carga e jornadas de navegador têm denominadores diferentes; não são somadas para formar um único indicador de qualidade.
+
+## Interface durante incidente real — 22/09 às 05:42 UTC
+
+O cenário limitado `alerts` aprovou build, lint, formato, tipos, regras de monitoramento, 257 testes isolados com 11 subtests e 73 testes HTTP. Os casos HTTP estavam reservados na primeira etapa e não são contados duas vezes. A fixture retornou R$ 125,00 em dois pedidos antes e depois; foram executados ciclos de perda de réplica e indisponibilidade das duas réplicas. A ocorrência fotografada manteve sua identidade ao receber a recuperação real.
+
+As [três capturas comentadas](operational-story.md), [XMLs e hashes](evidence/operational-story-20260922/20260922t054206130821z/proof.json) permitem conferir o resultado. Os 113 arquivos operacionais coincidiram com o repositório na comparação posterior registrada; o snapshot não é apresentado como commit publicado. A limpeza removeu somente seu projeto descartável. O [histórico das tentativas](evidence/operational-story-20260922/index.json) conserva a falha de preparação da fixture e a prova anterior à última edição visual.
+
+## Prova operacional completa de 22/09/2026
+
 Execução **20260922t021943129883z**, iniciada em 2026-09-22T02:19:43.130383+00:00 e concluída em 2026-09-22T02:29:00.260436+00:00: **aprovada**, incluindo recuperação e limpeza dos projetos temporários. Foi usada uma cópia das fontes de publicação; `.git`, caches e credenciais de execução ficaram fora do contexto Docker. As fontes operacionais e os sete runbooks ficaram inalterados durante a prova. Os arquivos de texto usam LF e seus bytes foram conferidos contra os filtros de publicação do Git, preservando os binários.
 
 O [registro público](evidence/publication.json) contém a imagem exata, a impressão digital das fontes, os contadores de carga e o resultado de cada etapa. Os dados comerciais e o ERP são sintéticos; HTTP, PostgreSQL, Redis, proxy, entrega de alertas e traces foram executados em serviços locais reais.

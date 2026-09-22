@@ -1,50 +1,63 @@
-# Consultar lojas quando uma dependência degrada
+# Problemas resolvidos e como conferir
 
-## Problema e tese
+O laboratório modela uma integração de lojas que consulta vendas e disponibilidade no ERP. Clientes, vendas e ERP são sintéticos. O resultado demonstrado é técnico: consultas com escopo correto, contenção de falhas e histórico verificável. Não houve piloto com operadores reais, medição de economia ou operação em produção.
 
-Integrações e operadores de uma rede de lojas precisam consultar vendas e disponibilidade sem misturar clientes, inventar totais ou bloquear toda a API quando o ERP fica lento. É um problema plausível; não houve entrevista, piloto com cliente ou operação em produção.
+## 1. Uma credencial não pode consultar a loja de outra organização
 
-A alternativa simples é uma API que consulta PostgreSQL/ERP diretamente, com retry manual e um contador de erros. Ela basta para pouca concorrência sem falhas. A restrição demonstrável aqui é manter consultas de vendas corretas enquanto chamadas ERP ocupam tempo/conexões, e recusar pressão excedente sem retirar a quota compartilhada quando Redis falha.
+**Entrada → resultado:** a credencial da organização A lista as lojas 1, 2 e 3. Uma consulta à loja 4 recebe HTTP 403. Um resultado já em cache não dispensa essa autorização. Credenciais revogadas deixam de autenticar na consulta seguinte, inclusive quando ela chega a outro processo.
 
-A tese é contenção e recuperação verificáveis: identidade deriva da credencial, autorização antecede cache/ERP, concorrência tem limite imediato, quota é compartilhada, ERP tem prazo/circuito e o probe independente acompanha uma fixture. Duas réplicas locais não demonstram escala geográfica nem SLO mensal.
+**Como:** [authenticate e authorize](../src/api_sentinel/auth.py) derivam tenant, lojas e escopos do registro da credencial. O [fluxo HTTP](../src/api_sentinel/app.py) autoriza antes da quota e do cache. A chave do resumo contém versão, tenant, loja e período. A identidade não vem de um parâmetro enviado pelo consumidor.
 
-## Diagnóstico
+**Como conferir:** [integração PostgreSQL](../tests/integration/test_data_postgres.py), casos `test_cross_tenant_and_scope_rejected_before_business_query` e `test_expired_and_revocation_are_seen_by_both_process_pools`. O custo é consultar a credencial a cada requisição; o pool de autenticação tem orçamento próprio. Isso verifica isolamento no contrato da aplicação, não isolamento físico de bancos por cliente.
 
-Jornada pequena, sem carga/falha: `artifacts/problem-review/baseline-http.json`. Lojas A retornaram apenas 1–3; fixture retornou 12.500 centavos/2 pedidos/ticket 6.250; A acessando loja 4 recebeu 403; ERP local respondeu identificação correta. Isso mostra os cinco casos básicos, não substitui a matriz operacional.
+## 2. Três itens não são três pedidos
 
-| Alegação / situação | Implementação existente | Resultado na época e classificação | Lacuna | Correção planejada | Critério anterior à medição |
-|---|---|---|---|---|---|
-| Consulta correta e isolada | auth → quota → admissão → cache/SQL; fixture manual | 5 leituras reais; parcial | carga anterior confere status, não o resultado | conferência independente por linhas brutas e validação em cada 200, mistura de rotas/clientes | zero divergência de identidade, escopo, moeda, receita, pedidos e itens |
-| ERP degradado preserva vendas | bulkhead 4, deadline 900 ms e circuito local | código e teste antigo; parcial | falha sequencial não demonstra mistura simultânea | carga aberta com ERP lento e consultas comerciais concorrentes | vendas normais sem falha, ERP limitado, nenhum drop; recuperação com resposta conhecida |
-| Redis inteiro falha fechado; só cache permite fallback | clientes/ACL separados; quota Lua | código e teste antigo; parcial | roteiro altera a massa/stack demo | stack operacional descartável, mesma configuração funcional e volumes próprios | 503 quota_unavailable, live 200, zero consulta SQL de resumo durante queda; depois 200 correto |
-| Quota não duplica com réplicas | janela Redis comum por tenant | teste antigo; parcial | denominador do cliente quente incompleto e rota única | contagem de todas as conclusões/rejeições e mesmos parâmetros em 1/2 réplicas | quota observada em ambos, zero erro inesperado, sem ganho aparente por rejeição |
-| Cache evita stampede | lock distribuído com token/TTL | teste antigo; parcial | relatório registra 1/0/1 sem afirmar o resultado | asserção sobre SQL e igualdade dos resultados antes/depois | quatro chamadas/fase, 1/0/1 consultas de resumo; zero valor incorreto |
-| Alerta chega e resolve sem depender da API | probe → Prometheus → AM → receiver SQLite | teste antigo; parcial | demonstração para serviços da stack persistente | ciclo real apenas no projeto descartável | firing/resolved em até 90 s cada, mesma ocorrência; todos incidentes novos resolvidos e probe correto |
-| Medição reproduzível sem perder falhas | JSON por nome fixo | parcial | sobrescreve execução e pode tratar alguns 200 como sucesso suficiente | diretório UTC por execução, fingerprint, exit code, limiares, inventário e registro de falhas | arquivos preservados, denominadores completos e resultado não aprovado se houver drop/erro/contrato incorreto |
-| Operador investiga o ambiente do incidente | links em portas fixas da demo | defeito confirmado ao ler UI e executar stack com portas próprias | Grafana/Jaeger de outra stack podem parecer o ambiente do incidente | resolver destinos por arquivo local validado da execução | quatro redirects 307 para as portas efetivas; arquivo inválido retorna 503 sem fallback |
+**Entrada:** a fixture de referência contém duas unidades de R$ 25,00 no pedido 101, uma de R$ 35,00 no mesmo pedido e uma de R$ 40,00 no pedido 102.
 
-## O que a execução revelou
+**Resultado:** receita de `12500` centavos, `2` pedidos e ticket médio de `6250` centavos. Uma venda à meia-noite do dia comercial seguinte fica fora da consulta do dia anterior. Consultar fora da cobertura conhecida recebe HTTP 422, em vez de um zero que pareceria válido.
 
-Duas execuções passaram na mistura normal, ERP degradado e recuperação, com conteúdo validado, e falharam na carga de quota: 300 resultados corretos, 299 respostas 429 e duas respostas 503 em 601 conclusões. Não houve drop ou conteúdo incorreto.
+**Como:** [queries.py](../src/api_sentinel/queries.py) soma quantidade × preço, conta pares distintos de loja/pedido e converte dias de São Paulo para um intervalo UTC com fim exclusivo. O ticket usa `Decimal` com `ROUND_HALF_UP`. A [fixture independente](../tests/unit/test_data_contract.py) fixa a conta; [testes com PostgreSQL](../tests/integration/test_data_postgres.py) conferem agregado, fronteira do dia e cobertura.
 
-A primeira hipótese era a ausência de aquecimento após mudar a quantidade de réplicas. A segunda execução a refutou: houve a mesma falha com uma réplica já aquecida. Os contadores localizaram exatamente duas rejeições em `auth`; não demonstraram a causa subjacente da espera. A admissão de autenticação foi ajustada de quatro para oito operações, mantendo pool de 2, aquisição de 200 ms e prazo de 500 ms. O teste concorrente exige recusa da nona sem iniciar autenticação adicional e verifica liberação após cancelamento. A [execução final](../artifacts/problem-review/20260921t064944662185z/summary.json) passou sem mudar a taxa nem relaxar os limiares; isso não garante o resultado sob qualquer carga.
+**Limite:** a massa é imutável e o contrato monetário é BRL em centavos. O projeto não implementa escrita de vendas, câmbio ou atualização transacional desse cache.
 
-| Critério final | Resultado | Situação |
-|---|---|---|
-| Conteúdo e escopo sob mistura | 151/151 normais; 70 testes HTTP; cada 200 validado contra linhas brutas | Executado localmente |
-| ERP isolado e recuperado | 114 consultas comerciais corretas, 37 falhas só ERP; depois 101/101 corretas | Executado localmente |
-| Quota e outro tenant | 300 corretas +301 quota em 1 e 2 réplicas; B51/51 sob A60/s | Executado localmente |
-| Cache/Redis e recuperação | SQL1/0/1; Redis parado: live200, ready503, negócio503 e SQL0; retorno correto | Executado localmente |
-| Alerta e retorno conhecido | Dois ciclos firing/resolved, mesma ocorrência, sete incidentes finais resolvidos e fixture correta | Executado localmente |
-| Registros preservados | Diretórios separados, falhas mantidas, 81 arquivos sem segredos conhecidos da execução | Executado; guardas de limpeza também testadas sem Docker |
-| Utilidade e disponibilidade externa | Nenhum piloto, serviço externo real ou janela de 30 dias | Não demonstrado |
+## 3. O ERP lento não deve ocupar todos os recursos das vendas
 
-O problema dos links foi reproduzido e corrigido: quatro destinos retornaram 307 para portas da stack descartável, e o HTML atual contém navegação relativa. Testes cobrem configuração ausente/inválida, destinos externos e serviço desconhecido. A aparência da central não foi redesenhada.
+**Entrada → resultado:** o simulador pode enviar chunks continuamente, sem ficar inativo tempo suficiente para um timeout de leitura. A chamada ERP ainda termina pelo prazo total. O circuito e o limite de quatro chamadas por processo contêm esse caminho; resumos usam PostgreSQL e não dependem da resposta do ERP.
 
-## Experimento que pode refutar a tese
+**Como:** [erp.py](../src/api_sentinel/erp.py) usa cliente reutilizado, admissão própria, orçamento total de 900 ms, limite de bytes e circuito por processo. Redirects, compressão e formatos inesperados são recusados. Um retry elegível consome o mesmo orçamento. [Testes do runtime](../tests/unit/test_runtime.py) exercitam chunks contínuos, resposta excessiva e validação da resposta.
 
-Sob oferta pequena pré-definida, um ERP lento que cause erro nas consultas independentes, uma resposta 200 de tenant errado, um Redis indisponível que libere SQL protegido, ou recuperação sem voltar à fixture conhecida reprova a tese. Não basta reduzir p95 global com 503 rápidos. Carga normal/ERP lenta usa o mesmo gerador, período e mistura; só a condição da dependência muda. O teste compara comportamento de falha, não promete benefício comercial.
+**Prova de coexistência:** testes isolados não demonstram sozinhos ERP lento e vendas simultâneas. Essa medição pertence às execuções identificadas em [verificação](verification.md) e [desempenho](performance.md), com clientes de carga, resultado comercial conhecido e recuperação. A [prova de 22/09](evidence/publication.json) é de uma imagem anterior à revisão da interface; não foi reexecutada por uma alteração de texto ou navegação.
 
-## Limites e fontes
+## 4. Duas réplicas não podem duplicar a quota
 
-Integração real local com PostgreSQL, Redis, NGINX e ERP simulado; sem fornecedor externo ou custo. Utilidade com operadores reais permanece não avaliada. Fontes oficiais conferidas em 21/09/2026: [Compose merge](https://docs.docker.com/reference/compose-file/merge/) para portas/volumes isolados; [k6 arrival rate](https://grafana.com/docs/k6/latest/using-k6/scenarios/concepts/arrival-rate-vu-allocation/) para distinguir chegadas e drops; [HTTPX timeouts](https://www.python-httpx.org/advanced/timeouts/) para limites de leitura/pool. Elas orientam o método, não os resultados.
+**Entrada → resultado:** dois clientes Redis fazem 30 tentativas concorrentes para a mesma organização com limite 10. O [teste real de Redis](../tests/integration/test_runtime.py), `test_atomic_global_quota_shared_between_clients`, exige 10 admissões e 20 recusas HTTP 429 dentro da mesma janela. O TTL precisa existir e ser de até um segundo.
+
+**Como:** [enforce_quota](../src/api_sentinel/admission.py) executa incremento e expiração atomicamente. O limite comercial configurado é 30/s por tenant; 10/s é o parâmetro explícito desse teste e o limite do tenant técnico do probe. A [admissão](../src/api_sentinel/admission.py) limita trabalho em andamento separadamente: excesso de capacidade recebe 503, não 429.
+
+**Custo e limite:** a quota depende de Redis e falha fechada com 503 se ele não responde. A janela fixa permite rajadas na fronteira; não é uma janela deslizante. Concorrência, circuito e pools continuam locais a cada réplica.
+
+## 5. Cache compartilhado sem trabalho duplicado ilimitado
+
+**Entrada → resultado:** oito pedidos concorrentes da mesma chave provocam um cálculo; o hit seguinte não recalcula. Depois de expirar, a nova rodada volta a ter um preenchimento. Um dono antigo não pode apagar o lock adquirido por outro processo.
+
+**Como:** [cache.py](../src/api_sentinel/cache.py) usa lock com token, TTL de dois segundos, remoção condicional e espera limitada a 250 ms. O dado permanece por 15 segundos. [test_cache_stampede_expiry_and_owner_token](../tests/integration/test_runtime.py) verifica computações e propriedade do lock, além do conteúdo.
+
+**Falhas diferentes:** se apenas o cliente de cache falha, o cálculo pode seguir dentro da admissão comercial. Se Redis inteiro cai, a quota anterior falha fechada e não libera consultas SQL irrestritas. As ACLs separam comandos/chaves, mas quota e cache compartilham a disponibilidade do mesmo processo Redis.
+
+## 6. Um alerta repetido não é uma nova ocorrência
+
+**Entrada → resultado:** `firing → firing → resolved → firing atrasado`, com o mesmo fingerprint e início, mantém um incidente e quatro entregas. O último firing entra no histórico sem reabrir a ocorrência. Uma recuperação de início antigo não fecha uma ocorrência nova.
+
+**Como:** [storage.py](../alert_receiver/storage.py) persiste incidente e eventos na mesma transação, com identidade por fingerprint + `startsAt`. Os [testes do receiver](../tests/unit/test_receiver.py) cobrem repetição, ordem invertida, concorrência e rollback de um lote. HTTP 2xx do webhook significa que a gravação terminou, não uma promessa de entrega exatamente uma vez.
+
+**Na interface:** central → filtro → ocorrência → runbook → retorno preserva filtro e referência. “Finalizados” reúne dois estados visuais: “Resolvido” exige a recuperação recebida; “Encerrado pelo operador” tem indicação neutra e explica a ausência desse webhook. A reconciliação administrativa existente é restrita ao alerta de perda de réplica da demo e não acrescenta uma entrega fictícia.
+
+Uma consulta do probe validada também não comprova saúde global. Resultado vencido perde a indicação de validação; probe desativado ou sem observação não aparece saudável. [UI](../alert_receiver/ui.py), [expiração no navegador](../alert_receiver/snapshot.js) e [testes de estados](../tests/unit/test_receiver_ui.py) preservam essa distinção. Os links de investigação usam a configuração da mesma execução; sem ela, a navegação mostra erro explícito. Não há fallback para ferramentas de outra stack.
+
+## O que mudou depois das medições
+
+Em 21/09/2026, duas tentativas de quota tiveram 300 respostas corretas, 299 recusas 429 e duas recusas 503 em 601 conclusões. Aquecimento não eliminou o problema. Os contadores localizaram as recusas na admissão de autenticação, sem demonstrar a causa subjacente da espera. O limite foi de quatro para oito operações, mantendo pool de duas conexões, aquisição de 200 ms e prazo de 500 ms. O [teste de admissão](../tests/unit/test_auth_admission.py) exige recusa da nona e liberação após cancelamento.
+
+As tentativas e medições posteriores permanecem em [verification.md](verification.md) e [performance.md](performance.md). A central foi redesenhada depois da prova operacional; [interface-validation.md](interface-validation.md) registra testes e capturas com esse escopo separado. Nenhuma captura sintética comprova entrega operacional de alerta ou disponibilidade mensal.
+
+Uma resposta 200 com tenant ou valor incorreto, Redis indisponível liberando SQL protegido, ERP lento derrubando as consultas independentes ou recuperação sem voltar à fixture conhecida reprova a demonstração. Reduzir latência global por meio de recusas rápidas não satisfaz esses critérios.

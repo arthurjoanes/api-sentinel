@@ -67,6 +67,40 @@ def send(client: TestClient, value: dict):
     return client.post("/webhook", json=value, headers={"Authorization": f"Bearer {TOKEN}"})
 
 
+@pytest.mark.parametrize("status", ["all", "firing", "resolved"])
+def test_detail_and_runbook_preserve_filter_and_incident_context(client: TestClient, status: str):
+    assert (
+        send(client, payload("resolved" if status == "resolved" else "firing")).status_code == 200
+    )
+    document = client.get(f"/?status={status}").text
+    assert f'href="/incidents/1?status={status}"' in document
+    detail = client.get(f"/incidents/1?status={status}").text
+    assert f'href="/?status={status}#incidente-1"' in detail
+    assert f'href="/runbooks/telemetry?incident_id=1&amp;status={status}"' in detail
+    runbook = client.get(f"/runbooks/telemetry?incident_id=1&status={status}").text
+    assert f'href="/incidents/1?status={status}"' in runbook
+    assert "Voltar ao incidente #1" in runbook
+    assert "Voltar ao incidente" not in client.get("/runbooks/telemetry").text
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "/incidents/1?status=external",
+        "/runbooks/erp?incident_id=0",
+        "/runbooks/erp?incident_id=9223372036854775808",
+        "/runbooks/erp?status=external",
+    ],
+)
+def test_navigation_context_is_bounded_and_invalid_values_keep_html_recovery(
+    client: TestClient, path: str
+):
+    response = client.get(path)
+    assert response.status_code == 422
+    assert "text/html" in response.headers["content-type"]
+    assert "Voltar à central" in response.text
+
+
 def test_duplicate_webhooks_share_one_incident_and_keep_history(store: AlertStore) -> None:
     event = Webhook.model_validate(payload())
     store.persist(event)

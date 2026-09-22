@@ -1,4 +1,4 @@
-// A leitura continua manual. Este script só vence a observação e abre seus detalhes.
+// A leitura continua manual. O script vence a observação e orienta os retornos locais.
 const observation = document.querySelector("[data-expires-in-ms]");
 
 if (observation) {
@@ -21,10 +21,14 @@ if (observation) {
   }
 }
 
-function revealObservation() {
+function revealLocation() {
   if (window.location.hash === "#observacao") {
     document.getElementById("observacao").open = true;
+  } else if (/^#incidente-\d+$/.test(window.location.hash)) {
+    // The incident may have changed state or expired since the detail was opened.
+    const target = document.getElementById(window.location.hash.slice(1)) || document.getElementById("conteudo");
+    target.focus();
   }
 }
-window.addEventListener("hashchange", revealObservation);
-revealObservation();
+window.addEventListener("hashchange", revealLocation);
+revealLocation();

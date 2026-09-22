@@ -38,3 +38,20 @@ regexes = [
   '''test_auth_admission\.py"\s*:\s*"2f8473e821632992535054f233202849dc7ab5f10257e124320e145493b96597"''',
   '''test_openapi\.py"\s*:\s*"d8fc1d250f701e27d72cd7987e39938a2b6e4b57fb1e4e570ac8640017b5aa54"''',
 ]
+
+[[rules.allowlists]]
+description = "Four verified source SHA-256 values in the two frozen alert-story manifests and LF copies"
+condition = "AND"
+regexTarget = "match"
+paths = [
+  '''^docs/evidence/operational-story-20260922/20260922t053056476675z/source-files\.json$''',
+  '''^docs/evidence/operational-story-20260922/20260922t053056476675z/source-files-lf\.json$''',
+  '''^docs/evidence/operational-story-20260922/20260922t054206130821z/source-files\.json$''',
+  '''^docs/evidence/operational-story-20260922/20260922t054206130821z/source-files-lf\.json$''',
+]
+regexes = [
+  '''auth\.py"\s*:\s*"0ef5bb11ef099cf2f1816a7a03defa21433807f8afc03f7b5b799f137d9e9cf4"''',
+  '''test_auth_db\.py"\s*:\s*"d6373f5d410de7804eb7c37f8ea2cbd4d121991b296daa66d8ad2b8b72c1fe96"''',
+  '''test_auth_admission\.py"\s*:\s*"2f8473e821632992535054f233202849dc7ab5f10257e124320e145493b96597"''',
+  '''test_openapi\.py"\s*:\s*"d8fc1d250f701e27d72cd7987e39938a2b6e4b57fb1e4e570ac8640017b5aa54"''',
+]

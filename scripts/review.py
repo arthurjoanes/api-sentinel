@@ -63,6 +63,7 @@ def fingerprint() -> dict[str, str]:
         "deploy",
         "migrations",
         "tests",
+        "data",
         "docs/runbooks",
     ):
         files.extend(
