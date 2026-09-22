@@ -1,0 +1,23 @@
+{
+  "image_id": "sha256:75bc61ec2e32e0a4c7557c782aea2ba47ab3a3ce50d33d25fe988e16f7d112fd",
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "--name",
+    "ui-api-art-private",
+    "--user",
+    "0",
+    "pf-api-sentinel-art:20260922",
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/unit/test_data_private_file.py"
+  ],
+  "exit_code": 0,
+  "stdout": ".....                                                                    [100%]\n5 passed in 0.52s\n",
+  "stderr": ""
+}

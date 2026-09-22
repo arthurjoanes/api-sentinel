@@ -1,0 +1,7 @@
+{
+  "stopped_at": "2026-09-22T09:26:05.983718+00:00",
+  "container": "ui-api-art-review",
+  "port": 9818,
+  "removed_automatically": true,
+  "other_resources_untouched": true
+}

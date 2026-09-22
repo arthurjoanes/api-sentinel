@@ -142,7 +142,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             response = await call_next(request)
             response.headers["Content-Security-Policy"] = (
                 "default-src 'none'; style-src 'self'; script-src 'self'; img-src 'self'; "
-                "base-uri 'none'; "
+                "font-src 'self'; base-uri 'none'; "
                 "frame-ancestors 'none'; form-action 'self'"
             )
             response.headers["X-Content-Type-Options"] = "nosniff"
@@ -278,6 +278,23 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @application.get("/styles.css")
     async def styles() -> FileResponse:
         return FileResponse(Path(__file__).with_name("styles.css"), media_type="text/css")
+
+    @application.get("/assets/{name}")
+    async def interface_asset(name: str) -> Response:
+        assets = {
+            "mark.svg": "image/svg+xml",
+            "mark-light.svg": "image/svg+xml",
+            "mark-mono.svg": "image/svg+xml",
+            "wordmark.svg": "image/svg+xml",
+            "wordmark-light.svg": "image/svg+xml",
+            "wordmark-mono.svg": "image/svg+xml",
+            "favicon.svg": "image/svg+xml",
+            "plex-sans-regular.woff2": "font/woff2",
+            "plex-sans-semibold.woff2": "font/woff2",
+        }
+        if name not in assets:
+            return problem(404, "asset_not_found", "Recurso de interface não encontrado.")
+        return FileResponse(Path(__file__).with_name("assets") / name, media_type=assets[name])
 
     @application.get("/tools/{service}/{path:path}")
     async def investigate(request: Request, service: str, path: str) -> Response:

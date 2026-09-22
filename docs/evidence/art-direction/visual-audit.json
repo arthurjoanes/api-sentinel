@@ -1,0 +1,325 @@
+{
+  "scope": "Computed text/background contrast and alignment; not a full WCAG audit",
+  "checks": [
+    {
+      "width": 1920,
+      "route": "/",
+      "tested": 69,
+      "minimum": 5.47,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 1920,
+      "route": "/incidents/2",
+      "tested": 56,
+      "minimum": 5.85,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 1920,
+      "route": "/incidents/3",
+      "tested": 55,
+      "minimum": 5.09,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 1920,
+      "route": "/runbooks",
+      "tested": 44,
+      "minimum": 5.85,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 1920,
+      "route": "/runbooks/erp",
+      "tested": 46,
+      "minimum": 5.85,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 1920,
+      "route": "/__review/stale",
+      "tested": 69,
+      "minimum": 5.47,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 1920,
+      "route": "/__review/failure",
+      "tested": 69,
+      "minimum": 5.47,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 1920,
+      "route": "/__review/empty",
+      "tested": 44,
+      "minimum": 5.47,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 1440,
+      "route": "/",
+      "tested": 69,
+      "minimum": 5.47,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 1440,
+      "route": "/incidents/2",
+      "tested": 56,
+      "minimum": 5.85,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 1440,
+      "route": "/incidents/3",
+      "tested": 55,
+      "minimum": 5.09,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 1440,
+      "route": "/runbooks",
+      "tested": 44,
+      "minimum": 5.85,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 1440,
+      "route": "/runbooks/erp",
+      "tested": 46,
+      "minimum": 5.85,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 1440,
+      "route": "/__review/stale",
+      "tested": 69,
+      "minimum": 5.47,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 1440,
+      "route": "/__review/failure",
+      "tested": 69,
+      "minimum": 5.47,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 1440,
+      "route": "/__review/empty",
+      "tested": 44,
+      "minimum": 5.47,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 768,
+      "route": "/",
+      "tested": 65,
+      "minimum": 5.47,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 768,
+      "route": "/incidents/2",
+      "tested": 56,
+      "minimum": 5.85,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 768,
+      "route": "/incidents/3",
+      "tested": 55,
+      "minimum": 5.09,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 768,
+      "route": "/runbooks",
+      "tested": 44,
+      "minimum": 5.85,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 768,
+      "route": "/runbooks/erp",
+      "tested": 46,
+      "minimum": 5.85,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 768,
+      "route": "/__review/stale",
+      "tested": 65,
+      "minimum": 5.47,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 768,
+      "route": "/__review/failure",
+      "tested": 65,
+      "minimum": 5.47,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 768,
+      "route": "/__review/empty",
+      "tested": 44,
+      "minimum": 5.47,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 390,
+      "route": "/",
+      "tested": 63,
+      "minimum": 5.47,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 390,
+      "route": "/incidents/2",
+      "tested": 54,
+      "minimum": 6.27,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 390,
+      "route": "/incidents/3",
+      "tested": 53,
+      "minimum": 5.09,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 390,
+      "route": "/runbooks",
+      "tested": 42,
+      "minimum": 6.27,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 390,
+      "route": "/runbooks/erp",
+      "tested": 44,
+      "minimum": 6.27,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 390,
+      "route": "/__review/stale",
+      "tested": 63,
+      "minimum": 5.47,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 390,
+      "route": "/__review/failure",
+      "tested": 63,
+      "minimum": 5.47,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 390,
+      "route": "/__review/empty",
+      "tested": 42,
+      "minimum": 5.47,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 320,
+      "route": "/",
+      "tested": 63,
+      "minimum": 5.47,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 320,
+      "route": "/incidents/2",
+      "tested": 54,
+      "minimum": 6.27,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 320,
+      "route": "/incidents/3",
+      "tested": 53,
+      "minimum": 5.09,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 320,
+      "route": "/runbooks",
+      "tested": 42,
+      "minimum": 6.27,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 320,
+      "route": "/runbooks/erp",
+      "tested": 44,
+      "minimum": 6.27,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 320,
+      "route": "/__review/stale",
+      "tested": 63,
+      "minimum": 5.47,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 320,
+      "route": "/__review/failure",
+      "tested": 63,
+      "minimum": 5.47,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    },
+    {
+      "width": 320,
+      "route": "/__review/empty",
+      "tested": 42,
+      "minimum": 5.47,
+      "failures": [],
+      "brandMainAxisDifference": 0
+    }
+  ]
+}

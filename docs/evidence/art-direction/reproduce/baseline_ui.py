@@ -66,13 +66,12 @@ def layout(title: str, content: str, *, snapshot: bool = False, section: str = "
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#142438">
 <title>{escape_html(title)} · API Sentinel</title>
-<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/styles.css">{script}</head><body>
 <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
 <header class="masthead">
 <a class="brand" href="/" aria-label="API Sentinel: incidentes">
-<img class="brand-mark" src="/assets/mark-light.svg" width="32" height="32" alt="">
-<span>API <strong>Sentinel</strong></span></a>
+<span class="brand-mark" aria-hidden="true">S</span>
+<span>API <strong>Sentinel</strong><small>Operação de integrações</small></span></a>
 <nav class="primary-nav" aria-label="Navegação principal">
 <a href="/"{incidents_current}>Incidentes</a>
 <a href="/runbooks"{runbooks_current}>Runbooks</a></nav>
@@ -253,7 +252,7 @@ def home(page: IncidentPage, probe: ProbeState, status: str) -> str:
         if entries
         else ""
     )
-    content = f"""<div class="triage-workspace"><section class="inbox" aria-label="Incidentes">
+    content = f"""<section class="inbox" aria-label="Incidentes">
 <div class="page-heading"><div><h1>Incidentes</h1>
 <p class="reading-meta">Entregas recebidas do Alertmanager</p></div>
 <a class="button secondary" href="/?status={escape_html(status)}">Atualizar leitura</a></div>
@@ -268,7 +267,7 @@ Finalizados: últimos {page.retention_days} dias · Em andamento: sem expiraçã
 </p></section>
 <aside class="observation-workspace" aria-label="Observação e escopo">
 {probe_observation(probe, datetime.now(UTC))}
-{observation_details(page, probe)}</aside></div>"""
+{observation_details(page, probe)}</aside>"""
     return layout("Incidentes", content, snapshot=True)
 
 
@@ -320,8 +319,8 @@ def event_item(event: IncidentEvent) -> str:
     source = "Ação do operador" if administrative else f"Entrega {event.delivered_status}"
     tone = "good" if event.transition == "recovered" else "neutral"
     return f"""<li class="timeline-event {tone}">
-<div class="event-heading"><time>{escape_html(timestamp(event.received_at))}</time>
-<h3>{escape_html(title)}</h3></div>
+<div class="event-heading"><h3>{escape_html(title)}</h3>
+<time>{escape_html(timestamp(event.received_at))}</time></div>
 <p>{escape_html(description)}</p><span class="event-source">{escape_html(source)}</span></li>"""
 
 

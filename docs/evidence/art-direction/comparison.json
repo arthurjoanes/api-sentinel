@@ -1,0 +1,798 @@
+{
+  "capturedAt": "2026-09-22T09:15:51.969Z",
+  "baseline": "88dcebdf65399db19563c8bfe1406ab24a110d61",
+  "fixture": "same in-process SQLite records, titles and timestamps; disabled probe; all/resolved filters and recovered incident #2",
+  "scope": "geometry in CSS pixels; not productivity or user approval",
+  "checks": [
+    {
+      "name": "baseline",
+      "scenario": "all",
+      "path": "/__baseline?status=all",
+      "width": 1920,
+      "file": "baseline-all-1920.png",
+      "viewport": {
+        "width": 1920,
+        "height": 1000
+      },
+      "documentHeight": 1000,
+      "scrollWidth": 1920,
+      "rows": [
+        {
+          "top": 371.09375,
+          "bottom": 470.59375,
+          "height": 99.5
+        },
+        {
+          "top": 470.59375,
+          "bottom": 571.09375,
+          "height": 100.5
+        },
+        {
+          "top": 571.09375,
+          "bottom": 671.59375,
+          "height": 100.5
+        }
+      ],
+      "rowsFullyVisible": 3,
+      "detail": null
+    },
+    {
+      "name": "candidate",
+      "scenario": "all",
+      "path": "/?status=all",
+      "width": 1920,
+      "file": "candidate-all-1920.png",
+      "viewport": {
+        "width": 1920,
+        "height": 1000
+      },
+      "documentHeight": 1000,
+      "scrollWidth": 1920,
+      "rows": [
+        {
+          "top": 341.25,
+          "bottom": 443.984375,
+          "height": 102.734375
+        },
+        {
+          "top": 443.984375,
+          "bottom": 547.71875,
+          "height": 103.734375
+        },
+        {
+          "top": 547.71875,
+          "bottom": 651.453125,
+          "height": 103.734375
+        }
+      ],
+      "rowsFullyVisible": 3,
+      "detail": null
+    },
+    {
+      "name": "baseline",
+      "scenario": "resolved",
+      "path": "/__baseline?status=resolved",
+      "width": 1920,
+      "file": "baseline-resolved-1920.png",
+      "viewport": {
+        "width": 1920,
+        "height": 1000
+      },
+      "documentHeight": 1000,
+      "scrollWidth": 1920,
+      "rows": [
+        {
+          "top": 371.09375,
+          "bottom": 470.59375,
+          "height": 99.5
+        },
+        {
+          "top": 470.59375,
+          "bottom": 571.09375,
+          "height": 100.5
+        }
+      ],
+      "rowsFullyVisible": 2,
+      "detail": null
+    },
+    {
+      "name": "candidate",
+      "scenario": "resolved",
+      "path": "/?status=resolved",
+      "width": 1920,
+      "file": "candidate-resolved-1920.png",
+      "viewport": {
+        "width": 1920,
+        "height": 1000
+      },
+      "documentHeight": 1000,
+      "scrollWidth": 1920,
+      "rows": [
+        {
+          "top": 341.25,
+          "bottom": 443.984375,
+          "height": 102.734375
+        },
+        {
+          "top": 443.984375,
+          "bottom": 547.71875,
+          "height": 103.734375
+        }
+      ],
+      "rowsFullyVisible": 2,
+      "detail": null
+    },
+    {
+      "name": "baseline",
+      "scenario": "recovered",
+      "path": "/__baseline/incident/2?status=resolved",
+      "width": 1920,
+      "file": "baseline-recovered-1920.png",
+      "viewport": {
+        "width": 1920,
+        "height": 1000
+      },
+      "documentHeight": 1157,
+      "scrollWidth": 1920,
+      "rows": [],
+      "rowsFullyVisible": 0,
+      "detail": {
+        "top": 246,
+        "bottom": 562.234375,
+        "height": 316.234375
+      }
+    },
+    {
+      "name": "candidate",
+      "scenario": "recovered",
+      "path": "/incidents/2?status=resolved",
+      "width": 1920,
+      "file": "candidate-recovered-1920.png",
+      "viewport": {
+        "width": 1920,
+        "height": 1000
+      },
+      "documentHeight": 1164,
+      "scrollWidth": 1920,
+      "rows": [],
+      "rowsFullyVisible": 0,
+      "detail": {
+        "top": 228.015625,
+        "bottom": 535.8125,
+        "height": 307.796875
+      }
+    },
+    {
+      "name": "baseline",
+      "scenario": "all",
+      "path": "/__baseline?status=all",
+      "width": 1440,
+      "file": "baseline-all-1440.png",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentHeight": 1000,
+      "scrollWidth": 1440,
+      "rows": [
+        {
+          "top": 371.09375,
+          "bottom": 470.59375,
+          "height": 99.5
+        },
+        {
+          "top": 470.59375,
+          "bottom": 571.09375,
+          "height": 100.5
+        },
+        {
+          "top": 571.09375,
+          "bottom": 671.59375,
+          "height": 100.5
+        }
+      ],
+      "rowsFullyVisible": 3,
+      "detail": null
+    },
+    {
+      "name": "candidate",
+      "scenario": "all",
+      "path": "/?status=all",
+      "width": 1440,
+      "file": "candidate-all-1440.png",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentHeight": 1000,
+      "scrollWidth": 1440,
+      "rows": [
+        {
+          "top": 341.25,
+          "bottom": 443.984375,
+          "height": 102.734375
+        },
+        {
+          "top": 443.984375,
+          "bottom": 547.71875,
+          "height": 103.734375
+        },
+        {
+          "top": 547.71875,
+          "bottom": 651.453125,
+          "height": 103.734375
+        }
+      ],
+      "rowsFullyVisible": 3,
+      "detail": null
+    },
+    {
+      "name": "baseline",
+      "scenario": "resolved",
+      "path": "/__baseline?status=resolved",
+      "width": 1440,
+      "file": "baseline-resolved-1440.png",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentHeight": 1000,
+      "scrollWidth": 1440,
+      "rows": [
+        {
+          "top": 371.09375,
+          "bottom": 470.59375,
+          "height": 99.5
+        },
+        {
+          "top": 470.59375,
+          "bottom": 571.09375,
+          "height": 100.5
+        }
+      ],
+      "rowsFullyVisible": 2,
+      "detail": null
+    },
+    {
+      "name": "candidate",
+      "scenario": "resolved",
+      "path": "/?status=resolved",
+      "width": 1440,
+      "file": "candidate-resolved-1440.png",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentHeight": 1000,
+      "scrollWidth": 1440,
+      "rows": [
+        {
+          "top": 341.25,
+          "bottom": 443.984375,
+          "height": 102.734375
+        },
+        {
+          "top": 443.984375,
+          "bottom": 547.71875,
+          "height": 103.734375
+        }
+      ],
+      "rowsFullyVisible": 2,
+      "detail": null
+    },
+    {
+      "name": "baseline",
+      "scenario": "recovered",
+      "path": "/__baseline/incident/2?status=resolved",
+      "width": 1440,
+      "file": "baseline-recovered-1440.png",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentHeight": 1157,
+      "scrollWidth": 1440,
+      "rows": [],
+      "rowsFullyVisible": 0,
+      "detail": {
+        "top": 246,
+        "bottom": 562.234375,
+        "height": 316.234375
+      }
+    },
+    {
+      "name": "candidate",
+      "scenario": "recovered",
+      "path": "/incidents/2?status=resolved",
+      "width": 1440,
+      "file": "candidate-recovered-1440.png",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentHeight": 1164,
+      "scrollWidth": 1440,
+      "rows": [],
+      "rowsFullyVisible": 0,
+      "detail": {
+        "top": 228.015625,
+        "bottom": 535.8125,
+        "height": 307.796875
+      }
+    },
+    {
+      "name": "baseline",
+      "scenario": "all",
+      "path": "/__baseline?status=all",
+      "width": 768,
+      "file": "baseline-all-768.png",
+      "viewport": {
+        "width": 768,
+        "height": 1000
+      },
+      "documentHeight": 1011,
+      "scrollWidth": 768,
+      "rows": [
+        {
+          "top": 336.09375,
+          "bottom": 460.59375,
+          "height": 124.5
+        },
+        {
+          "top": 460.59375,
+          "bottom": 585.09375,
+          "height": 124.5
+        },
+        {
+          "top": 585.09375,
+          "bottom": 709.59375,
+          "height": 124.5
+        }
+      ],
+      "rowsFullyVisible": 3,
+      "detail": null
+    },
+    {
+      "name": "candidate",
+      "scenario": "all",
+      "path": "/?status=all",
+      "width": 768,
+      "file": "candidate-all-768.png",
+      "viewport": {
+        "width": 768,
+        "height": 1000
+      },
+      "documentHeight": 1000,
+      "scrollWidth": 768,
+      "rows": [
+        {
+          "top": 317.75,
+          "bottom": 446.078125,
+          "height": 128.328125
+        },
+        {
+          "top": 446.078125,
+          "bottom": 574.40625,
+          "height": 128.328125
+        },
+        {
+          "top": 574.40625,
+          "bottom": 702.734375,
+          "height": 128.328125
+        }
+      ],
+      "rowsFullyVisible": 3,
+      "detail": null
+    },
+    {
+      "name": "baseline",
+      "scenario": "resolved",
+      "path": "/__baseline?status=resolved",
+      "width": 768,
+      "file": "baseline-resolved-768.png",
+      "viewport": {
+        "width": 768,
+        "height": 1000
+      },
+      "documentHeight": 1000,
+      "scrollWidth": 768,
+      "rows": [
+        {
+          "top": 336.09375,
+          "bottom": 460.59375,
+          "height": 124.5
+        },
+        {
+          "top": 460.59375,
+          "bottom": 585.09375,
+          "height": 124.5
+        }
+      ],
+      "rowsFullyVisible": 2,
+      "detail": null
+    },
+    {
+      "name": "candidate",
+      "scenario": "resolved",
+      "path": "/?status=resolved",
+      "width": 768,
+      "file": "candidate-resolved-768.png",
+      "viewport": {
+        "width": 768,
+        "height": 1000
+      },
+      "documentHeight": 1000,
+      "scrollWidth": 768,
+      "rows": [
+        {
+          "top": 317.75,
+          "bottom": 446.078125,
+          "height": 128.328125
+        },
+        {
+          "top": 446.078125,
+          "bottom": 574.40625,
+          "height": 128.328125
+        }
+      ],
+      "rowsFullyVisible": 2,
+      "detail": null
+    },
+    {
+      "name": "baseline",
+      "scenario": "recovered",
+      "path": "/__baseline/incident/2?status=resolved",
+      "width": 768,
+      "file": "baseline-recovered-768.png",
+      "viewport": {
+        "width": 768,
+        "height": 1000
+      },
+      "documentHeight": 1390,
+      "scrollWidth": 768,
+      "rows": [],
+      "rowsFullyVisible": 0,
+      "detail": {
+        "top": 246,
+        "bottom": 583.234375,
+        "height": 337.234375
+      }
+    },
+    {
+      "name": "candidate",
+      "scenario": "recovered",
+      "path": "/incidents/2?status=resolved",
+      "width": 768,
+      "file": "candidate-recovered-768.png",
+      "viewport": {
+        "width": 768,
+        "height": 1000
+      },
+      "documentHeight": 1413,
+      "scrollWidth": 768,
+      "rows": [],
+      "rowsFullyVisible": 0,
+      "detail": {
+        "top": 242.109375,
+        "bottom": 571.59375,
+        "height": 329.484375
+      }
+    },
+    {
+      "name": "baseline",
+      "scenario": "all",
+      "path": "/__baseline?status=all",
+      "width": 390,
+      "file": "baseline-all-390.png",
+      "viewport": {
+        "width": 390,
+        "height": 1000
+      },
+      "documentHeight": 1341,
+      "scrollWidth": 390,
+      "rows": [
+        {
+          "top": 442.5,
+          "bottom": 624.5,
+          "height": 182
+        },
+        {
+          "top": 624.5,
+          "bottom": 787,
+          "height": 162.5
+        },
+        {
+          "top": 787,
+          "bottom": 949.5,
+          "height": 162.5
+        }
+      ],
+      "rowsFullyVisible": 3,
+      "detail": null
+    },
+    {
+      "name": "candidate",
+      "scenario": "all",
+      "path": "/?status=all",
+      "width": 390,
+      "file": "candidate-all-390.png",
+      "viewport": {
+        "width": 390,
+        "height": 1000
+      },
+      "documentHeight": 1370,
+      "scrollWidth": 390,
+      "rows": [
+        {
+          "top": 414.390625,
+          "bottom": 599,
+          "height": 184.609375
+        },
+        {
+          "top": 599,
+          "bottom": 763.46875,
+          "height": 164.46875
+        },
+        {
+          "top": 763.46875,
+          "bottom": 927.9375,
+          "height": 164.46875
+        }
+      ],
+      "rowsFullyVisible": 3,
+      "detail": null
+    },
+    {
+      "name": "baseline",
+      "scenario": "resolved",
+      "path": "/__baseline?status=resolved",
+      "width": 390,
+      "file": "baseline-resolved-390.png",
+      "viewport": {
+        "width": 390,
+        "height": 1000
+      },
+      "documentHeight": 1159,
+      "scrollWidth": 390,
+      "rows": [
+        {
+          "top": 442.5,
+          "bottom": 605,
+          "height": 162.5
+        },
+        {
+          "top": 605,
+          "bottom": 767.5,
+          "height": 162.5
+        }
+      ],
+      "rowsFullyVisible": 2,
+      "detail": null
+    },
+    {
+      "name": "candidate",
+      "scenario": "resolved",
+      "path": "/?status=resolved",
+      "width": 390,
+      "file": "candidate-resolved-390.png",
+      "viewport": {
+        "width": 390,
+        "height": 1000
+      },
+      "documentHeight": 1185,
+      "scrollWidth": 390,
+      "rows": [
+        {
+          "top": 414.390625,
+          "bottom": 578.859375,
+          "height": 164.46875
+        },
+        {
+          "top": 578.859375,
+          "bottom": 743.328125,
+          "height": 164.46875
+        }
+      ],
+      "rowsFullyVisible": 2,
+      "detail": null
+    },
+    {
+      "name": "baseline",
+      "scenario": "recovered",
+      "path": "/__baseline/incident/2?status=resolved",
+      "width": 390,
+      "file": "baseline-recovered-390.png",
+      "viewport": {
+        "width": 390,
+        "height": 1000
+      },
+      "documentHeight": 1687,
+      "scrollWidth": 390,
+      "rows": [],
+      "rowsFullyVisible": 0,
+      "detail": {
+        "top": 302,
+        "bottom": 747.6875,
+        "height": 445.6875
+      }
+    },
+    {
+      "name": "candidate",
+      "scenario": "recovered",
+      "path": "/incidents/2?status=resolved",
+      "width": 390,
+      "file": "candidate-recovered-390.png",
+      "viewport": {
+        "width": 390,
+        "height": 1000
+      },
+      "documentHeight": 1702,
+      "scrollWidth": 390,
+      "rows": [],
+      "rowsFullyVisible": 0,
+      "detail": {
+        "top": 286.15625,
+        "bottom": 709.875,
+        "height": 423.71875
+      }
+    },
+    {
+      "name": "baseline",
+      "scenario": "all",
+      "path": "/__baseline?status=all",
+      "width": 320,
+      "file": "baseline-all-320.png",
+      "viewport": {
+        "width": 320,
+        "height": 1000
+      },
+      "documentHeight": 1534,
+      "scrollWidth": 320,
+      "rows": [
+        {
+          "top": 491.5,
+          "bottom": 689.5,
+          "height": 198
+        },
+        {
+          "top": 689.5,
+          "bottom": 889,
+          "height": 199.5
+        },
+        {
+          "top": 889,
+          "bottom": 1087,
+          "height": 198
+        }
+      ],
+      "rowsFullyVisible": 2,
+      "detail": null
+    },
+    {
+      "name": "candidate",
+      "scenario": "all",
+      "path": "/?status=all",
+      "width": 320,
+      "file": "candidate-all-320.png",
+      "viewport": {
+        "width": 320,
+        "height": 1000
+      },
+      "documentHeight": 1512,
+      "scrollWidth": 320,
+      "rows": [
+        {
+          "top": 439.75,
+          "bottom": 635.40625,
+          "height": 195.65625
+        },
+        {
+          "top": 635.40625,
+          "bottom": 831.921875,
+          "height": 196.515625
+        },
+        {
+          "top": 831.921875,
+          "bottom": 1027.578125,
+          "height": 195.65625
+        }
+      ],
+      "rowsFullyVisible": 2,
+      "detail": null
+    },
+    {
+      "name": "baseline",
+      "scenario": "resolved",
+      "path": "/__baseline?status=resolved",
+      "width": 320,
+      "file": "baseline-resolved-320.png",
+      "viewport": {
+        "width": 320,
+        "height": 1000
+      },
+      "documentHeight": 1336,
+      "scrollWidth": 320,
+      "rows": [
+        {
+          "top": 491.5,
+          "bottom": 691,
+          "height": 199.5
+        },
+        {
+          "top": 691,
+          "bottom": 889,
+          "height": 198
+        }
+      ],
+      "rowsFullyVisible": 2,
+      "detail": null
+    },
+    {
+      "name": "candidate",
+      "scenario": "resolved",
+      "path": "/?status=resolved",
+      "width": 320,
+      "file": "candidate-resolved-320.png",
+      "viewport": {
+        "width": 320,
+        "height": 1000
+      },
+      "documentHeight": 1316,
+      "scrollWidth": 320,
+      "rows": [
+        {
+          "top": 439.75,
+          "bottom": 636.265625,
+          "height": 196.515625
+        },
+        {
+          "top": 636.265625,
+          "bottom": 831.921875,
+          "height": 195.65625
+        }
+      ],
+      "rowsFullyVisible": 2,
+      "detail": null
+    },
+    {
+      "name": "baseline",
+      "scenario": "recovered",
+      "path": "/__baseline/incident/2?status=resolved",
+      "width": 320,
+      "file": "baseline-recovered-320.png",
+      "viewport": {
+        "width": 320,
+        "height": 1000
+      },
+      "documentHeight": 1874,
+      "scrollWidth": 320,
+      "rows": [],
+      "rowsFullyVisible": 0,
+      "detail": {
+        "top": 321,
+        "bottom": 856.78125,
+        "height": 535.78125
+      }
+    },
+    {
+      "name": "candidate",
+      "scenario": "recovered",
+      "path": "/incidents/2?status=resolved",
+      "width": 320,
+      "file": "candidate-recovered-320.png",
+      "viewport": {
+        "width": 320,
+        "height": 1000
+      },
+      "documentHeight": 1889,
+      "scrollWidth": 320,
+      "rows": [],
+      "rowsFullyVisible": 0,
+      "detail": {
+        "top": 281.515625,
+        "bottom": 816.796875,
+        "height": 535.28125
+      }
+    }
+  ]
+}
