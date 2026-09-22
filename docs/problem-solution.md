@@ -26,6 +26,8 @@ Desenvolvi o laboratório para uma integração de lojas que consulta vendas e d
 
 **Como:** [erp.py](../src/api_sentinel/erp.py) usa cliente reutilizado, admissão própria, orçamento total de 900 ms, limite de bytes e circuito por processo. Redirects, compressão e formatos inesperados são recusados. Um retry elegível consome o mesmo orçamento. [Testes do runtime](../tests/unit/test_runtime.py) exercitam chunks contínuos, resposta excessiva e validação da resposta.
 
+A [documentação HTTPX, “Timeouts”](https://www.python-httpx.org/advanced/timeouts/#fine-tuning-the-configuration), define o timeout de leitura como espera por um trecho da resposta. O simulador reproduz esse comportamento enviando trechos antes do limite; o prazo total em `asyncio.timeout` limita a operação inteira. A fonte documenta uma biblioteca, não a frequência de falhas em ERPs reais.
+
 **Prova de coexistência:** testes isolados não demonstram sozinhos ERP lento e vendas simultâneas. Essa medição pertence às execuções identificadas em [verificação](verification.md) e [desempenho](performance.md), com clientes de carga, resultado comercial conhecido e recuperação. Na [execução completa de 22/09 às 12:12 UTC](evidence/editorial-20260922/full-run.json), a mistura com ERP degradado concluiu 151 requisições: 114 respostas válidas e 37 falhas previstas do ERP, sem resultados inválidos ou iterações descartadas. A recuperação concluiu 100/100 válidas. São observações desse laboratório, não uma garantia de disponibilidade do ERP. A [prova anterior](evidence/publication.json) permanece identificada separadamente.
 
 ## 4. Duas réplicas não podem duplicar a quota
@@ -33,6 +35,8 @@ Desenvolvi o laboratório para uma integração de lojas que consulta vendas e d
 **Entrada → resultado:** dois clientes Redis fazem 30 tentativas concorrentes para a mesma organização com limite 10. O [teste real de Redis](../tests/integration/test_runtime.py), `test_atomic_global_quota_shared_between_clients`, exige 10 admissões e 20 recusas HTTP 429 dentro da mesma janela. O TTL precisa existir e ser de até um segundo.
 
 **Como:** coordenei o incremento e a expiração na mesma operação Redis em [enforce_quota](../src/api_sentinel/admission.py). O limite comercial configurado é 30/s por tenant; 10/s é o parâmetro explícito desse teste e o limite do tenant técnico do probe. A [admissão](../src/api_sentinel/admission.py) limita trabalho em andamento separadamente: excesso de capacidade recebe 503, não 429.
+
+A [documentação Redis, “INCR — Pattern: rate limiter 2”](https://redis.io/docs/latest/commands/incr/#pattern-rate-limiter-2), mostra a corrida entre incrementar e definir a expiração e a reúne num script Lua. Este projeto aplica o mecanismo por organização, compartilhado entre réplicas; os testes verificam admissões, recusas e TTL. Isso não elimina a dependência de Redis nem a rajada na fronteira da janela. Redis e HTTPX foram consultados em 22/09/2026; suas páginas não informam data de publicação.
 
 Na [execução pelo proxy](evidence/editorial-20260922/full-run.json), uma réplica admitiu 300 de 600 chamadas; duas admitiram 300 de 601. As restantes receberam 429, sem recusas de capacidade. Esses ensaios de dez segundos complementam o teste atômico; seus denominadores estão em [desempenho](performance.md).
 
