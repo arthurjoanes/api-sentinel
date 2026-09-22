@@ -73,7 +73,7 @@ Os scripts reproduzíveis estão em `docs/evidence/art-direction/reproduce`. A c
 
 Consulta visual em 22/09/2026. As capturas oficiais e o registro de navegação ficam no caderno externo de pesquisa `art-direction-api-container-20260922`; não integram os assets do produto. As adaptações são inferências de design verificadas no navegador, não resultados de estudo com usuários. Nenhum código ou asset desses produtos foi incorporado.
 
-As skills `frontend-design` e `web-design-guidelines` orientaram a revisão. React/Next.js continua não aplicável: o HTML é gerado em Python. A marca vetorial é original para este projeto; os glifos dos wordmarks derivam das fontes licenciadas abaixo. Os SVGs têm versões compacta, wordmark, clara e monocromática; o favicon usa o símbolo. O nome continua sendo texto real na interface. Sem garantia de exclusividade jurídica da marca.
+A revisão avaliou composição, hierarquia, legibilidade, acessibilidade e interação. React/Next.js continua não aplicável: o HTML é gerado em Python. A marca vetorial é original para este projeto; os glifos dos wordmarks derivam das fontes licenciadas abaixo. Os SVGs têm versões compacta, wordmark, clara e monocromática; o favicon usa o símbolo. O nome continua sendo texto real na interface. Sem garantia de exclusividade jurídica da marca.
 
 ## Registro anterior — preservado
 
@@ -146,8 +146,7 @@ Detalhes da observação                   Período e histórico
 
 ## Referências e decisões
 
-As skills `frontend-design` e `web-design-guidelines` orientaram composição,
-hierarquia, teclado, contraste, movimento e revisão. As diretrizes foram consultadas
+A revisão avaliou composição, hierarquia, teclado, contraste e movimento. As diretrizes foram consultadas
 na [fonte mantida pela Vercel](https://github.com/vercel-labs/web-interface-guidelines/blob/main/command.md)
 em 22/09/2026. A avaliação é técnica; não houve estudo com usuários nem alegação de
 que estes layouts foram aprovados empiricamente.

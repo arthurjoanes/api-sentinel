@@ -1,0 +1,32 @@
+[
+  {
+    "attempt": 1,
+    "run_id": "20260922t121258511380z",
+    "explanation": "Full operational run passed; collector raced with replica stop while reading credentials.",
+    "record": "capture-attempt-01.json"
+  },
+  {
+    "attempt": 2,
+    "run_id": "20260922t122229405791z",
+    "explanation": "HTTP suite: 72 passed, one Grafana read timeout at unchanged 3-second criterion. Concurrent host activity observed, causation unproven. Cleanup passed.",
+    "record": "capture-attempt-02.json"
+  },
+  {
+    "attempt": 3,
+    "run_id": "20260922t123932951573z",
+    "explanation": "Alerts operational run passed; collector saw 503 while replica loss was being injected. No screenshot accepted.",
+    "record": "capture-attempt-03.json"
+  },
+  {
+    "attempt": 4,
+    "run_id": "20260922t124717712028z",
+    "explanation": "New optional handshake exceeded lint line length by two characters; lint failed and cleanup passed. Line wrapped without changing behavior.",
+    "record": "capture-attempt-04.json"
+  },
+  {
+    "attempt": 5,
+    "run_id": "20260922t124941299601z",
+    "record": "capture-run.json",
+    "status": "passed"
+  }
+]

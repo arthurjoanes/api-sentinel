@@ -1,0 +1,40 @@
+{
+  "captured_at": "2026-09-22T12:52:16.266Z",
+  "route": "/",
+  "fixture": {
+    "store_id": 7,
+    "start": "2026-01-01",
+    "end": "2026-01-01",
+    "currency": "BRL",
+    "revenue_cents": 12500,
+    "order_count": 2,
+    "average_ticket_cents": 6250,
+    "data_updated_at": "2026-09-22T12:51:32.491055+00:00",
+    "observed_at": "2026-09-22T12:52:15.594451+00:00",
+    "dataset_version": "v1-9a22e96438804d54",
+    "coverage": {
+      "starts_on": "2026-01-01",
+      "ends_on": "2026-01-01",
+      "complete": true
+    },
+    "cache_age_seconds": 0
+  },
+  "incidents": {
+    "incidents": [],
+    "counts": {
+      "firing": 0,
+      "resolved": 0
+    },
+    "scope": {
+      "generated_at": "2026-09-22T12:52:15.329945Z",
+      "cutoff_at": "2026-08-23T12:52:15.329945Z",
+      "retention_days": 30,
+      "limit": 100,
+      "shown": 0,
+      "total": 0,
+      "filtered_total": 0
+    }
+  },
+  "scope": "The fresh probe validated status, schema and expected amounts. This is not global health.",
+  "curation_note": "Raw Prometheus metrics omitted; fixture, incident list and capture time unchanged. Original JSON hash remains in capture-manifest.json."
+}

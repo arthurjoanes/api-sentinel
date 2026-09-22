@@ -1,11 +1,39 @@
 # Verificação
 
+## Revisão editorial e execução atual — 22/09 às 12:12 UTC
+
+Executei `python scripts/review.py --scenario all --keep` em banco, rede e volumes novos. A base foi `452509b`, com alterações locais no runner/coletor identificadas pelos hashes das fontes. A [prova desta rodada](evidence/editorial-20260922/full-run.json) está aprovada; não herda o resultado do CI de outro commit.
+
+- Build pelo Dockerfile e lock atuais, Ruff, formatação, mypy e regras de monitoramento: aprovados.
+- **261 testes e 11 subtests** isolados aprovados. Os 73 casos HTTP reservados nessa etapa foram executados depois: **73 aprovados, sem skips**. [XML isolado](evidence/editorial-20260922/full-tests.xml) · [XML HTTP](evidence/editorial-20260922/full-http-tests.xml).
+- Consulta de referência antes/depois: **12500 centavos, 2 pedidos e 6250 centavos de ticket**, com cobertura completa. [Oráculo independente](evidence/editorial-20260922/full-oracle.json).
+- Carga normal, ERP lento e recuperado; quota com uma/duas réplicas; isolamento; Redis indisponível; pressão no banco; revogação: critérios originais aprovados. [Contadores e limites](performance.md).
+- Dois ciclos reais de alerta, mesma ocorrência recuperada, correlação e duas réplicas coletadas no final. [Entregas e tempos](evidence/editorial-20260922/full-alerts.json).
+- Trivy 0.74.0 na imagem exata, com pacotes de sistema, Python e binário Rust: **nenhum achado reportado**, sem arquivo de exclusões. [Relatório de escopo limitado](evidence/editorial-20260922/full-vulnerabilities.json).
+- Limpeza do namespace descartável concluída; nenhum container desse projeto restante. Os registros históricos foram preservados.
+
+O coletor de imagens desta tentativa falhou ao tentar ler a credencial de uma réplica no instante em que o ensaio a parou. O [registro da falha](evidence/editorial-20260922/capture-attempt-01.json) fica separado da prova funcional aprovada. A correção seleciona outra réplica própria em execução e oferece uma espera opcional pelo registro da referência antes de injetar a primeira falha. Ela não interrompe a detecção ou a recuperação para fotografar.
+
+A varredura de imagem não cobre todos os serviços auxiliares nem garante ausência de vulnerabilidades desconhecidas. A carga ocorreu sem outra stack Docker ativa no início e com janela reservada. A repetição para imagens não é uma nova medição de desempenho.
+
+## Capturas atuais e instalação repetida — 22/09 às 12:49 UTC
+
+Executei `python scripts/review.py --scenario alerts --keep --wait-for-capture`, com o coletor em outro processo. A [prova final](evidence/editorial-20260922/capture-run.json) identifica a base `452509b`, as mudanças locais, a imagem `sha256:2846db49…` e os hashes de todas as fontes operacionais. Build, Ruff, formato, mypy, monitoramento, **261 testes isolados + 11 subtests** e **73 testes HTTP** passaram. Os 73 skips da primeira etapa são justamente os casos HTTP executados depois, sem skips.
+
+Foram obtidas três telas completas e dois recortes nativos: referência de R$ 125,00, ocorrência #2 ativa e recuperação recebida na mesma identidade. Fontes carregadas, zoom normal, nenhum erro de página e nenhuma alteração de DOM ou webhook artificial. A [história comentada](operational-story.md) mostra o que conferir; a [conta independente](evidence/editorial-20260922/capture-oracle.json) e os [eventos reais](evidence/editorial-20260922/capture-alerts.json) sustentam os resultados.
+
+A imagem final recebeu [Trivy 0.74.0](evidence/editorial-20260922/capture-vulnerabilities.json), sem exclusões ou filtro de severidade: zero achados reportados em sistema, Python e binário Rust. A limpeza terminou sem containers, volumes ou redes desse projeto. Nenhum benchmark foi repetido nessa variante; as medições completas permanecem vinculadas à imagem das 12:12 UTC.
+
+O [índice de tentativas](evidence/editorial-20260922/attempts.json) conserva as falhas: leitura da réplica parada; timeout de 3 segundos no Grafana; HTTP 503 durante a falha controlada; e uma linha do novo handshake reprovada por tamanho no lint. O timeout ocorreu com outras tarefas locais ativas, mas sua causa não foi demonstrada. Os critérios não foram relaxados; a rodada final passou com os mesmos testes.
+
 ## Qual prova responde a cada pergunta
 
 | Pergunta | Versão ou identidade | Evidência e limite |
 | --- | --- | --- |
-| As consultas, quota, dependências e recuperação passaram juntas? | Execução `20260922t021943129883z`, imagem `sha256:011252…`; identidade completa no JSON | [Prova operacional](evidence/publication.json), descrita abaixo. Inclui carga local e falhas reais, com massa/ERP sintéticos; antecede a revisão visual. |
-| A interface foi observada durante uma falha e recuperação reais? | Execução `20260922t054206130821z`, imagem `sha256:94dcc1…`, 113 fontes identificadas por hash | [Sequência operacional](operational-story.md) e [prova](evidence/operational-story-20260922/20260922t054206130821z/proof.json). Fixture conferida antes/depois e mesma ocorrência recuperada; sem novo benchmark ou scan. |
+| Qual execução sustenta a revisão editorial atual? | `20260922t121258511380z`, base `452509b` mais mudanças locais | [Prova completa desta rodada](evidence/editorial-20260922/full-run.json), com testes, carga, falhas, scan e limpeza; falha de captura registrada separadamente. |
+| Qual execução sustenta as novas capturas? | `20260922t124941299601z`, mesma base e handshake identificado por hash | [Prova de capturas](evidence/editorial-20260922/capture-run.json), com nova instalação, testes e scan da imagem final; sem novo benchmark. |
+| Qual foi a prova completa anterior à adaptação visual? | Execução `20260922t021943129883z`, imagem `sha256:011252…`; identidade completa no JSON | [Prova operacional](evidence/publication.json), descrita abaixo. Inclui carga local e falhas reais, com massa/ERP sintéticos; antecede a revisão visual. |
+| Como era a prova visual anterior? | Execução histórica `20260922t054206130821z`, imagem `sha256:94dcc1…`, 113 fontes identificadas por hash | [Histórico da sequência](operational-story.md#histórico--execução-das-0542-utc) e [prova](evidence/operational-story-20260922/20260922t054206130821z/proof.json). Fixture conferida antes/depois e mesma ocorrência recuperada; sem novo benchmark ou scan naquela rodada. |
 | Qual revisão visual tem checks próprios? | Registro de 22/09 às 05:36 UTC; base `b5f0eed`, imagem `pf-api-sentinel-triage:20260922` e hashes discriminados no JSON | [Revisão de navegação](evidence/interface-navigation.json) e [explicação dos checks](interface-validation.md). Capturas com ocorrências sintéticas; checks de pacote e scan não repetem o ensaio de carga nem aprovam edições posteriores. |
 | O CI publicou resultados para um commit? | Cada execução de CI identifica o SHA e seus próprios artefatos | [Workflow](../.github/workflows/ci.yml) e [histórico da correção de exportação](interface-validation.md#correção-da-exportação-junit-no-ci). Alteração local posterior não herda a aprovação desse commit. |
 | Uma pessoa conseguiu usar os procedimentos sem ajuda contínua? | Ainda não há sessão humana registrada | [Protocolo preparado](demo.md#exercício-com-outra-pessoa--preparado-ainda-não-realizado). Execução automatizada não substitui essa avaliação. |

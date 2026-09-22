@@ -2,7 +2,7 @@
 
 O cliente da API é uma integração de lojas; o operador precisa reconhecer falha, encontrar a dependência envolvida e confirmar recuperação. Dados comerciais e ERP são sintéticos. PostgreSQL, Redis, proxy, regras e entrega de alertas são executados localmente.
 
-A [verificação atual](verification.md) e o [registro público](evidence/publication.json) identificam a imagem e os resultados da última prova completa. O roteiro abaixo pode ser repetido em um projeto Docker descartável.
+A [verificação atual](verification.md) e a [prova completa de 22/09 às 12:12 UTC](evidence/editorial-20260922/full-run.json) identificam a imagem e os resultados desta revisão. A [sequência de capturas das 12:49 UTC](evidence/editorial-20260922/capture-run.json) usa outra imagem, com sincronização do coletor corrigida, e não repete o benchmark. O roteiro abaixo pode ser repetido em um projeto Docker descartável.
 
 Para acompanhar um exemplo já executado, veja a [consulta conhecida, incidente e recuperação](operational-story.md), com três capturas reais e observações da mesma execução. Esse cenário limitado tem identidade própria e não substitui a prova completa de carga.
 
@@ -71,3 +71,47 @@ try {
 ```
 
 `SENTINEL_RUN_DIR` é obrigatório para o Compose interpretar os mounts do ensaio, inclusive ao encerrar; o exemplo restaura seu valor anterior ao terminar. Mantenha disponíveis os arquivos Compose identificados pelo comando gerado. Isso remove os volumes descartáveis daquela execução; os artefatos no projeto permanecem. Não execute comandos genéricos de prune. A demonstração persistente pode ser iniciada por `scripts/sentinel.ps1 start -Replicas 2` e encerrada por `stop`, que preserva os volumes dela.
+
+## Instalação persistente no Linux
+
+Este é o ambiente local de exploração. Para injetar falhas e remover volumes ao terminar, use o runner isolado descrito no início; não adapte os comandos de limpeza para esta stack.
+
+
+```sh
+docker compose -f compose.yml build api
+docker compose -f compose.yml up -d --wait postgres redis
+docker compose -f compose.yml run --rm -e REPLICAS=2 tools python scripts/bootstrap.py
+docker compose -f compose.yml run --rm tools python -c 'import json; from pathlib import Path; p=Path("/secrets/public-urls.json"); p.write_text(json.dumps({"grafana":"http://127.0.0.1:3104","jaeger":"http://127.0.0.1:16684","prometheus":"http://127.0.0.1:9104","alertmanager":"http://127.0.0.1:9194"})); p.chmod(0o644)'
+docker compose -f compose.yml --profile observability up -d --scale api=2
+umask 077
+mkdir -p .runtime
+docker compose -f compose.yml cp --index 1 api:/secrets/demo.json .runtime/demo.json
+```
+
+Todos os serviços publicados ficam em loopback:
+
+| Serviço | Endereço |
+| --- | --- |
+| Central de incidentes e runbooks | [localhost:9184](http://127.0.0.1:9184/) |
+| API e Swagger | [localhost:8104/docs](http://127.0.0.1:8104/docs) |
+| Grafana | [localhost:3104](http://127.0.0.1:3104/d/sentinel/api-sentinel) |
+| Jaeger | [localhost:16684](http://127.0.0.1:16684/) |
+| Coleta por réplica | [localhost:9104/targets](http://127.0.0.1:9104/targets) |
+| Alertmanager | [localhost:9194](http://127.0.0.1:9194/) |
+
+Os tokens ficam em `.runtime/demo.json`, ignorado pelo Git. Exemplo de consulta em PowerShell:
+
+```powershell
+$tokens = Get-Content .runtime/demo.json -Raw | ConvertFrom-Json
+Invoke-RestMethod 'http://127.0.0.1:8104/v1/stores/1/summary?start=2026-01-01&end=2026-01-31' -Headers @{Authorization="Bearer $($tokens.tenant_a)"}
+```
+
+A massa comercial cobre 01/01 a 01/03/2026, inclusive. A loja 7 pertence ao tenant técnico e cobre somente 01/01/2026. Para conferir um resultado conhecido, use seu token próprio:
+
+```powershell
+$referencia = Invoke-RestMethod 'http://127.0.0.1:8104/v1/stores/7/summary?start=2026-01-01&end=2026-01-01' -Headers @{Authorization="Bearer $($tokens.probe)"}
+$referencia | Select-Object revenue_cents, order_count, average_ticket_cents
+# Esperado: 12500, 2, 6250 — R$ 125,00 em dois pedidos, ticket de R$ 62,50.
+```
+
+Esses valores vêm de três itens definidos na [fixture](../data/fixtures/manual-sales.json), conferidos por uma [conta independente](../tests/unit/test_data_contract.py). O token A não tem acesso à loja 7. O [contrato de dados](data-contract.md) define escopo, cobertura e paginação.

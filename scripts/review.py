@@ -83,7 +83,14 @@ def main() -> None:
     parser.add_argument(
         "--keep", action="store_true", help="Keep a successful disposable stack for inspection."
     )
+    parser.add_argument(
+        "--wait-for-capture",
+        action="store_true",
+        help="Wait up to 120 seconds for the read-only collector before injecting the first fault.",
+    )
     args = parser.parse_args()
+    if args.wait_for_capture and args.scenario == "load":
+        parser.error("--wait-for-capture requires the alerts or all scenario")
     run_id = datetime.now(UTC).strftime("%Y%m%dT%H%M%S%fZ").lower()
     project = "pf-api-sentinel-review-" + run_id
     output = ROOT / "artifacts" / "problem-review" / run_id
@@ -430,6 +437,33 @@ def main() -> None:
             record["revocation"] = exp.revocation()
             save()
         if args.scenario in ("all", "alerts"):
+            # A collector must not mistake dependency experiments for this alert story.
+            record["phase"] = "alert-demo"
+            save()
+            if args.wait_for_capture:
+                # Only the start of fault injection waits. Detection and recovery
+                # keep their real timings and never depend on screenshot speed.
+                capture_path = output / "operational-story" / "capture.json"
+                capture_deadline = time.monotonic() + 120
+                while True:
+                    try:
+                        capture = json.loads(capture_path.read_text(encoding="utf-8"))
+                    except (FileNotFoundError, json.JSONDecodeError):
+                        capture = {}
+                    if capture.get("status") == "failed":
+                        raise RuntimeError("Collector failed before fault injection")
+                    if capture.get("run_id") == run_id and any(
+                        item.get("name") == "01-fixture-validada"
+                        for item in capture.get("screenshots", [])
+                    ):
+                        record["capture_baseline_ready_at"] = datetime.now(UTC).isoformat()
+                        save()
+                        break
+                    if time.monotonic() >= capture_deadline:
+                        raise TimeoutError(
+                            "Collector did not record the baseline within 120 seconds"
+                        )
+                    time.sleep(0.25)
             ops.alert_demo()
         run("trace-correlation", [sys.executable, str(ROOT / "scripts/trace_evidence.py")])
         record["final_targets"] = ops.api_target_snapshot()

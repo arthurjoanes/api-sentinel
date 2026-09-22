@@ -1,44 +1,78 @@
 # API Sentinel
 
-A interface usa fila de ocorrências, histórico por entrega e runbooks com contexto de retorno. A observação do probe tem validade própria e não representa disponibilidade global. [Revisão visual e pacote atual](docs/frontend-quality.md#direção-visual-atual--revisão-de-22092026).
+API de vendas que separa o acesso de cada organização e limita a interferência de um ERP lento nas consultas comerciais.
 
-API de vendas para integrações de lojas, com acesso por organização, quota compartilhada e isolamento das consultas ao ERP.
+Uma integração consulta faturamento e disponibilidade de produtos. Se o ERP começa a responder aos poucos, ele não deve ocupar todas as conexões nem interromper o resumo de vendas. Desenvolvi este laboratório para demonstrar essa separação, conferir os valores retornados e acompanhar a falha até a recuperação.
 
-Uma consulta ao ERP pode ficar lenta sem bloquear o resumo de vendas. O API Sentinel separa esses caminhos, limita o trabalho em andamento e mantém a quota de cada cliente entre duas réplicas. PostgreSQL calcula os indicadores; Redis coordena quota e cache. As organizações, vendas e o ERP da demonstração são sintéticos.
+O projeto é voltado a quem desenvolve ou opera integrações entre lojas. **É um laboratório local com dados e ERP sintéticos**, duas réplicas da API e serviços reais de banco, cache e observabilidade.
 
-![Central de incidentes com fila comparável e observação auxiliar; prévia com registros sintéticos](docs/screenshots/art-direction/central-1440.png)
+![Incidente real da demonstração com consulta indisponível, impacto, próximo passo e entrega de abertura](docs/screenshots/editorial-20260922/02-incidente-ativo.png)
 
-Interface revisada em 22/09/2026: captura com registros sintéticos explícitos, sem afirmar o estado da stack. [Antes/depois, jornadas e validação](docs/frontend-quality.md) identificam o candidato. A [sequência operacional anterior: consulta de R$ 125,00, falha e recuperação](docs/operational-story.md) mantém suas próprias imagens, fontes e limites.
+Execução local de 22/09/2026, às 12:53 UTC: o ensaio parou as réplicas da API e a entrega real do monitoramento abriu a ocorrência #2. Confira o impacto e o procedimento indicado. Dados comerciais sintéticos; a falha foi controlada. [Imagem completa](docs/screenshots/editorial-20260922/02-incidente-ativo.png) · [consulta, falha e recuperação da mesma execução](docs/operational-story.md).
 
-## O que a demonstração permite verificar
+## Uma conta pequena antes de falar em desempenho
 
-| Problema | Entrada → resultado esperado | Como o código resolve e onde conferir |
-| --- | --- | --- |
-| Consultar outra organização | Token A consultando loja 4 → HTTP 403 | [Autorização](src/api_sentinel/auth.py) antes de cache/SQL; [integração de dados](tests/integration/test_data_postgres.py) |
-| Confundir itens com pedidos | 3 itens da fixture, em 2 pedidos → 12500 centavos de receita e 6250 de ticket | [Agregado e período comercial](src/api_sentinel/queries.py); [conta independente](tests/unit/test_data_contract.py) |
-| Duplicar quota ao subir uma réplica | 30 tentativas para limite 10, em dois clientes Redis → 10 admissões e 20 recusas 429 | [Operação atômica](src/api_sentinel/admission.py); [teste Redis](tests/integration/test_runtime.py) |
-| ERP lento ocupar recursos sem prazo | Corpo recebido aos poucos → deadline total; vendas seguem caminho PostgreSQL | [Cliente ERP limitado](src/api_sentinel/erp.py); [testes de prazo](tests/unit/test_runtime.py) e [medição de coexistência](docs/performance.md) |
-| Reabrir um alerta por entrega atrasada | firing → resolved → firing antigo → mesma ocorrência finalizada | [Transação e identidade do alerta](alert_receiver/storage.py); [regressões do receiver](tests/unit/test_receiver.py) |
+A [fixture de referência](data/fixtures/manual-sales.json), um conjunto fixo de entradas para conferência, contém três linhas no dia comercial de 01/01/2026:
 
-O limite 10 da tabela é o parâmetro do teste de quota; clientes comerciais da demo têm 30/s por tenant. [Problema e solução](docs/problem-solution.md) detalha os casos e suas provas. [Decisões técnicas](docs/decisoes-tecnicas.md) explica motivo, custo e limite de cada proteção.
+| Pedido | Quantidade | Preço por unidade | Total da linha |
+| --- | ---: | ---: | ---: |
+| 101 | 2 | R$ 25,00 | R$ 50,00 |
+| 101 | 1 | R$ 35,00 | R$ 35,00 |
+| 102 | 1 | R$ 40,00 | R$ 40,00 |
 
-A central reúne estado, impacto, momento relevante e investigação em linhas comparáveis. Identificação e entregas ficam disponíveis por expansão. No detalhe ativo, o runbook orienta a investigação; após recuperação, a ação principal é conferir a observação atual, e a orientação original fica no registro histórico. O filtro Finalizados distingue recuperação recebida de encerramento administrativo. Retornos preservam filtro, ocorrência e foco. A observação do probe tem validade própria; a leitura da página é manual. [Padrões e validação da interface](docs/frontend-quality.md) separam essa revisão da prova operacional.
+São **quatro unidades, dois pedidos e R$ 125,00**. O ticket médio é `125 ÷ 2 = R$ 62,50`. Contar as três linhas como pedidos produziria outro resultado.
 
-Para investigar, abra o runbook do incidente, confira tráfego e saturação no Grafana e siga uma requisição no Jaeger. O [roteiro de demonstração](docs/demo.md) apresenta os cenários de consulta, isolamento e recuperação.
+Com a credencial da organização técnica, `GET /v1/stores/7/summary?start=2026-01-01&end=2026-01-01` retorna `revenue_cents: 12500`, `order_count: 2` e `average_ticket_cents: 6250`. O esperado é calculado pelas linhas do banco, sem chamar o agregador da API. Fora da cobertura conhecida, a consulta é recusada em vez de mostrar um zero aparentemente válido.
 
-| Quero conferir | Onde observar |
+[Cálculo e período comercial](src/api_sentinel/queries.py) · [conta independente nos testes](tests/unit/test_data_contract.py) · [verificação com PostgreSQL](tests/integration/test_data_postgres.py).
+
+## Quando acesso, capacidade ou dependências falham
+
+| Situação | Comportamento que precisa ser conferido |
 | --- | --- |
-| Impacto, entrega repetida e recuperação de um alerta | Central → ocorrência → histórico |
-| Causa provável e procedimento de recuperação | Runbook da ocorrência ou catálogo de runbooks |
-| Quota, latência de respostas corretas, cache e ERP | Métricas · Grafana |
-| Caminho e duração de uma requisição amostrada | Traces · Jaeger |
-| Réplicas descobertas e atualização da coleta | Coleta · Prometheus |
+| A organização A consulta a loja 4, pertencente à B | HTTP 403 antes de cache ou consulta comercial. |
+| Uma segunda réplica recebe tráfego do mesmo cliente | A quota comercial continua sendo 30 requisições por segundo por organização. |
+| O ERP envia pequenos trechos sem concluir o corpo | Prazo total de 900 ms; o resumo de vendas usa um caminho independente. |
+| O Redis inteiro fica indisponível | HTTP 503; a API não libera SQL sem o controle de quota. |
+| Uma entrega antiga chega após a recuperação do alerta | O histórico preserva a entrega sem reabrir a mesma ocorrência. |
 
-A ausência de incidentes não comprova disponibilidade global. A central não calcula métricas por cliente nem consulta os targets; as observações de coleta permanecem no Prometheus.
+O [guia dos casos](docs/problem-solution.md) liga cada entrada ao mecanismo, teste e limite. A [sequência operacional](docs/operational-story.md) mostra a consulta conhecida, a indisponibilidade controlada e a recuperação recebida na mesma ocorrência. Uma indicação visual de sucesso não substitui a consulta, os testes ou os registros de entrega.
 
-## Rodar no Windows
+![Histórico da mesma ocorrência com abertura às 12:53:33 e recuperação recebida às 12:53:53 UTC](docs/screenshots/editorial-20260922/03-mesma-ocorrencia-recuperada-detalhe.png)
 
-Requisitos: Docker Desktop com containers Linux, Compose 2.24.4+, PowerShell 7 e Python 3.11+ no host. Reserve pelo menos 2 GiB para a stack; builds e testes exigem recursos adicionais. As dependências Python da aplicação são instaladas no container.
+Recorte sem alteração de conteúdo: a segunda entrega confirma a recuperação da mesma ocorrência; não houve encerramento manual. O runner voltou a conferir R$ 125,00 e dois pedidos após restaurar as réplicas. [Tela completa](docs/screenshots/editorial-20260922/03-mesma-ocorrencia-recuperada.png) · [eventos e identidade](docs/evidence/editorial-20260922/03-mesma-ocorrencia-recuperada.json).
+
+## O que eu implementei
+
+- **Contrato das consultas:** autorização por organização, loja e permissão; cálculo em centavos; período comercial de São Paulo; cobertura explícita e paginação vinculada ao escopo.
+- **Controles de trabalho:** quota atômica compartilhada no Redis, limites de concorrência, conexões separadas para autenticação e negócio, cache com trava de preenchimento e cliente ERP com prazo total.
+- **Receiver e central:** persistência de alertas e entregas, tratamento de repetição e ordem invertida, distinção entre recuperação e encerramento administrativo, procedimentos de investigação e consulta de referência com validade explícita.
+- **Demonstração reproduzível:** fixture financeira, simulador de ERP, carga com conferência dos resultados, falhas controladas, testes, coleta de evidências e limpeza de projetos descartáveis.
+- **Configuração operacional:** regras do Prometheus/Alertmanager, painel do Grafana, instrumentação OpenTelemetry, correlação com Jaeger e integração no CI. Essas ferramentas são de terceiros; implementei sua configuração e integração ao laboratório.
+
+## Escolhas de engenharia e seus custos
+
+Autorizei a loja **antes** de consultar o cache, para que um resultado já calculado não contorne a permissão. A credencial é consultada no banco a cada requisição; isso torna a revogação observável na próxima chamada, mas exige um orçamento próprio de conexões e tempo.
+
+Separei quota de concorrência: Redis limita as chegadas da organização entre réplicas; cada processo limita o trabalho em andamento. A primeira recusa usa HTTP 429; indisponibilidade ou saturação usam 503. A janela fixa é simples de coordenar, mas permite rajadas em sua fronteira.
+
+No ERP, um timeout de leitura isolado não basta para um corpo que chega continuamente. O prazo total abrange corpo e validação; após falhas, um circuito suspende temporariamente novas tentativas. Esse circuito é local a cada réplica e não garante disponibilidade do fornecedor.
+
+[Decisões, alternativas e compromissos](docs/decisoes-tecnicas.md) · [arquitetura e fronteiras dos componentes](docs/architecture.md).
+
+## Executar e conferir
+
+Requisitos: Docker com containers Linux, Compose 2.24.4+ e Python 3.11+ no host. As dependências da aplicação são instaladas na imagem com lock congelado. Reserve pelo menos 2 GiB para a stack e recursos adicionais para build/testes.
+
+Para uma **instalação nova e descartável**, incluindo análise estática, testes, carga e falhas controladas:
+
+```sh
+python scripts/review.py
+```
+
+O comando cria banco, credenciais, rede e volumes exclusivos. As portas são temporárias em `127.0.0.1`; a saída informa as URLs. Ao terminar, remove somente os recursos que criou e preserva os registros em `artifacts/problem-review/<UTC>/`. Execute sem outra carga pesada no Docker.
+
+Para explorar a demonstração persistente no Windows, com PowerShell 7:
 
 ```powershell
 ./scripts/sentinel.ps1 setup -Replicas 2
@@ -47,67 +81,14 @@ Requisitos: Docker Desktop com containers Linux, Compose 2.24.4+, PowerShell 7 e
 ./scripts/sentinel.ps1 demo
 ```
 
-O primeiro setup baixa as imagens, prepara a massa e gera tokens locais. Os testes usam bancos e projetos Docker próprios. `./scripts/sentinel.ps1 stop` encerra os containers preservando os volumes.
+O setup gera credenciais locais; `stop` preserva os volumes. O [roteiro de execução](docs/demo.md) contém instalação no Linux, consultas autenticadas, captura pelo navegador e limpeza de uma execução mantida com `--keep`. Tokens e arquivos de sessão ficam fora do Git.
 
-## Rodar no Linux
+Os [resultados de verificação](docs/verification.md) identificam versão, comandos, imagem e escopo de cada prova. [Desempenho](docs/performance.md) separa respostas corretas, recusas e iterações perdidas; [segurança](docs/security.md) delimita as varreduras. Um workflow existente não aprova automaticamente alterações locais posteriores.
 
-```sh
-docker compose -f compose.yml build api
-docker compose -f compose.yml up -d --wait postgres redis
-docker compose -f compose.yml run --rm -e REPLICAS=2 tools python scripts/bootstrap.py
-docker compose -f compose.yml run --rm tools python -c 'import json; from pathlib import Path; p=Path("/secrets/public-urls.json"); p.write_text(json.dumps({"grafana":"http://127.0.0.1:3104","jaeger":"http://127.0.0.1:16684","prometheus":"http://127.0.0.1:9104","alertmanager":"http://127.0.0.1:9194"})); p.chmod(0o644)'
-docker compose -f compose.yml --profile observability up -d --scale api=2
-umask 077
-mkdir -p .runtime
-docker compose -f compose.yml cp --index 1 api:/secrets/demo.json .runtime/demo.json
-```
+## Limites do laboratório
 
-Todos os serviços publicados ficam em loopback:
+As duas réplicas compartilham um host. As execuções curtas não medem capacidade máxima, disponibilidade entre máquinas ou um SLO de 30 dias. O dataset é imutável; o cache com expiração não resolve a consistência de futuras escritas. Redis continua sendo uma dependência compartilhada da quota e do cache. Traces são amostrados em 25% e guardados em memória.
 
-| Serviço | Endereço |
-| --- | --- |
-| Central de incidentes e runbooks | [localhost:9184](http://127.0.0.1:9184/) |
-| API e Swagger | [localhost:8104/docs](http://127.0.0.1:8104/docs) |
-| Grafana | [localhost:3104](http://127.0.0.1:3104/d/sentinel/api-sentinel) |
-| Jaeger | [localhost:16684](http://127.0.0.1:16684/) |
-| Coleta por réplica | [localhost:9104/targets](http://127.0.0.1:9104/targets) |
-| Alertmanager | [localhost:9194](http://127.0.0.1:9194/) |
+A central mostra uma leitura atualizada manualmente. “Sem incidentes” não significa “saudável”; “Encerrado pelo operador” não significa que chegou uma recuperação. Ainda não houve sessão de uso com participantes; o [exercício preparado](docs/demo.md#exercício-com-outra-pessoa--preparado-ainda-não-realizado) permanece identificado como tal.
 
-Os tokens ficam em `.runtime/demo.json`, ignorado pelo Git. Exemplo de consulta em PowerShell:
-
-```powershell
-$tokens = Get-Content .runtime/demo.json -Raw | ConvertFrom-Json
-Invoke-RestMethod 'http://127.0.0.1:8104/v1/stores/1/summary?start=2026-01-01&end=2026-01-31' -Headers @{Authorization="Bearer $($tokens.tenant_a)"}
-```
-
-A massa comercial cobre 01/01 a 01/03/2026, inclusive. A loja 7 pertence ao tenant técnico e cobre somente 01/01/2026. Para conferir um resultado conhecido, use seu token próprio:
-
-```powershell
-$referencia = Invoke-RestMethod 'http://127.0.0.1:8104/v1/stores/7/summary?start=2026-01-01&end=2026-01-01' -Headers @{Authorization="Bearer $($tokens.probe)"}
-$referencia | Select-Object revenue_cents, order_count, average_ticket_cents
-# Esperado: 12500, 2, 6250 — R$ 125,00 em dois pedidos, ticket de R$ 62,50.
-```
-
-Esses valores vêm de três itens definidos na [fixture](src/api_sentinel/seed.py), conferidos por uma [conta independente](tests/unit/test_data_contract.py). O token A não tem acesso à loja 7. O [contrato de dados](docs/data-contract.md) define escopo, cobertura e paginação.
-
-## Arquitetura e verificação
-
-A quota usa janela fixa no Redis; admissão e circuito pertencem a cada processo. O cache evita cálculos simultâneos da mesma chave sem dispensar a quota. O prazo da requisição inclui espera por conexão e SQL, com cancelamento do trabalho quando o cliente desconecta.
-
-[Arquitetura](docs/architecture.md) · [decisões técnicas](docs/decisoes-tecnicas.md) · [problema e solução](docs/problem-solution.md).
-
-Para entender a escolha da stack, o [mapa de responsabilidades e custos](docs/architecture.md#o-requisito-que-justifica-cada-parte) separa consulta, integração ERP, observação e ferramentas de teste. As [dificuldades registradas](docs/decisoes-tecnicas.md#problema-central-e-dificuldades-registradas) mostram os problemas encontrados e o que se conseguiu concluir de cada tentativa. Esses registros explicam decisões de engenharia do laboratório; não representam uso comercial ou economia observada com clientes.
-
-O [CI](.github/workflows/ci.yml) executa análise estática, testes com PostgreSQL e Redis, validação das regras de monitoramento e jornadas HTTP pelo proxy. Os [resultados de verificação](docs/verification.md) e [ensaios de desempenho](docs/performance.md) distinguem medições reais, testes simulados e versões históricas.
-
-A [prova completa de 22/09/2026 às 02:19 UTC](docs/evidence/publication.json) registra 253 casos isolados incluindo subtests, 73 testes HTTP e os cenários de quota, isolamento, falha e recuperação aprovados. Sua imagem também tem três rodadas adicionais de quota e scan correspondentes. Ela antecede a adaptação visual. A [sequência operacional às 05:42 UTC](docs/operational-story.md) identifica a interface atual, 257 testes isolados e 11 subtests, 73 testes HTTP e capturas reais de incidente e recuperação; não repete o benchmark nem o scan. Cada prova preserva sua versão, tentativas e limites.
-
-Os controles de acesso do Redis e do Grafana e o escopo das varreduras estão em [segurança](docs/security.md).
-
-O [índice de provas](docs/verification.md#qual-prova-responde-a-cada-pergunta) distingue a execução operacional, a interface e o CI. Há também um [exercício preparado para outra pessoa](docs/demo.md#exercício-com-outra-pessoa--preparado-ainda-não-realizado), ainda sem resultado humano: localizar o incidente, usar o procedimento e confirmar a recuperação pelo valor conhecido.
-
-## Limites
-
-A janela fixa permite rajadas em sua fronteira. As duas réplicas compartilham um host, que continua sendo ponto único de falha. A demonstração não mede um SLO de 30 dias nem capacidade de um cluster. O dataset é imutável; o TTL do cache não oferece consistência forte para uma futura operação de escrita. Traces usam amostragem de 25% e armazenamento em memória.
-
-Python · FastAPI · PostgreSQL · Redis · NGINX · Prometheus · Grafana · Jaeger. [Licença MIT](LICENSE).
+[Licença MIT](LICENSE) · [interface e acessibilidade](docs/frontend-quality.md) · [contrato de dados](docs/data-contract.md).

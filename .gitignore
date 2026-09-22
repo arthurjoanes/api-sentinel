@@ -11,6 +11,8 @@ __pycache__/
 artifacts/private/
 .runtime/
 
-# so a evidencia linkada no README vai versionada
+# Execuções novas ficam locais; provas selecionadas são publicadas em docs/evidence.
+# Este padrão não remove as evidências históricas que já estão versionadas.
 artifacts/*
 !artifacts/problem-review/
+artifacts/problem-review/*

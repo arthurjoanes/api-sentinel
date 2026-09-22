@@ -1,0 +1,37 @@
+{
+  "captured_at": "2026-09-22T12:53:33.907Z",
+  "route": "/incidents/2?status=firing",
+  "incident": {
+    "id": 2,
+    "fingerprint": "14a9e1f8fb9f5066",
+    "starts_at": "2026-09-22T12:53:23.164000Z",
+    "status": "firing",
+    "ends_at": null,
+    "first_received_at": "2026-09-22T12:53:33.167045Z",
+    "last_received_at": "2026-09-22T12:53:33.167045Z",
+    "deliveries": 1,
+    "labels": {
+      "alertname": "SentinelUnavailable",
+      "environment": "demo",
+      "project": "api-sentinel",
+      "service": "api-sentinel",
+      "severity": "critical"
+    },
+    "annotations": {
+      "action": "Confira o proxy, a saúde das réplicas e dependências; restaure e confirme o probe em 1.",
+      "condition": "O probe retornou falha de transporte, status, schema ou total conhecido.",
+      "dashboard_url": "http://localhost:3104/d/sentinel/api-sentinel",
+      "impact": "A consulta autenticada da fixture falhou.",
+      "runbook_url": "http://localhost:9184/runbooks/unavailable",
+      "summary": "Consulta pelo proxy indisponível",
+      "window": "Probe a cada 3 s; 15s persistentes."
+    }
+  },
+  "events": [
+    {
+      "received_at": "2026-09-22T12:53:33.167045Z",
+      "delivered_status": "firing",
+      "transition": "created"
+    }
+  ]
+}
