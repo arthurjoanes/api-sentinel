@@ -6,6 +6,10 @@ Uma integração consulta faturamento e disponibilidade de produtos. Se o ERP co
 
 O projeto é voltado a quem desenvolve ou opera integrações entre lojas. **É um laboratório local com dados e ERP sintéticos**, duas réplicas da API e serviços reais de banco, cache e observabilidade.
 
+![Página principal do API Sentinel](docs/readme/home.png)
+
+*Página principal da demonstração.*
+
 [Na prática](#na-prática) · [Implementação](#implementação) · [Executar e verificar](#executar-e-verificar) · [Limites e manutenção](#limites-e-manutenção)
 
 <p><img src="docs/readme/uso.svg" width="800" height="8" alt=""></p>
