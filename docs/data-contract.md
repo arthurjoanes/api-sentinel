@@ -1,5 +1,7 @@
 # Contrato de dados e consultas
 
+Contrato conferido em **22/09/2026** contra [seed](../src/api_sentinel/seed.py), [modelos](../src/api_sentinel/models.py), [consultas](../src/api_sentinel/queries.py), [cursor](../src/api_sentinel/cursor.py) e [credenciais](../src/api_sentinel/auth.py). Valores monetários e datas da massa são **sintéticos**, definidos pela [fixture](../data/fixtures/manual-sales.json); não são preços de mercado.
+
 Todos os dados são fictícios e produzidos localmente. A seed `20260101` gera duas organizações comerciais (Aurora, tenant 1; Horizonte, tenant 2), seis lojas (1–3 e 4–6, respectivamente), quarenta produtos `SKU-001` a `SKU-040` e sessenta dias completos, de 2026-01-01 a 2026-03-01. O tenant 3 e a loja 7 são exclusivamente técnicos, para o probe independente; cobrem somente 2026-01-01. Não são uma terceira organização comercial.
 
 `python -m api_sentinel.cli seed --orders-per-day 30` é o volume padrão: 10.800 pedidos comerciais, com 1–3 itens por pedido. O gerador usa IDs estáveis derivados de loja, dia, posição do pedido e item, preços em centavos e PRNG local com seed fixa. O manifesto JSON registra algoritmo, parâmetros, contagem efetiva e SHA-256 de todas as linhas normalizadas. Ele fica em `/secrets/manifest.json`; o comando imprime o manifesto sem os tokens. A geração insere lotes de mil itens e não materializa a massa inteira.
@@ -7,6 +9,8 @@ Todos os dados são fictícios e produzidos localmente. A seed `20260101` gera d
 O volume pode ser de 1 a 1.000 pedidos por loja/dia. Alterar volume sobre uma massa existente falha explicitamente; use outro volume de demonstração, nunca a massa de demonstração como banco de testes. Migração e seed têm credenciais administrativas separadas do papel de leitura da API. Uma trava transacional PostgreSQL serializa seeds concorrentes; uma segunda execução com os mesmos parâmetros preserva dados, tokens, expiração e revogação. O manifesto confere configuração e contagem; não é uma auditoria contra alterações diretas arbitrárias no banco. O papel de leitura e a ausência de endpoints de escrita sustentam a hipótese de imutabilidade da demo.
 
 ## Modelo e precisão
+
+Fonte das fórmulas e unidades: [consultas](../src/api_sentinel/queries.py) e [fixture](../data/fixtures/manual-sales.json), conferidas em **22/09/2026**.
 
 - `tenants`: organização/tenant técnico e quota por segundo comum a todas as suas credenciais.
 - `stores`: tenant, nome e cobertura de datas. A referência composta `(tenant_id, store_id)` impede associar um item a loja de outra organização.
@@ -21,6 +25,8 @@ Receita em centavos = `SUM(quantity × unit_price_cents)`. Pedidos = `COUNT(DIST
 
 ## Datas e respostas
 
+Fonte do contrato HTTP: [schemas](../src/api_sentinel/contracts.py), [rotas](../src/api_sentinel/app.py) e [consultas](../src/api_sentinel/queries.py), conferidos em **22/09/2026**.
+
 `start` e `end` são datas inclusivas em `America/Sao_Paulo`, com 1–90 dias por consulta. O SQL usa intervalo UTC semiaberto: `[início de start, início de end+1)`. Por exemplo, 2026-01-01 corresponde a `[2026-01-01T03:00:00Z, 2026-01-02T03:00:00Z)`. Uma data sem timezone nunca é usada como instante de venda. A cobertura da loja precisa incluir todo o período pedido.
 
 `GET /v1/stores` retorna `{items:[{id,name,coverage}]}`, filtrado pelo tenant e pela lista de lojas autorizadas. `GET /v1/stores/{id}/summary` retorna objeto direto com loja/período, `currency=BRL`, três indicadores monetários/contagem, `coverage`, `dataset_version`, `data_updated_at` e `observed_at`; o runtime acrescenta idade do cache. `data_updated_at` pertence à geração dos dados; `observed_at` ao cálculo. Um cache hit preserva ambos.
@@ -28,6 +34,8 @@ Receita em centavos = `SUM(quantity × unit_price_cents)`. Pedidos = `COUNT(DIST
 `GET /v1/stores/{id}/sales` pagina itens de venda, não pedidos inteiros: um pedido pode ocupar duas páginas. Cada item contém `id`, `order_id`, `sold_at`, `sku`, `quantity`, `unit_price_cents` e `line_total_cents`. Há no máximo 100 itens, `next_cursor` e metadados de cobertura/versão. O banco lê somente `limit+1`; nenhuma paginação em memória sobre a tabela completa.
 
 ## Cursor e versão
+
+Fonte: [cursor](../src/api_sentinel/cursor.py), [CLI de versão](../src/api_sentinel/cli.py) e [modelo/índice](../src/api_sentinel/models.py), conferidos em **22/09/2026**.
 
 A ordenação fixa é `(sold_at DESC, id DESC)`. O cursor codifica posição e vincula tenant, loja, período normalizado e versão da massa. É autenticado com HMAC-SHA-256 usando segredo local com pelo menos 32 caracteres; não contém SQL. Assinatura, tamanho máximo (2 KiB), tipos e campos são validados. Reutilização em outra loja/período/tenant ou após mudança de versão retorna `invalid_cursor`.
 
@@ -37,7 +45,7 @@ O índice composto `ix_sales_tenant_store_sold_id` alinha igualdade por tenant/l
 
 ## Credenciais e ferramentas
 
-Bearer é `sentinel_` seguido de 32 bytes aleatórios codificados como URL-safe base64 (256 bits de entropia). SHA-256 sem sal é apropriado aqui por se tratar de segredo aleatório de alta entropia, não senha humana. O token não é registrado no banco nem nos logs. Cada requisição consulta expiração e revogação no banco, sem cache de credenciais entre réplicas.
+Bearer é `sentinel_` seguido de 32 bytes aleatórios codificados como URL-safe base64 (256 bits de entropia). O projeto usa SHA-256 sem sal para esses tokens aleatórios; esta escolha local não é uma recomendação para armazenar senhas humanas. Fonte: [hash](../src/api_sentinel/auth.py) e [emissão](../src/api_sentinel/cli.py), conferida em **22/09/2026**. O token não é registrado no banco nem nos logs. Cada requisição consulta expiração e revogação no banco, sem cache de credenciais entre réplicas.
 
 `/secrets/demo.json`, fora do Git e com permissão restrita, guarda `tenant_a`, `tenant_b`, `probe`, `restricted` e `expired`. A credencial restricted só lista a loja 1; expired é emitida já expirada. Os escopos existentes são `stores:read`, `sales:read` (resumo e lista) e `inventory:read` (ERP). Todas as credenciais de um tenant herdam a mesma quota da tabela tenants.
 

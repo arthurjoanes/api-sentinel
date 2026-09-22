@@ -1,5 +1,7 @@
 # Latência acima do objetivo
 
+Procedimento conferido em **22/09/2026**: [métricas e histogramas](../../src/api_sentinel/metrics.py), [Compose](../../compose.yml) e [regras demo](../../monitoring/rules/demo.yml). Os comandos e prazos são instruções deste ambiente; não constituem nova medição de recuperação.
+
 O alerta combina percentil de sucesso com volume mínimo e persistência. Não compare a latência de 503/429 rápidos com respostas corretas para afirmar melhora. Os histogramas combinam buckets entre réplicas; não calcule média dos p95 individuais.
 
 Execute os comandos na raiz do projeto, após o setup. O projeto Compose é `pf-api-sentinel`.

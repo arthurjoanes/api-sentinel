@@ -1,5 +1,7 @@
 # Desempenho e recuperação
 
+Fontes numéricas conferidas em **22/09/2026**: [execução das 12:12 UTC](evidence/editorial-20260922/full-run.json) e [execução das 02:19 UTC](evidence/publication.json), ambas de **22/09/2026**. Taxas, contagens e percentis pertencem a seus cenários e não são extrapolados para produção.
+
 ## Execução de 22/09 às 12:12 UTC
 
 Repeti a matriz completa em um projeto Docker novo, com as fontes identificadas na [prova atual](evidence/editorial-20260922/full-run.json). O tráfego usa lojas, vendas e ERP sintéticos; banco, Redis, proxy e requisições são reais. Os critérios não foram reduzidos para aprovar a rodada.
@@ -23,6 +25,8 @@ Esses são ensaios curtos no mesmo host, não uma capacidade máxima ou um SLO m
 Medição local da execução **20260922t021943129883z**, na mesma imagem identificada em [publication.json](evidence/publication.json). Todos os cenários obrigatórios passaram. Runtime Python 3.12.14, FastAPI 0.141.1, Starlette 1.3.1, SQLAlchemy 2.0.43 e asyncpg 0.30.0; versões e limites estão fixados no projeto. Dados comerciais e ERP são sintéticos.
 
 ## Método
+
+Método registrado em [publication.json](evidence/publication.json), execução de **22/09/2026, 02:19 UTC**; gerador e thresholds em [load](../load/review.js).
 
 O k6 oferece chegadas em taxa constante, sem esperar a resposta anterior nem repetir requisições. Cada resposta 200 é conferida contra um oráculo independente, calculado a partir das linhas SQL. Warmup de 5 s fica separado, também após alterar o número de réplicas. A oferta na fronteira pode produzir uma chegada adicional; iniciadas, concluídas, categorias e drops são registrados integralmente.
 
@@ -51,6 +55,8 @@ A pressão de banco usa lock temporário em sale_items e cache desabilitado por 
 
 ## CPU e tentativas anteriores
 
+Fonte histórica: campos `runtime_optimization`, `bounded_quota_validation` e `earlier_attempts` de [publication.json](evidence/publication.json), **22/09/2026**. Esses microtestes e controles não foram repetidos nesta revisão.
+
 As primeiras tentativas de publicação falharam na admissão de autenticação durante quota. O ensaio reduzido A/B mostrou que remover transações redundantes, sozinho, não bastava. Foi medido o custo de CPU da importação em um microteste: a importação fria de urllib.request pelo healthcheck consumia cerca de 0,67 CPU-s; após pré-compilar a stdlib, cerca de 0,09 CPU-s no mesmo microcontainer. O healthcheck compartilha o limite de 0,75 CPU da API. Esse microteste não identifica sozinho a causa das falhas de quota.
 
 A pré-compilação não eliminou a falha de quota. O protobuf instalado a partir do wheel universal usava a implementação Python no Alpine. Em um microteste de serialização de 32 spans, a mediana de CPU foi 26,17 ms com Python e 4,57 ms com upb nativo. Dois controles temporários sem traces passaram; eles foram usados para diagnóstico, não como configuração de publicação.
@@ -74,6 +80,8 @@ Na tentativa canônica `20260922t010740342553z`, o k6 registrou 282 respostas v�
 Essas correções e a aprovação atual não transformam a comparação inicial em um experimento causal completo. A falha canônica anterior não foi reproduzida nesta execução; sua causa inicial continua não demonstrada. Os logs reprovados foram preservados. A prova de 02:19 UTC e suas rodadas delimitadas de quota usaram a imagem histórica identificada nessa seção. A tabela de 12:12 UTC, no início desta página, pertence à nova execução `20260922t121258511380z` e à imagem registrada em seu próprio recibo; não é uma repetição com a imagem anterior.
 
 ## Limites da medição
+
+Fonte: `docker_resources`, `measurement_conditions` e `bounded_quota_validation` no [recibo histórico](evidence/publication.json), **22/09/2026**.
 
 Docker informado pelo runner: `CPUs=16 memory_bytes=16707645440 version=29.7.2`. As APIs, banco, gerador e observabilidade compartilham o host.
 

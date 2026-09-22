@@ -1,5 +1,7 @@
 # Demonstração operacional
 
+Roteiro conferido em **22/09/2026** contra [runner](../scripts/review.py), [wrapper](../scripts/sentinel.ps1), [Compose](../compose.yml) e [fixture](../data/fixtures/manual-sales.json). A duração sugerida da apresentação é um planejamento editorial, não tempo medido de instalação ou resultado de teste com participantes.
+
 O cliente da API é uma integração de lojas; o operador precisa reconhecer falha, encontrar a dependência envolvida e confirmar recuperação. Dados comerciais e ERP são sintéticos. PostgreSQL, Redis, proxy, regras e entrega de alertas são executados localmente.
 
 A [verificação atual](verification.md) e a [prova completa de 22/09 às 12:12 UTC](evidence/editorial-20260922/full-run.json) identificam a imagem e os resultados desta revisão. A [sequência de capturas das 12:49 UTC](evidence/editorial-20260922/capture-run.json) usa outra imagem, com sincronização do coletor corrigida, e não repete o benchmark. O roteiro abaixo pode ser repetido em um projeto Docker descartável.

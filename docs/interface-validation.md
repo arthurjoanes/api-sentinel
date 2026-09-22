@@ -1,5 +1,7 @@
 # Validação da interface — 22/09/2026
 
+Revisão documental em **22/09/2026** sobre os recibos [navegação](evidence/interface-navigation.json), [primeira revisão](evidence/interface-review.json) e [pacote](evidence/interface-package.json). As conclusões abaixo têm as identidades e datas desses registros; não são uma validação nova da interface atual.
+
 A revisão mais recente parte de `be419e0` e está em
 [frontend-quality.md](frontend-quality.md), com matriz de 11 dimensões, capturas
 comparáveis e prova de empacotamento separada. As seções abaixo descrevem rodadas
@@ -33,6 +35,8 @@ A linha de desktop passou de cerca de 110 para 139 pixels: a ação explícita e
 Comparações: [baseline 1440](screenshots/navigation-review/baseline-resolved-1440.png) / [candidato 1440](screenshots/navigation-review/candidate-resolved-1440.png), [baseline 768](screenshots/navigation-review/baseline-resolved-768.png) / [candidato 768](screenshots/navigation-review/candidate-resolved-768.png), [baseline 390](screenshots/navigation-review/baseline-resolved-390.png) / [candidato 390](screenshots/navigation-review/candidate-resolved-390.png), [baseline 320](screenshots/navigation-review/baseline-resolved-320.png) / [candidato 320](screenshots/navigation-review/candidate-resolved-320.png).
 
 ## Contratos e provas desta revisão
+
+Critério de contraste: [WCAG 2.2, 1.4.3](https://www.w3.org/TR/WCAG22/#contrast-minimum), consulta em **22/09/2026**. Evidência desta rodada: [registro de navegação](evidence/interface-navigation.json), de **22/09/2026**; aplicação parcial do critério não é certificação.
 
 O baseline reproduziu três problemas funcionais: voltar do detalhe removia o filtro; o runbook não oferecia volta à ocorrência; investigação sem configuração abria JSON cru no navegador. A correção transporta somente filtro validado e ID numérico limitado. O retorno foca a ocorrência ou, se ela tiver saído do filtro, o conteúdo. Runbooks conservam a volta ao incidente e o foco nas seções. Erros de ferramentas oferecem HTML ao navegador; clientes JSON e redirects válidos mantêm o contrato.
 

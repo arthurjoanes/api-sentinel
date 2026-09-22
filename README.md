@@ -1,38 +1,41 @@
 # API Sentinel
 
-API de vendas que separa o acesso de cada organização e limita a interferência de um ERP lento nas consultas comerciais.
+API de vendas com acesso por organização, controle de carga e investigação de falhas de um ERP sintético. Desenvolvi o laboratório para conferir a consulta comercial, acompanhar o incidente e verificar sua recuperação no mesmo ambiente local.
 
-Uma integração consulta faturamento e disponibilidade de produtos. Se o ERP começa a responder aos poucos, ele não deve ocupar todas as conexões nem interromper o resumo de vendas. Desenvolvi este laboratório para demonstrar essa separação, conferir os valores retornados e acompanhar a falha até a recuperação.
+<!-- Navegação do README -->
+<p>
+  <a href="#demonstração"><img src="docs/readme/badges/demo.svg" alt="Demonstração" width="139" height="28"></a>
+  <a href="#arquitetura"><img src="docs/readme/badges/architecture.svg" alt="Arquitetura" width="126" height="28"></a>
+  <a href="#executar-localmente"><img src="docs/readme/badges/run.svg" alt="Executar localmente" width="107" height="28"></a>
+  <a href="#verificação-e-evidências"><img src="docs/readme/badges/evidence.svg" alt="Verificação e evidências" width="119" height="28"></a>
+  <a href="https://www.linkedin.com/in/arthur-joanes-6a2967373/"><img src="docs/readme/badges/linkedin.svg" alt="Arthur Joanes no LinkedIn" width="108" height="28"></a>
+</p>
 
-O projeto é voltado a quem desenvolve ou opera integrações entre lojas. **É um laboratório local com dados e ERP sintéticos**, duas réplicas da API e serviços reais de banco, cache e observabilidade.
+## Visão geral
 
-![Página principal do API Sentinel](docs/readme/home.png)
+Uma integração consulta faturamento e disponibilidade de produtos. A aplicação separa o caminho comercial do ERP e limita o trabalho em andamento. Os dados e o ERP são **sintéticos**; PostgreSQL, Redis, HTTP e observabilidade executam em containers no mesmo computador.
 
-*Página principal da demonstração.*
+O que implementei: autorização por loja e organização, cálculos em centavos, quota compartilhada, cache com controle de preenchimento, cliente ERP com prazo total e central com histórico de entregas. [Código e contratos](docs/problem-solution.md) · conferência documental em **22/09/2026**.
 
-[Na prática](#na-prática) · [Implementação](#implementação) · [Executar e verificar](#executar-e-verificar) · [Limites e manutenção](#limites-e-manutenção)
+<a id="na-prática"></a>
 
-<p><img src="docs/readme/uso.svg" width="800" height="8" alt=""></p>
+## Demonstração
 
-## Na prática
+![Interface do API Sentinel: filtros e duas ocorrências com estado, impacto e ação de investigação](docs/screenshots/focused-20260922/fila-foco.png)
 
-![Recorte da interface atual: filtros e duas ocorrências com estado, impacto e ação de investigação.](docs/screenshots/focused-20260922/fila-foco.png)
+Recorte real de **22/09/2026, 17:37 UTC**, com registros preservados. Mostra a apresentação da fila; fotografar a página não executou falha ou recuperação. [Manifesto da captura](docs/screenshots/focused-20260922/capture.json) · [outros focos](docs/screenshots.md) · [página completa versionada](docs/readme/home.png).
 
-Recorte de apresentação de **22/09/2026, 17:37 UTC**, obtida da interface local atual. Os incidentes exibidos pertencem ao histórico preservado; esta captura não executou falhas nem recuperação. [Recortes de fila e histórico](docs/screenshots.md) · [metadados da captura](docs/screenshots/focused-20260922/capture.json).
+<a id="uma-conta-pequena-antes-de-falar-em-desempenho"></a>
 
-**Registro operacional histórico de 22/09/2026, às 12:53 UTC:** o ensaio parou as réplicas da API e a entrega real do monitoramento abriu a ocorrência #2. Confira o impacto e o procedimento indicado. Dados comerciais sintéticos; a falha foi controlada. [Imagem completa](docs/screenshots/editorial-20260922/02-incidente-ativo.png) · [consulta, falha e recuperação da mesma execução](docs/operational-story.md).
+### Uma conta verificável
 
-### Uma conta pequena antes de falar em desempenho
+| Pedido sintético |          Quantidade × preço |         Total |
+| ---------------- | --------------------------: | ------------: |
+| 101              | 2 × R$ 25,00 + 1 × R$ 35,00 |      R$ 85,00 |
+| 102              |                1 × R$ 40,00 |      R$ 40,00 |
+| **Resultado**    |  **4 unidades / 2 pedidos** | **R$ 125,00** |
 
-A [fixture de referência](data/fixtures/manual-sales.json), um conjunto fixo de entradas para conferência, contém três linhas no dia comercial de 01/01/2026:
-
-| Pedido | Quantidade | Preço por unidade | Total da linha |
-| ------ | ---------: | ----------------: | -------------: |
-| 101    |          2 |          R$ 25,00 |       R$ 50,00 |
-| 101    |          1 |          R$ 35,00 |       R$ 35,00 |
-| 102    |          1 |          R$ 40,00 |       R$ 40,00 |
-
-São **quatro unidades, dois pedidos e R$ 125,00**. O ticket médio é `125 ÷ 2 = R$ 62,50`. Contar as três linhas como pedidos produziria outro resultado.
+O ticket médio é `125 ÷ 2 = R$ 62,50`. São valores de teste, sem relação com preços de mercado. Fonte: [fixture independente](data/fixtures/manual-sales.json), recalculada em **22/09/2026**; período comercial da entrada: **01/01/2026**.
 
 Com a credencial da organização técnica, consulte:
 
@@ -40,82 +43,66 @@ Com a credencial da organização técnica, consulte:
 GET /v1/stores/7/summary?start=2026-01-01&end=2026-01-01
 ```
 
-A resposta retorna `revenue_cents: 12500`, `order_count: 2` e `average_ticket_cents: 6250`. O esperado é calculado pelas linhas do banco, sem chamar o agregador da API.
+Esperado: `revenue_cents: 12500`, `order_count: 2` e `average_ticket_cents: 6250`. O [roteiro](docs/demo.md) explica a credencial e a execução; a [sequência histórica de 22/09/2026, 12:49 UTC](docs/operational-story.md) liga consulta, falha controlada e recuperação recebida à mesma ocorrência.
 
-Fora da cobertura conhecida, a consulta é recusada em vez de mostrar um zero aparentemente válido.
+<a id="implementação"></a>
 
-[Cálculo e período comercial](src/api_sentinel/queries.py) · [conta independente nos testes](tests/unit/test_data_contract.py) · [verificação com PostgreSQL](tests/integration/test_data_postgres.py).
+## Arquitetura
 
-### Quando acesso, capacidade ou dependências falham
+```mermaid
+flowchart TB
+  C[Cliente] --> A[NGINX e API]
+  A --> P[(PostgreSQL)]
+  A --> R[(Redis)]
+  A --> E[ERP sintético]
+  O[Monitoramento e central] --> A
+```
 
-| Situação                                              | Comportamento que precisa ser conferido                                      |
-| ----------------------------------------------------- | ---------------------------------------------------------------------------- |
-| A organização A consulta a loja 4, pertencente à B    | HTTP 403 antes de cache ou consulta comercial.                               |
-| Uma segunda réplica recebe tráfego do mesmo cliente   | A quota comercial continua sendo 30 requisições por segundo por organização. |
-| O ERP envia pequenos trechos sem concluir o corpo     | Prazo total de 900 ms; o resumo de vendas usa um caminho independente.       |
-| O Redis inteiro fica indisponível                     | HTTP 503; a API não libera SQL sem o controle de quota.                      |
-| Uma entrega antiga chega após a recuperação do alerta | O histórico preserva a entrega sem reabrir a mesma ocorrência.               |
+A autorização precede quota, cache e consulta. O ERP tem cliente e limite próprios; o resumo usa PostgreSQL. Prometheus observa a aplicação e entrega alertas ao receiver via Alertmanager. Grafana e Jaeger complementam a investigação no [diagrama completo](docs/architecture.md).
 
-O [guia dos casos](docs/problem-solution.md) liga cada entrada ao mecanismo, teste e limite. A [sequência operacional](docs/operational-story.md) mostra a consulta conhecida, a indisponibilidade controlada e a recuperação recebida na mesma ocorrência. Uma indicação visual de sucesso não substitui a consulta, os testes ou os registros de entrega.
+Fontes: [Compose](compose.yml), [fluxo HTTP](src/api_sentinel/app.py) e [receiver](alert_receiver/app.py), conferidos em **22/09/2026**. As réplicas compartilham o host; o diagrama não representa alta disponibilidade entre máquinas.
 
-![Histórico da mesma ocorrência com abertura às 12:53:33 e recuperação recebida às 12:53:53 UTC](docs/screenshots/editorial-20260922/03-mesma-ocorrencia-recuperada-detalhe.png)
+## Stack e decisões
 
-Recorte sem alteração de conteúdo: a segunda entrega confirma a recuperação da mesma ocorrência; não houve encerramento manual. O runner voltou a conferir R$ 125,00 e dois pedidos após restaurar as réplicas. [Tela completa](docs/screenshots/editorial-20260922/03-mesma-ocorrencia-recuperada.png) · [eventos e identidade](docs/evidence/editorial-20260922/03-mesma-ocorrencia-recuperada.json).
-
-<p><img src="docs/readme/implementacao.svg" width="800" height="8" alt=""></p>
-
-## Implementação
-
-### O que eu implementei
-
-- **Contrato das consultas:** autorização por organização, loja e permissão; cálculo em centavos; período comercial de São Paulo; cobertura explícita e paginação vinculada ao escopo.
-- **Controles de trabalho:** quota atômica compartilhada no Redis, limites de concorrência, conexões separadas para autenticação e negócio, cache com trava de preenchimento e cliente ERP com prazo total.
-- **Receiver e central:** persistência de alertas e entregas, tratamento de repetição e ordem invertida, distinção entre recuperação e encerramento administrativo, procedimentos de investigação e consulta de referência com validade explícita.
-- **Demonstração reproduzível:** fixture financeira, simulador de ERP, carga com conferência dos resultados, falhas controladas, testes, coleta de evidências e limpeza de projetos descartáveis.
-- **Configuração operacional:** regras do Prometheus/Alertmanager, painel do Grafana, instrumentação OpenTelemetry, correlação com Jaeger e integração no CI. Essas ferramentas são de terceiros; implementei sua configuração e integração ao laboratório.
-
-### Stack
+<a id="stack"></a>
 
 <p>
-  <img src="docs/stack/python.svg" alt="Python" width="72" height="72">
-  <img src="docs/stack/fastapi.svg" alt="FastAPI" width="72" height="72">
-  <img src="docs/stack/postgresql.svg" alt="PostgreSQL" width="72" height="72">
-  <img src="docs/stack/redis.svg" alt="Redis" width="72" height="72">
-  <img src="docs/stack/docker.svg" alt="Docker" width="72" height="72">
-  <img src="docs/stack/nginx.svg" alt="NGINX" width="72" height="72">
-  <img src="docs/stack/prometheus.svg" alt="Prometheus" width="72" height="72">
-  <img src="docs/stack/grafana.svg" alt="Grafana" width="72" height="72">
+  <img src="docs/stack/python.svg" alt="Python" width="64" height="64">
+  <img src="docs/stack/fastapi.svg" alt="FastAPI" width="64" height="64">
+  <img src="docs/stack/postgresql.svg" alt="PostgreSQL" width="64" height="64">
+  <img src="docs/stack/redis.svg" alt="Redis" width="64" height="64">
+  <img src="docs/stack/docker.svg" alt="Docker" width="64" height="64">
+  <img src="docs/stack/nginx.svg" alt="NGINX" width="64" height="64">
+  <img src="docs/stack/prometheus.svg" alt="Prometheus" width="64" height="64">
+  <img src="docs/stack/grafana.svg" alt="Grafana" width="64" height="64">
 </p>
 
-Python e FastAPI na API; PostgreSQL nos dados; Redis na quota e no cache; NGINX na entrada. Docker Compose executa os serviços. Prometheus e Grafana acompanham métricas e alertas; Jaeger recebe os traces.
+| Escolha                      | Motivo e compromisso                                                                            |
+| ---------------------------- | ----------------------------------------------------------------------------------------------- |
+| FastAPI + PostgreSQL         | Consultas autorizadas com SQL explícito; autenticação consulta o banco a cada chamada.          |
+| Redis                        | Coordena quota e preenchimento do cache entre réplicas; a quota depende de sua disponibilidade. |
+| NGINX + Compose              | Entrada comum e ambiente reproduzível; todos os processos continuam no mesmo host.              |
+| Prometheus, Grafana e Jaeger | Métricas, alertas e traces amostrados; uma consulta sem trace ainda exige logs e outros sinais. |
 
-### Escolhas de engenharia e seus custos
+<a id="o-que-eu-implementei"></a>
+<a id="escolhas-de-engenharia-e-seus-custos"></a>
 
-Autorizei a loja **antes** de consultar o cache, para que um resultado já calculado não contorne a permissão. A credencial é consultada no banco a cada requisição; isso torna a revogação observável na próxima chamada, mas exige um orçamento próprio de conexões e tempo.
+[Decisões, alternativas e implementação](docs/decisoes-tecnicas.md) · [versões Python fixadas](uv.lock) · [imagens configuradas](compose.yml). Conferência em **22/09/2026**; versões fixadas não são uma declaração de versão mais recente.
 
-Separei quota de concorrência: Redis limita as chegadas da organização entre réplicas; cada processo limita o trabalho em andamento. A primeira recusa usa HTTP 429; indisponibilidade ou saturação usam 503. A janela fixa é simples de coordenar, mas permite rajadas em sua fronteira.
+<a id="executar-e-verificar"></a>
+<a id="executar-e-conferir"></a>
 
-No ERP, um timeout de leitura isolado não basta para um corpo que chega continuamente. O prazo total abrange corpo e validação; após falhas, um circuito suspende temporariamente novas tentativas. Esse circuito é local a cada réplica e não garante disponibilidade do fornecedor.
+## Executar localmente
 
-[Decisões, alternativas e compromissos](docs/decisoes-tecnicas.md) · [arquitetura e fronteiras dos componentes](docs/architecture.md).
+Use Docker com containers Linux, Compose **2.24.4+** e Python **3.11+** no host. O Compose mínimo atende ao uso de `!override` no [perfil de revisão](compose.review.yml), conforme a [documentação Docker](https://docs.docker.com/reference/compose-file/merge/#replace-value), consultada em **22/09/2026**. Python no host executa o [runner](scripts/review.py); não há medição de memória mínima garantida.
 
-<p><img src="docs/readme/execucao.svg" width="800" height="8" alt=""></p>
-
-## Executar e verificar
-
-### Executar e conferir
-
-Requisitos: Docker com containers Linux, Compose 2.24.4+ e Python 3.11+ no host. As dependências da aplicação são instaladas na imagem com lock congelado. Reserve pelo menos 2 GiB para a stack e recursos adicionais para build/testes.
-
-Para uma **instalação nova e descartável**, incluindo análise estática, testes, carga e falhas controladas:
+Para uma instalação nova e descartável, com checks, testes e falhas controladas:
 
 ```sh
 python scripts/review.py
 ```
 
-O comando cria banco, credenciais, rede e volumes exclusivos. As portas são temporárias em `127.0.0.1`; a saída informa as URLs. Ao terminar, remove somente os recursos que criou e preserva os registros em `artifacts/problem-review/<UTC>/`. Execute sem outra carga pesada no Docker.
-
-Para explorar a demonstração persistente no Windows, com PowerShell 7:
+O comando informa portas temporárias em `127.0.0.1`, grava resultados em `artifacts/problem-review/<UTC>/` e remove os recursos exclusivos da tentativa. Para explorar a demonstração persistente no Windows, com PowerShell 7:
 
 ```powershell
 ./scripts/sentinel.ps1 setup -Replicas 2
@@ -124,20 +111,43 @@ Para explorar a demonstração persistente no Windows, com PowerShell 7:
 ./scripts/sentinel.ps1 demo
 ```
 
-O setup gera credenciais locais; `stop` preserva os volumes. O [roteiro de execução](docs/demo.md) contém instalação no Linux, consultas autenticadas, captura pelo navegador e limpeza de uma execução mantida com `--keep`. Tokens e arquivos de sessão ficam fora do Git.
+O setup gera credenciais locais; `stop` preserva volumes. [Instalação Linux, credenciais e limpeza](docs/demo.md) · [implementação dos comandos](scripts/sentinel.ps1), conferidas em **22/09/2026**.
 
-Os [resultados de verificação](docs/verification.md) identificam versão, comandos, imagem e escopo de cada prova. [Desempenho](docs/performance.md) separa respostas corretas, recusas e iterações perdidas; [segurança](docs/security.md) delimita as varreduras. Um workflow existente não aprova automaticamente alterações locais posteriores.
+## Verificação e evidências
 
-<p><img src="docs/readme/limites.svg" width="800" height="8" alt=""></p>
+| Pergunta                              | Fonte e data da execução                                                                                                                                  | Limite                                                                                                                                                |
+| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Os contratos passaram nos testes?     | [XML isolado](docs/evidence/editorial-20260922/full-tests.xml) e [HTTP](docs/evidence/editorial-20260922/full-http-tests.xml), **22/09/2026**             | Suítes distintas da imagem identificada no [recibo](docs/evidence/editorial-20260922/full-run.json); não aprovam automaticamente edições posteriores. |
+| O ERP degradado coexistiu com vendas? | [Recibo da carga das 12:12 UTC](docs/evidence/editorial-20260922/full-run.json), **22/09/2026**: 151 conclusões, 114 válidas e 37 falhas previstas do ERP | Ensaio curto e local; as falhas do ERP não são contadas como sucesso comercial.                                                                       |
+| A mesma ocorrência recuperou?         | [Entregas reais](docs/evidence/editorial-20260922/capture-alerts.json), **22/09/2026**                                                                    | Recuperação recebida é diferente de encerramento manual.                                                                                              |
 
-## Limites e manutenção
+[Índice de verificações](docs/verification.md) · [fontes e afirmações](docs/fontes-e-afirmacoes.md). Capturas, testes, benchmark e scanner têm escopos próprios; suas contagens não são somadas.
 
-### Limites do laboratório
+<a id="limites-e-manutenção"></a>
+<a id="limites-do-laboratório"></a>
+<a id="quando-acesso-capacidade-ou-dependências-falham"></a>
 
-As duas réplicas compartilham um host. As execuções curtas não medem capacidade máxima, disponibilidade entre máquinas ou um SLO de 30 dias. O dataset é imutável; o cache com expiração não resolve a consistência de futuras escritas. Redis continua sendo uma dependência compartilhada da quota e do cache. Traces são amostrados em 25% e guardados em memória.
+## Limites e segurança
 
-A central mostra uma leitura atualizada manualmente. “Sem incidentes” não significa “saudável”; “Encerrado pelo operador” não significa que chegou uma recuperação. Ainda não houve sessão de uso com participantes; o [exercício preparado](docs/demo.md#exercício-com-outra-pessoa--preparado-ainda-não-realizado) permanece identificado como tal.
+- Quota comercial padrão: **30 requisições/s por organização**; prazo total ERP: **900 ms**. São regras locais, não capacidade medida. Fontes: [seed](src/api_sentinel/seed.py), [ERP](src/api_sentinel/erp.py) e [matriz](docs/architecture.md#matriz-de-limites), conferidas em **22/09/2026**.
+- Dados comerciais imutáveis e duas réplicas no mesmo host. O laboratório não demonstra SLO mensal, capacidade máxima ou disponibilidade entre máquinas. [Escopo das provas](docs/verification.md#escopo), **22/09/2026**.
+- Serviços publicados em loopback; tokens e runtime ficam fora do Git. Scans dizem respeito às imagens e bases identificadas em cada execução. [Controles e limites](docs/security.md), conferidos em **22/09/2026**.
+- A central exige atualização manual. “Sem incidentes” não prova saúde; não há sessão com participantes registrada. [Contrato da interface](docs/decisoes-tecnicas.md#histórico-durável-e-uma-interface-que-não-inventa-recuperação) e [exercício ainda não realizado](docs/demo.md#exercício-com-outra-pessoa--preparado-ainda-não-realizado), conferidos em **22/09/2026**.
 
-[Licença MIT](LICENSE) · [interface e acessibilidade](docs/frontend-quality.md) · [contrato de dados](docs/data-contract.md).
+## Documentação
 
-Ícones da stack: [Devicon — licença MIT](docs/stack/LICENSE.devicon).
+| Para entender                    | Guia                                                                                                                            |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Problema, componentes e escolhas | [Casos](docs/problem-solution.md) · [arquitetura](docs/architecture.md) · [decisões](docs/decisoes-tecnicas.md)                 |
+| Consultas, dinheiro e isolamento | [Contrato de dados](docs/data-contract.md)                                                                                      |
+| Executar e investigar            | [Demonstração](docs/demo.md) · [indicadores e procedimentos](docs/slo.md)                                                       |
+| Conferir resultados e fontes     | [Verificação](docs/verification.md) · [desempenho](docs/performance.md) · [fontes e datas](docs/fontes-e-afirmacoes.md)         |
+| Interface e manutenção           | [Capturas](docs/screenshots.md) · [acessibilidade](docs/frontend-quality.md) · [padrão documental](docs/padrao-documentacao.md) |
+
+## Autor e licença
+
+Para conversar sobre APIs, isolamento e observabilidade neste laboratório:
+
+<p><a href="https://www.linkedin.com/in/arthur-joanes-6a2967373/"><img src="docs/contact/linkedin.svg" alt="" width="24" height="24"> <strong>Arthur Joanes no LinkedIn</strong></a></p>
+
+[Licença MIT](LICENSE). Ícones da stack e LinkedIn: [Devicon — licença MIT](docs/stack/LICENSE.devicon). Licenças conferidas nos arquivos em **22/09/2026**.

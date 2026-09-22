@@ -1,5 +1,7 @@
 # Recortes da interface atual
 
+Fontes de proveniência, conferidas em **22/09/2026**: [manifesto de captura](screenshots/focused-20260922/capture.json) e [coletor](../scripts/capture_docs.cjs). A data da captura descreve o layout fotografado; não atualiza a data dos incidentes exibidos.
+
 Capturados em **22/09/2026, 17:37 UTC**, diretamente no navegador, sem montagem ou alteração dos dados. Cada imagem isola o trecho relacionado à explicação; páginas históricas completas ficam disponíveis por links.
 
 A fila usa registros preservados do receiver local. Os recortes mostram filtros e ocorrências, ou o histórico recebido; não abriram alertas nem executaram falha/recuperação.
@@ -24,4 +26,4 @@ Escolha uma saída nova: o script recusa sobrescrever imagens. Confira região, 
 
 ## Conservação e limpeza
 
-13 imagens órfãs/aliases antigos e os 10 prints amplos da primeira tentativa desta revisão foram copiados para backup externo antes da remoção. Pares de comparação necessários às provas e capturas com hashes permanecem preservados. O inventário e as cópias de segurança são mantidos fora do repositório.
+Capturas com hashes e pares de comparação continuam ligados às execuções originais. O inventário da limpeza e as cópias de segurança anteriores ficaram fora do repositório; não são uma prova pública de contagem de arquivos removidos. Para a proveniência das imagens publicadas, use o manifesto ligado acima, de **22/09/2026**.
