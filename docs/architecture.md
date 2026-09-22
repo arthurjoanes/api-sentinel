@@ -26,13 +26,13 @@ Alerta: probe independente consulta fixture pelo proxy → scrape/evaluation Pro
 
 ## Seguir um caso no código
 
-| Caso e resultado verificável | Caminho de implementação | Por que esse limite existe |
-| --- | --- | --- |
-| A consulta da loja 4 com credencial A termina em 403 | [app](../src/api_sentinel/app.py) → [auth](../src/api_sentinel/auth.py), antes do cache/ERP | Um resultado em cache não concede acesso; identidade vem da credencial |
-| Fixture retorna 12500 centavos, 2 pedidos e ticket 6250 | [seed](../src/api_sentinel/seed.py) → [queries](../src/api_sentinel/queries.py) → [teste PostgreSQL](../tests/integration/test_data_postgres.py) | Contar itens como pedidos muda o ticket; período comercial precisa de fronteira UTC correta |
-| Redis indisponível termina em 503 antes do resumo SQL | [enforce_quota](../src/api_sentinel/admission.py) → [app](../src/api_sentinel/app.py) | Fallback só do cache não pode remover a quota compartilhada |
-| ERP envia chunks sem concluir; orçamento encerra a chamada | [erp](../src/api_sentinel/erp.py) → [teste de deadline](../tests/unit/test_runtime.py) | Timeout de leitura mede inatividade; prazo total limita a operação inteira |
-| Repetição e firing atrasado ficam no histórico da mesma ocorrência | [receiver](../alert_receiver/app.py) → [storage](../alert_receiver/storage.py) → [testes](../tests/unit/test_receiver.py) | A identidade é fingerprint + início, não cada entrega |
+| Caso e resultado verificável                                       | Caminho de implementação                                                                                                                         | Por que esse limite existe                                                                  |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------- |
+| A consulta da loja 4 com credencial A termina em 403               | [app](../src/api_sentinel/app.py) → [auth](../src/api_sentinel/auth.py), antes do cache/ERP                                                      | Um resultado em cache não concede acesso; identidade vem da credencial                      |
+| Fixture retorna 12500 centavos, 2 pedidos e ticket 6250            | [seed](../src/api_sentinel/seed.py) → [queries](../src/api_sentinel/queries.py) → [teste PostgreSQL](../tests/integration/test_data_postgres.py) | Contar itens como pedidos muda o ticket; período comercial precisa de fronteira UTC correta |
+| Redis indisponível termina em 503 antes do resumo SQL              | [enforce_quota](../src/api_sentinel/admission.py) → [app](../src/api_sentinel/app.py)                                                            | Fallback só do cache não pode remover a quota compartilhada                                 |
+| ERP envia chunks sem concluir; orçamento encerra a chamada         | [erp](../src/api_sentinel/erp.py) → [teste de deadline](../tests/unit/test_runtime.py)                                                           | Timeout de leitura mede inatividade; prazo total limita a operação inteira                  |
+| Repetição e firing atrasado ficam no histórico da mesma ocorrência | [receiver](../alert_receiver/app.py) → [storage](../alert_receiver/storage.py) → [testes](../tests/unit/test_receiver.py)                        | A identidade é fingerprint + início, não cada entrega                                       |
 
 Em [decisões técnicas](decisoes-tecnicas.md), cada escolha explicita motivo, custo e limite. [Problema e solução](problem-solution.md) liga entradas, resultados e provas, sem atribuir medições históricas ao fonte atual.
 
@@ -44,15 +44,15 @@ Escolha: FastAPI/SQLAlchemy Core assíncrono, Alembic, PostgreSQL, Redis, NGINX 
 
 ### O requisito que justifica cada parte
 
-| Parte | O que resolve aqui | Dependência e custo da escolha |
-| --- | --- | --- |
-| API + PostgreSQL | Autorizar a organização e calcular vendas/pedidos com um contrato único | Autenticação e consultas dependem do banco; cada réplica consome conexões, contabilizadas abaixo. |
-| Redis | Manter a mesma quota entre réplicas e coordenar preenchimentos do cache | O mesmo processo guarda quota e cache. Se ele cair, a quota recusa novas consultas; ter dois usuários não cria dois serviços independentes. |
-| NGINX | Dar ao cliente uma entrada comum para as réplicas e limitar a entrada HTTP | Acrescenta um processo e uma configuração a operar; não remove a falha do host. |
-| Simulador ERP | Reproduzir resposta lenta, indisponível ou inválida sem depender de um fornecedor real | Só o caminho de disponibilidade de produtos depende dessa resposta; o resumo de vendas usa o PostgreSQL. |
-| Prometheus + Alertmanager + receiver | Observar condições, entregar transições e conservar o histórico da ocorrência | Perfil opcional de observação. Sua falha pode impedir detectar ou entregar alertas, mesmo que a API continue respondendo. |
-| Grafana + Jaeger | Investigar métricas e o caminho de uma requisição amostrada | Não são a fonte dos valores de negócio. Exigem memória e retenção próprias; sem trace para uma requisição, a investigação usa os demais sinais. |
-| Ferramentas, migrações e gerador de carga | Preparar dados e verificar contratos de forma repetível | Executam sob demanda; não são componentes que um cliente precisa chamar para consultar vendas. |
+| Parte                                     | O que resolve aqui                                                                     | Dependência e custo da escolha                                                                                                                  |
+| ----------------------------------------- | -------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| API + PostgreSQL                          | Autorizar a organização e calcular vendas/pedidos com um contrato único                | Autenticação e consultas dependem do banco; cada réplica consome conexões, contabilizadas abaixo.                                               |
+| Redis                                     | Manter a mesma quota entre réplicas e coordenar preenchimentos do cache                | O mesmo processo guarda quota e cache. Se ele cair, a quota recusa novas consultas; ter dois usuários não cria dois serviços independentes.     |
+| NGINX                                     | Dar ao cliente uma entrada comum para as réplicas e limitar a entrada HTTP             | Acrescenta um processo e uma configuração a operar; não remove a falha do host.                                                                 |
+| Simulador ERP                             | Reproduzir resposta lenta, indisponível ou inválida sem depender de um fornecedor real | Só o caminho de disponibilidade de produtos depende dessa resposta; o resumo de vendas usa o PostgreSQL.                                        |
+| Prometheus + Alertmanager + receiver      | Observar condições, entregar transições e conservar o histórico da ocorrência          | Perfil opcional de observação. Sua falha pode impedir detectar ou entregar alertas, mesmo que a API continue respondendo.                       |
+| Grafana + Jaeger                          | Investigar métricas e o caminho de uma requisição amostrada                            | Não são a fonte dos valores de negócio. Exigem memória e retenção próprias; sem trace para uma requisição, a investigação usa os demais sinais. |
+| Ferramentas, migrações e gerador de carga | Preparar dados e verificar contratos de forma repetível                                | Executam sob demanda; não são componentes que um cliente precisa chamar para consultar vendas.                                                  |
 
 Os serviços e perfis estão definidos no [Compose](../compose.yml). A separação acima descreve responsabilidades; não transforma esta stack em uma instalação de alta disponibilidade. Para poucas consultas em um único processo, API + PostgreSQL é uma alternativa menor a avaliar. Redis se justifica aqui pelo requisito explícito de quota compartilhada; a observabilidade completa se justifica pelo objetivo de investigar e demonstrar falhas. Não houve comparação de custo total com uma solução comercial.
 
@@ -78,18 +78,18 @@ Credenciais aleatórias são armazenadas apenas como SHA-256 no banco; material 
 
 ## Matriz de limites
 
-| Recurso | Limite atual | Escopo e excesso |
-|---|---:|---|
-| Entrada API | 48 requests ativos | processo; 503 imediato |
-| Autenticação | 8 admitidos, pool 2, deadline 500 ms | processo; 503; até 6 aguardam conexão por no máximo 200 ms |
-| Negócio | 16 ativos / 8 por tenant | processo; 503 imediato sem fila |
-| Quota | 30/s por tenant comercial; 10/s probe | Redis global; 429 + Retry-After |
-| PostgreSQL | pool 4 negócio + 2 auth, overflow 0, aquisição 200 ms | processo |
-| SQL | statement_timeout 800 ms; idle transaction 2 s | conexão |
-| ERP | 4 ativos; pool 4; prazo total 900 ms; até 1 retry | processo; circuito após 3 falhas |
-| Cache | TTL 15 s; lock distribuído 2 s; espera 250 ms | Redis; fallback limitado se só cache falhar |
-| Payload | página 100, cursor 2 KiB, headers 8 KiB, corpo 16 KiB | proxy e API |
-| Telemetria | amostra 25%, export queue 256; retenção limitada | processo/serviço |
+| Recurso      |                                          Limite atual | Escopo e excesso                                           |
+| ------------ | ----------------------------------------------------: | ---------------------------------------------------------- |
+| Entrada API  |                                    48 requests ativos | processo; 503 imediato                                     |
+| Autenticação |                  8 admitidos, pool 2, deadline 500 ms | processo; 503; até 6 aguardam conexão por no máximo 200 ms |
+| Negócio      |                              16 ativos / 8 por tenant | processo; 503 imediato sem fila                            |
+| Quota        |                 30/s por tenant comercial; 10/s probe | Redis global; 429 + Retry-After                            |
+| PostgreSQL   | pool 4 negócio + 2 auth, overflow 0, aquisição 200 ms | processo                                                   |
+| SQL          |        statement_timeout 800 ms; idle transaction 2 s | conexão                                                    |
+| ERP          |     4 ativos; pool 4; prazo total 900 ms; até 1 retry | processo; circuito após 3 falhas                           |
+| Cache        |         TTL 15 s; lock distribuído 2 s; espera 250 ms | Redis; fallback limitado se só cache falhar                |
+| Payload      | página 100, cursor 2 KiB, headers 8 KiB, corpo 16 KiB | proxy e API                                                |
+| Telemetria   |      amostra 25%, export queue 256; retenção limitada | processo/serviço                                           |
 
 Orçamento com duas réplicas: `2 × 1 × (4 + 2) = 12` conexões. Mais 4 ferramentas/migrações, 4 margem de diagnóstico e 10 de reserva = 30; PostgreSQL max_connections=40. O limite por tenant é justiça local; não é um scheduler global. Mais réplicas exigem refazer esse orçamento.
 
@@ -103,15 +103,15 @@ Chave inclui contrato, versão lida do banco, tenant, loja, datas normalizadas. 
 
 ## Ameaças e mitigação
 
-| Ameaça | Controle e teste |
-|---|---|
-| BOLA / escopo cruzado | credencial determina tenant/lojas; testes com IDs válidos e cursores cruzados |
-| Consumo ilimitado / credenciais inválidas | limites antes do auth, pool separado, paginação, deadline, quota atômica |
-| SQL injection | SQL parametrizado e ordenação fixa |
-| SSRF / resposta maliciosa | destino ERP configurado, SKU validado, sem redirects/proxy ambiente, bytes/schema limitados |
-| Vazamento de segredo | logs sem headers/query/payload, hash no banco, volumes de segredo, métricas internas |
-| Webhook falso/repetido | Bearer próprio, bytes/schema limitados, chave fingerprint+startsAt, transação antes do 2xx |
-| Header forjado | proxy sobrescreve encaminhamento; servidor não confia indiscriminadamente no cliente |
+| Ameaça                                    | Controle e teste                                                                            |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------- |
+| BOLA / escopo cruzado                     | credencial determina tenant/lojas; testes com IDs válidos e cursores cruzados               |
+| Consumo ilimitado / credenciais inválidas | limites antes do auth, pool separado, paginação, deadline, quota atômica                    |
+| SQL injection                             | SQL parametrizado e ordenação fixa                                                          |
+| SSRF / resposta maliciosa                 | destino ERP configurado, SKU validado, sem redirects/proxy ambiente, bytes/schema limitados |
+| Vazamento de segredo                      | logs sem headers/query/payload, hash no banco, volumes de segredo, métricas internas        |
+| Webhook falso/repetido                    | Bearer próprio, bytes/schema limitados, chave fingerprint+startsAt, transação antes do 2xx  |
+| Header forjado                            | proxy sobrescreve encaminhamento; servidor não confia indiscriminadamente no cliente        |
 
 CORS desabilitado; API usa Bearer, sem cookies de negócio. UI operacional somente loopback; Grafana com acesso local de leitura. Não há envio externo.
 

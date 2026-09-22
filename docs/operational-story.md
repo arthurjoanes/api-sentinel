@@ -1,5 +1,7 @@
 # Uma consulta conhecida, um incidente e sua recuperação
 
+**Registro histórico:** as imagens desta página pertencem às execuções identificadas abaixo e preservam seus bytes originais. Veja a [galeria da interface atual](screenshots.md) para a apresentação do código atual.
+
 O operador precisa distinguir três coisas: a conta comercial está correta, a consulta falhou e a mesma ocorrência recebeu uma recuperação. A ausência de incidentes, sozinha, não responde à primeira pergunta.
 
 Esta sequência usa serviços locais reais e vendas/ERP sintéticos. Executei a versão com base em `452509b` e alterações locais identificadas por hash em **22/09/2026, às 12:49 UTC**. O [registro funcional](evidence/editorial-20260922/capture-run.json) separa instalação, testes, capturas, scan e limpeza. A aplicação não recebeu mudança visual nesta rodada.
@@ -8,7 +10,7 @@ Esta sequência usa serviços locais reais e vendas/ERP sintéticos. Executei a 
 
 A organização técnica consulta a loja 7 em 01/01/2026: três itens, quatro unidades e dois pedidos. A conta independente é `2 × 25 + 35 + 40 = 125`; o ticket é `125 ÷ 2 = 62,50`. A resposta autenticada e a cobertura completa foram conferidas antes da injeção.
 
-![Detalhe nativo do probe com R$ 125,00, dois pedidos, ticket de R$ 62,50 e prazo de validade](screenshots/editorial-20260922/01-fixture-validada-detalhe.png)
+[Captura histórica completa: Detalhe nativo do probe com R$ 125,00, dois pedidos, ticket de R$ 62,50 e prazo de validade](screenshots/editorial-20260922/01-fixture-validada-detalhe.png)
 
 Recorte da leitura às **12:52:16 UTC**, sem alteração de conteúdo. Confira valores esperados, resultado `success` e validade de 15 segundos. Isso confirma aquela consulta observada, não disponibilidade global. [Página completa](screenshots/editorial-20260922/01-fixture-validada.png) · [resposta autenticada](evidence/editorial-20260922/01-fixture-validada.json) · [fixture de três linhas](../data/fixtures/manual-sales.json).
 
@@ -18,7 +20,7 @@ Implementei o probe com status, schema e valores conhecidos para evitar que um H
 
 Depois de exercitar a perda de uma réplica, o runner parou as duas réplicas do seu projeto descartável. A consulta pelo proxy falhou e o caminho Prometheus → Alertmanager → receptor abriu **SentinelUnavailable #2**. O alerta indica o sinal observado; não prova, sozinho, a causa. Neste ensaio, a parada está registrada pelo runner.
 
-![Ocorrência número 2 ativa com impacto, procedimento e entrega de abertura](screenshots/editorial-20260922/02-incidente-ativo.png)
+[Captura histórica completa: Ocorrência número 2 ativa com impacto, procedimento e entrega de abertura](screenshots/editorial-20260922/02-incidente-ativo.png)
 
 Captura às **12:53:33 UTC**. Confira “Em andamento”, impacto, próxima verificação e uma entrega no histórico. [Imagem completa](screenshots/editorial-20260922/02-incidente-ativo.png) · [observação durante a falha](evidence/editorial-20260922/02-incidente-ativo.json).
 
@@ -75,7 +77,7 @@ Esta sequência foi executada em **22/09/2026**, com a interface e os serviços 
 
 A consulta autenticada da loja técnica 7, em 01/01/2026, retornou **R$ 125,00 em dois pedidos**, com ticket médio de **R$ 62,50** e cobertura completa. A [fixture independente](../data/fixtures/manual-sales.json) permite conferir os três itens: R$ 50,00 + R$ 35,00 + R$ 40,00. Contar itens como pedidos produziria um ticket errado.
 
-![Central com referência financeira validada e nenhum incidente ativo](screenshots/operational-story-20260922/20260922t054206130821z/01-fixture-validada.png)
+[Captura histórica completa: Central com referência financeira validada e nenhum incidente ativo](screenshots/operational-story-20260922/20260922t054206130821z/01-fixture-validada.png)
 
 Captura às 05:44:20.107 UTC. O coletor conferiu a resposta HTTP autenticada; o painel mostra a observação recente do probe, que consulta essa referência conhecida. Isso comprova aquele resultado observado, não disponibilidade global. [Resposta e observações](evidence/operational-story-20260922/20260922t054206130821z/01-fixture-validada.json).
 
@@ -83,7 +85,7 @@ Captura às 05:44:20.107 UTC. O coletor conferiu a resposta HTTP autenticada; o 
 
 O runner interrompeu as duas réplicas da API do seu próprio projeto descartável. O probe deixou de conseguir consultar a API pelo proxy e o caminho Prometheus → Alertmanager → receptor criou a ocorrência **SentinelUnavailable #3**. O detalhe reúne impacto, condição observada, procedimento e identidade da ocorrência.
 
-![Ocorrência SentinelUnavailable número 3 ativa, com impacto e procedimento de investigação](screenshots/operational-story-20260922/20260922t054206130821z/02-incidente-ativo.png)
+[Captura histórica completa: Ocorrência SentinelUnavailable número 3 ativa, com impacto e procedimento de investigação](screenshots/operational-story-20260922/20260922t054206130821z/02-incidente-ativo.png)
 
 Captura às 05:45:39.238 UTC. A detecção medida pelo runner foi de **29,797 s**, desde antes do comando de parada até observar a entrega `firing`; inclui o tempo do comando. O alerta informa falha da consulta conhecida. Neste ensaio, a interrupção foi aplicada pelo [runner identificado por hash](../scripts/operations.py), não deduzida apenas da mensagem do alerta. [Observação durante a falha](evidence/operational-story-20260922/20260922t054206130821z/02-incidente-ativo.json).
 
@@ -91,7 +93,7 @@ Captura às 05:45:39.238 UTC. A detecção medida pelo runner foi de **29,797 s*
 
 Após iniciar novamente as réplicas, o monitoramento entregou o evento `resolved`. O receptor manteve ID, fingerprint e início da ocorrência e registrou a transição `recovered`. O runner voltou a conferir os mesmos valores financeiros e terminou com duas réplicas coletadas e nenhum incidente ativo.
 
-![A mesma ocorrência número 3 resolvida, com entrega real de recuperação no histórico](screenshots/operational-story-20260922/20260922t054206130821z/03-mesma-ocorrencia-recuperada.png)
+[Captura histórica completa: A mesma ocorrência número 3 resolvida, com entrega real de recuperação no histórico](screenshots/operational-story-20260922/20260922t054206130821z/03-mesma-ocorrencia-recuperada.png)
 
 Captura às 05:45:58.902 UTC. O runner observou a recuperação em **18,360 s**, contados após o comando de iniciar as réplicas retornar até observar `resolved`; esse número não inclui a duração do comando de restauração. Há duas entregas nessa ocorrência: abertura e recuperação. Não houve encerramento manual pelo operador. [Identidade e eventos após recuperação](evidence/operational-story-20260922/20260922t054206130821z/03-mesma-ocorrencia-recuperada.json).
 
@@ -99,16 +101,16 @@ Captura às 05:45:58.902 UTC. O runner observou a recuperação em **18,360 s**,
 
 O cenário `alerts` começou às 05:42:06.131820 UTC e terminou às 05:46:13.525113 UTC. A imagem é `sha256:94dcc15433c1927806cf2c108dca1ad82d44874d37bfe8f28e2d1fbf93d391a7`. A fonte foi um snapshot da árvore de trabalho com base em `b5f0eed`, identificado pelos [113 hashes operacionais](evidence/operational-story-20260922/20260922t054206130821z/source-files.json), incluindo a fixture e o coletor. Os arquivos permaneceram iguais durante a execução e coincidiram com o repositório na comparação posterior registrada. Edições posteriores precisam de sua própria conferência.
 
-| Verificação | Resultado desta execução |
-| --- | --- |
-| Build, lint, formato, tipos e regras de monitoramento | Aprovados |
-| Testes isolados | 257 testes e 11 subtests aprovados; 73 casos HTTP reservados para a etapa seguinte |
-| HTTP pelo proxy | 73 testes aprovados, sem skips |
-| Alertas reais | Ciclos de perda de réplica e indisponibilidade, ambos com recuperação |
-| Financeiro | R$ 125,00 / 2 pedidos / ticket R$ 62,50 conferidos antes e depois |
-| Investigação | Links de investigação e correlação de logs/traces aprovados pelo runner |
-| Capturas | Navegador real, sem substituição do texto da página ou injeção de webhooks pelo coletor; nenhum erro de página registrado |
-| Limpeza | Recursos do projeto descartável removidos; zero containers, volumes e redes desse namespace restantes |
+| Verificação                                           | Resultado desta execução                                                                                                  |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Build, lint, formato, tipos e regras de monitoramento | Aprovados                                                                                                                 |
+| Testes isolados                                       | 257 testes e 11 subtests aprovados; 73 casos HTTP reservados para a etapa seguinte                                        |
+| HTTP pelo proxy                                       | 73 testes aprovados, sem skips                                                                                            |
+| Alertas reais                                         | Ciclos de perda de réplica e indisponibilidade, ambos com recuperação                                                     |
+| Financeiro                                            | R$ 125,00 / 2 pedidos / ticket R$ 62,50 conferidos antes e depois                                                         |
+| Investigação                                          | Links de investigação e correlação de logs/traces aprovados pelo runner                                                   |
+| Capturas                                              | Navegador real, sem substituição do texto da página ou injeção de webhooks pelo coletor; nenhum erro de página registrado |
+| Limpeza                                               | Recursos do projeto descartável removidos; zero containers, volumes e redes desse namespace restantes                     |
 
 Os [XMLs e demais contadores](evidence/operational-story-20260922/20260922t054206130821z/proof.json) separam testes de subtests e de observações. Os tempos de alerta são duas observações de um cenário local, não metas de serviço, percentis ou garantia de prazo. Esta rodada não repetiu o benchmark de carga nem o scan de vulnerabilidades. As provas anteriores têm suas próprias imagens e permanecem em [verificação](verification.md).
 

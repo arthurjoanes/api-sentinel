@@ -3,6 +3,7 @@ from datetime import UTC, datetime
 from html import escape
 from urllib.parse import urlsplit
 
+from alert_receiver.code_format import code_block
 from alert_receiver.contracts import Incident, IncidentEvent, IncidentPage
 from alert_receiver.probe import ProbeState
 
@@ -439,6 +440,7 @@ def runbook_page(
     parts: list[str] = []
     sections: list[str] = []
     code: list[str] | None = None
+    code_language = "text"
     list_tag: str | None = None
     for line in markdown.splitlines():
         ordered = re.match(r"^\d+\. (.+)", line)
@@ -449,12 +451,11 @@ def runbook_page(
         if line.startswith("```"):
             if code is None:
                 code = []
-            else:
-                parts.append(
-                    '<pre tabindex="0" aria-label="Trecho de código"><code>'
-                    + escape_html("\n".join(code))
-                    + "</code></pre>"
+                code_language = (
+                    line[3:].strip().split(maxsplit=1)[0] if line[3:].strip() else "text"
                 )
+            else:
+                parts.append(code_block("\n".join(code), code_language))
                 code = None
         elif code is not None:
             code.append(line)
@@ -477,11 +478,7 @@ def runbook_page(
     if list_tag is not None:
         parts.append(f"</{list_tag}>")
     if code is not None:
-        parts.append(
-            '<pre tabindex="0" aria-label="Trecho de código"><code>'
-            + escape_html("\n".join(code))
-            + "</code></pre>"
-        )
+        parts.append(code_block("\n".join(code), code_language))
     title = RUNBOOKS.get(slug, (slug, ""))[0]
     back = (
         f'<a class="back" href="/incidents/{incident_id}?status={escape_html(status)}">'

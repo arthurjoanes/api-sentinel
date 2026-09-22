@@ -1,0 +1,356 @@
+{
+  "capturedAt": "2026-09-22T17:37:21.518Z",
+  "browser": "153.0.4234.48",
+  "scope": "Current live receiver, GET navigation only; retained incident records are not a new failure/recovery experiment",
+  "source": "http://127.0.0.1:9184",
+  "views": [
+    {
+      "name": "central",
+      "width": 1120,
+      "url": "http://127.0.0.1:9184/",
+      "title": "Incidentes · API Sentinel",
+      "scrollWidth": 1120,
+      "fonts": [
+        {
+          "family": "IBM Plex Sans",
+          "status": "loaded"
+        },
+        {
+          "family": "IBM Plex Sans",
+          "status": "loaded"
+        }
+      ],
+      "h1": "Incidentes"
+    },
+    {
+      "name": "finalizados",
+      "width": 1120,
+      "url": "http://127.0.0.1:9184/?status=resolved",
+      "title": "Incidentes · API Sentinel",
+      "scrollWidth": 1120,
+      "fonts": [
+        {
+          "family": "IBM Plex Sans",
+          "status": "loaded"
+        },
+        {
+          "family": "IBM Plex Sans",
+          "status": "loaded"
+        }
+      ],
+      "h1": "Incidentes"
+    },
+    {
+      "name": "runbooks",
+      "width": 1120,
+      "url": "http://127.0.0.1:9184/runbooks",
+      "title": "Runbooks · API Sentinel",
+      "scrollWidth": 1120,
+      "fonts": [
+        {
+          "family": "IBM Plex Sans",
+          "status": "loaded"
+        },
+        {
+          "family": "IBM Plex Sans",
+          "status": "loaded"
+        }
+      ],
+      "h1": "Runbooks"
+    },
+    {
+      "name": "runbook-erp",
+      "width": 1120,
+      "url": "http://127.0.0.1:9184/runbooks/erp",
+      "title": "Runbook · Dependência ERP · API Sentinel",
+      "scrollWidth": 1120,
+      "fonts": [
+        {
+          "family": "IBM Plex Sans",
+          "status": "loaded"
+        },
+        {
+          "family": "IBM Plex Sans",
+          "status": "loaded"
+        }
+      ],
+      "h1": "ERP simulado lento ou indisponível"
+    },
+    {
+      "name": "incidente",
+      "width": 1120,
+      "url": "http://127.0.0.1:9184/incidents/21?status=all",
+      "title": "Incidente #21 · API Sentinel",
+      "scrollWidth": 1120,
+      "fonts": [
+        {
+          "family": "IBM Plex Sans",
+          "status": "loaded"
+        },
+        {
+          "family": "IBM Plex Sans",
+          "status": "loaded"
+        }
+      ],
+      "h1": "Consulta pelo proxy indisponível"
+    },
+    {
+      "name": "central",
+      "width": 390,
+      "url": "http://127.0.0.1:9184/",
+      "title": "Incidentes · API Sentinel",
+      "scrollWidth": 390,
+      "fonts": [
+        {
+          "family": "IBM Plex Sans",
+          "status": "loaded"
+        },
+        {
+          "family": "IBM Plex Sans",
+          "status": "loaded"
+        }
+      ],
+      "h1": "Incidentes"
+    },
+    {
+      "name": "finalizados",
+      "width": 390,
+      "url": "http://127.0.0.1:9184/?status=resolved",
+      "title": "Incidentes · API Sentinel",
+      "scrollWidth": 390,
+      "fonts": [
+        {
+          "family": "IBM Plex Sans",
+          "status": "loaded"
+        },
+        {
+          "family": "IBM Plex Sans",
+          "status": "loaded"
+        }
+      ],
+      "h1": "Incidentes"
+    },
+    {
+      "name": "runbooks",
+      "width": 390,
+      "url": "http://127.0.0.1:9184/runbooks",
+      "title": "Runbooks · API Sentinel",
+      "scrollWidth": 390,
+      "fonts": [
+        {
+          "family": "IBM Plex Sans",
+          "status": "loaded"
+        },
+        {
+          "family": "IBM Plex Sans",
+          "status": "loaded"
+        }
+      ],
+      "h1": "Runbooks"
+    },
+    {
+      "name": "runbook-erp",
+      "width": 390,
+      "url": "http://127.0.0.1:9184/runbooks/erp",
+      "title": "Runbook · Dependência ERP · API Sentinel",
+      "scrollWidth": 390,
+      "fonts": [
+        {
+          "family": "IBM Plex Sans",
+          "status": "loaded"
+        },
+        {
+          "family": "IBM Plex Sans",
+          "status": "loaded"
+        }
+      ],
+      "h1": "ERP simulado lento ou indisponível"
+    },
+    {
+      "name": "incidente",
+      "width": 390,
+      "url": "http://127.0.0.1:9184/incidents/21?status=all",
+      "title": "Incidente #21 · API Sentinel",
+      "scrollWidth": 390,
+      "fonts": [
+        {
+          "family": "IBM Plex Sans",
+          "status": "loaded"
+        },
+        {
+          "family": "IBM Plex Sans",
+          "status": "loaded"
+        }
+      ],
+      "h1": "Consulta pelo proxy indisponível"
+    },
+    {
+      "name": "central",
+      "width": 320,
+      "url": "http://127.0.0.1:9184/",
+      "title": "Incidentes · API Sentinel",
+      "scrollWidth": 320,
+      "fonts": [
+        {
+          "family": "IBM Plex Sans",
+          "status": "loaded"
+        },
+        {
+          "family": "IBM Plex Sans",
+          "status": "loaded"
+        }
+      ],
+      "h1": "Incidentes"
+    },
+    {
+      "name": "finalizados",
+      "width": 320,
+      "url": "http://127.0.0.1:9184/?status=resolved",
+      "title": "Incidentes · API Sentinel",
+      "scrollWidth": 320,
+      "fonts": [
+        {
+          "family": "IBM Plex Sans",
+          "status": "loaded"
+        },
+        {
+          "family": "IBM Plex Sans",
+          "status": "loaded"
+        }
+      ],
+      "h1": "Incidentes"
+    },
+    {
+      "name": "runbooks",
+      "width": 320,
+      "url": "http://127.0.0.1:9184/runbooks",
+      "title": "Runbooks · API Sentinel",
+      "scrollWidth": 320,
+      "fonts": [
+        {
+          "family": "IBM Plex Sans",
+          "status": "loaded"
+        },
+        {
+          "family": "IBM Plex Sans",
+          "status": "loaded"
+        }
+      ],
+      "h1": "Runbooks"
+    },
+    {
+      "name": "runbook-erp",
+      "width": 320,
+      "url": "http://127.0.0.1:9184/runbooks/erp",
+      "title": "Runbook · Dependência ERP · API Sentinel",
+      "scrollWidth": 320,
+      "fonts": [
+        {
+          "family": "IBM Plex Sans",
+          "status": "loaded"
+        },
+        {
+          "family": "IBM Plex Sans",
+          "status": "loaded"
+        }
+      ],
+      "h1": "ERP simulado lento ou indisponível"
+    },
+    {
+      "name": "incidente",
+      "width": 320,
+      "url": "http://127.0.0.1:9184/incidents/21?status=all",
+      "title": "Incidente #21 · API Sentinel",
+      "scrollWidth": 320,
+      "fonts": [
+        {
+          "family": "IBM Plex Sans",
+          "status": "loaded"
+        },
+        {
+          "family": "IBM Plex Sans",
+          "status": "loaded"
+        }
+      ],
+      "h1": "Consulta pelo proxy indisponível"
+    }
+  ],
+  "images": [
+    {
+      "image": "fila-foco.png",
+      "url": "http://127.0.0.1:9184/",
+      "viewport": {
+        "width": 1120,
+        "height": 1000
+      },
+      "clip": {
+        "x": 24,
+        "y": 125,
+        "width": 1072,
+        "height": 384
+      },
+      "focus": {
+        "startSelector": ".inbox",
+        "endSelector": ".incident-row:nth-child(2)"
+      },
+      "sha256": "6cea7333e5da99f47395a61e2e88ac5d8cf9794658176a296bb33c26cb16bd86",
+      "imageDimensions": {
+        "width": 1072,
+        "height": 384
+      }
+    },
+    {
+      "image": "fila-movel-foco.png",
+      "url": "http://127.0.0.1:9184/",
+      "viewport": {
+        "width": 390,
+        "height": 1000
+      },
+      "clip": {
+        "x": 8,
+        "y": 164,
+        "width": 374,
+        "height": 377
+      },
+      "focus": {
+        "startSelector": ".inbox",
+        "endSelector": ".incident-row:first-child"
+      },
+      "sha256": "18ea63f067e3e8cf64a003a88cf5fa0fbf7066c5b0b97c412c7f221a9bf3345a",
+      "imageDimensions": {
+        "width": 374,
+        "height": 377
+      }
+    },
+    {
+      "image": "historico-foco.png",
+      "url": "http://127.0.0.1:9184/incidents/21?status=all",
+      "viewport": {
+        "width": 1120,
+        "height": 1000
+      },
+      "clip": {
+        "x": 24,
+        "y": 509,
+        "width": 788,
+        "height": 327
+      },
+      "focus": {
+        "startSelector": ".history",
+        "endSelector": ".timeline-event:last-child"
+      },
+      "sha256": "fd996225908265c332c90575280f71de2870dea71613bc15095188c2d4029235",
+      "imageDimensions": {
+        "width": 788,
+        "height": 327
+      }
+    }
+  ],
+  "pageErrors": [],
+  "sourceFiles": {
+    "alert_receiver/ui.py": "247ef8064cd68e3db29539321bbb72e45d1402d859f5445e1bada473e93308f5",
+    "alert_receiver/styles.css": "859d448e7f00a2aeb16ab2c9ce7ec462af408fbf34e0b4040e633605855a325f",
+    "alert_receiver/snapshot.js": "907e54ef19792c52119832ace99e5cffbba6af7102a2c282016ab2d48a104332"
+  },
+  "status": "passed"
+}

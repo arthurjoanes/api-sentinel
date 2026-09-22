@@ -22,11 +22,11 @@ Uma versão intermediária com filtros em cards e ocorrências altas adiava a tr
 O renderizador e os assets de `b5f0eed` foram executados com os mesmos registros SQLite, títulos, horários, filtro Finalizados e probe desativado do candidato. Viewport de 900 pixels de altura; posições arredondadas em pixels CSS. O aviso sintético aparece nas duas versões.
 
 | Largura | Início da primeira ocorrência: baseline → candidato | Linhas inteiras visíveis: baseline → candidato |
-| --- | --- | --- |
-| 1440 | 504 → 383 | 2 → 2 |
-| 768 | 498 → 374 | 2 → 2 |
-| 390 | 778 → 462 | 0 → 2 |
-| 320 | 817 → 462 | 0 → 1 |
+| ------- | --------------------------------------------------- | ---------------------------------------------- |
+| 1440    | 504 → 383                                           | 2 → 2                                          |
+| 768     | 498 → 374                                           | 2 → 2                                          |
+| 390     | 778 → 462                                           | 0 → 2                                          |
+| 320     | 817 → 462                                           | 0 → 1                                          |
 
 A linha de desktop passou de cerca de 110 para 139 pixels: a ação explícita e a expansão ocupam espaço. A redução principal ocorre antes da lista, que começa mais cedo; não se afirma que todo elemento ficou menor. Em 1920 pixels o conteúdo mantém os eixos e o limite de largura. Essas medidas descrevem composição com duas ocorrências sintéticas; não medem produtividade ou preferência de operadores.
 
@@ -38,16 +38,16 @@ O baseline reproduziu três problemas funcionais: voltar do detalhe removia o fi
 
 “Finalizados” reúne recuperações recebidas e encerramentos administrativos. Estados persistidos, regras de deduplicação, entrega atrasada e caminho comercial da API não mudaram. README, problema/solução, decisões técnicas e arquitetura explicam entrada → resultado, código, testes, motivo e limite.
 
-| Verificação | Resultado e escopo |
-| --- | --- |
-| Edge + Playwright, receiver/SQLite descartáveis | 12 jornadas: três filtros em 1440, 768, 390 e 320 pixels; detalhe → runbook → detalhe → lista mantém contexto e foco |
-| Estados e refluxo | 16 rotas/estados × 5 larguras (1440, 768, 640, 390, 320); sem rolagem horizontal da página ou erros JavaScript |
-| Teclado e retorno | Skip link, âncoras dos procedimentos, retorno à linha e fallback quando a linha sai do filtro |
-| Semântica | Manual diferente de recuperação; firing atrasado ignorado permanece no histórico; probe desativado neutro e resultado recente vencendo sem recarga |
-| Composição e contraste | 40 combinações de oito rotas em 1920, 1440, 768, 390 e 320; eixos coincidentes e pares computados de texto/fundo sem falhas nos limiares examinados |
-| Imagem nova, sem bind de fontes | Ruff global; formato de 70 arquivos; mypy de 27 fontes; 166 testes e 2 subtests, com 2 avisos de depreciação existentes; 116 arquivos correspondentes ao workspace |
-| HTTP em processo na imagem | 20 rotas: assets idênticos aos bytes empacotados, sete runbooks, contexto e erros 404/422/503 |
-| Trivy 0.74.0 | Zero achados, incluindo zero HIGH/CRITICAL; mesma política do CI, sem exceções; identidade e resultados no JSON |
+| Verificação                                     | Resultado e escopo                                                                                                                                                 |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Edge + Playwright, receiver/SQLite descartáveis | 12 jornadas: três filtros em 1440, 768, 390 e 320 pixels; detalhe → runbook → detalhe → lista mantém contexto e foco                                               |
+| Estados e refluxo                               | 16 rotas/estados × 5 larguras (1440, 768, 640, 390, 320); sem rolagem horizontal da página ou erros JavaScript                                                     |
+| Teclado e retorno                               | Skip link, âncoras dos procedimentos, retorno à linha e fallback quando a linha sai do filtro                                                                      |
+| Semântica                                       | Manual diferente de recuperação; firing atrasado ignorado permanece no histórico; probe desativado neutro e resultado recente vencendo sem recarga                 |
+| Composição e contraste                          | 40 combinações de oito rotas em 1920, 1440, 768, 390 e 320; eixos coincidentes e pares computados de texto/fundo sem falhas nos limiares examinados                |
+| Imagem nova, sem bind de fontes                 | Ruff global; formato de 70 arquivos; mypy de 27 fontes; 166 testes e 2 subtests, com 2 avisos de depreciação existentes; 116 arquivos correspondentes ao workspace |
+| HTTP em processo na imagem                      | 20 rotas: assets idênticos aos bytes empacotados, sete runbooks, contexto e erros 404/422/503                                                                      |
+| Trivy 0.74.0                                    | Zero achados, incluindo zero HIGH/CRITICAL; mesma política do CI, sem exceções; identidade e resultados no JSON                                                    |
 
 O pacote inclui também alterações concorrentes no fingerprint operacional e seu teste: a pasta `data/` passa a participar da identidade das fontes. O coletor `scripts/capture_operational_story.cjs` foi lido e teve a sintaxe Node conferida; as execuções reais foram feitas por uma coleta independente, identificada abaixo. Os 116 arquivos empacotados desta revisão foram novamente comparados ao workspace após a conclusão dessa coleta. A imagem da UI e as imagens operacionais mantêm provas separadas.
 
@@ -85,15 +85,15 @@ Runbooks têm catálogo em `/runbooks`, navegação por seções, listas semânt
 
 ## Verificações realizadas
 
-| Verificação | Resultado |
-| --- | --- |
-| Testes de UI, receiver, probe, retenção, erros, configuração e links | 134 testes e 9 subtests aprovados |
-| Ruff nos arquivos Python envolvidos e módulo receiver | Aprovado; formato de 11 arquivos conferido |
-| mypy no receiver | Aprovado; 8 arquivos de origem |
-| Edge headless com Playwright | 12 telas/estados em 1440, 768, 640, 390 e 320 pixels de largura |
-| Refluxo de conteúdo | Nenhuma rolagem horizontal da página inteira nos 60 recortes |
-| Navegação e JavaScript | Link para pular ao conteúdo é o primeiro foco; link da observação abre seus detalhes; resultado recente vence; nenhum erro JavaScript |
-| Inspeção visual | Central desktop/celular, detalhe, catálogo e procedimento examinados |
+| Verificação                                                          | Resultado                                                                                                                             |
+| -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Testes de UI, receiver, probe, retenção, erros, configuração e links | 134 testes e 9 subtests aprovados                                                                                                     |
+| Ruff nos arquivos Python envolvidos e módulo receiver                | Aprovado; formato de 11 arquivos conferido                                                                                            |
+| mypy no receiver                                                     | Aprovado; 8 arquivos de origem                                                                                                        |
+| Edge headless com Playwright                                         | 12 telas/estados em 1440, 768, 640, 390 e 320 pixels de largura                                                                       |
+| Refluxo de conteúdo                                                  | Nenhuma rolagem horizontal da página inteira nos 60 recortes                                                                          |
+| Navegação e JavaScript                                               | Link para pular ao conteúdo é o primeiro foco; link da observação abre seus detalhes; resultado recente vence; nenhum erro JavaScript |
+| Inspeção visual                                                      | Central desktop/celular, detalhe, catálogo e procedimento examinados                                                                  |
 
 As larguras são pixels CSS. O recorte de 640 pixels confere a reorganização equivalente a uma janela de 1280 pixels com 200% de ampliação; não foi medido zoom nativo do navegador. Blocos de código podem rolar dentro do procedimento.
 
@@ -126,16 +126,16 @@ A primeira rodada visual não incluiu build, ensaio de carga, entrega real de al
 
 A imagem `pf-api-sentinel-ui:20260922`, construída em 22/09/2026 às 03:27 UTC, foi examinada com os arquivos de `/app` que o Dockerfile copiou. Os containers de teste usaram rede desativada, sistema de arquivos somente leitura e `/tmp` temporário, sem montar fontes do workspace. O scanner teve acesso ao Docker e à rede para obter a base de vulnerabilidades.
 
-| Verificação na imagem | Resultado |
-| --- | --- |
-| Ruff global | Aprovado |
-| Formato Python global | 70 arquivos conferidos |
-| mypy nos alvos configurados pelo projeto | 27 arquivos aprovados |
-| Testes de receiver, UI, probe, retenção, configuração e investigação | 134 testes e 9 subtests aprovados; 2 avisos de depreciação existentes |
-| Comparação de `/app` com o workspace | 115 arquivos com SHA-256 correspondente; fontes da primeira rodada preservadas |
-| Rotas HTTP em processo, com SQLite descartável e probe desativado | Central, health, CSS, JavaScript, catálogo e 7 runbooks com HTTP 200; slug desconhecido com HTTP 404 |
-| Assets HTTP | Conteúdo servido idêntico aos bytes de CSS e JavaScript copiados para a imagem |
-| Trivy no candidato | Nenhum achado nos pacotes Alpine, Python e binário Rust `uv`; zero HIGH/CRITICAL |
+| Verificação na imagem                                                | Resultado                                                                                            |
+| -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Ruff global                                                          | Aprovado                                                                                             |
+| Formato Python global                                                | 70 arquivos conferidos                                                                               |
+| mypy nos alvos configurados pelo projeto                             | 27 arquivos aprovados                                                                                |
+| Testes de receiver, UI, probe, retenção, configuração e investigação | 134 testes e 9 subtests aprovados; 2 avisos de depreciação existentes                                |
+| Comparação de `/app` com o workspace                                 | 115 arquivos com SHA-256 correspondente; fontes da primeira rodada preservadas                       |
+| Rotas HTTP em processo, com SQLite descartável e probe desativado    | Central, health, CSS, JavaScript, catálogo e 7 runbooks com HTTP 200; slug desconhecido com HTTP 404 |
+| Assets HTTP                                                          | Conteúdo servido idêntico aos bytes de CSS e JavaScript copiados para a imagem                       |
+| Trivy no candidato                                                   | Nenhum achado nos pacotes Alpine, Python e binário Rust `uv`; zero HIGH/CRITICAL                     |
 
 O registro complementar guarda os hashes dos 115 arquivos, os comandos, os resultados das rotas e o relatório resumido do scan. Distingue o índice OCI retornado por `docker image inspect` (`sha256:e4d6e0387af362bab25c7ca1e36b6a3301832fc640841ec30b2da9767e4b0945`) do manifesto Linux/amd64 (`sha256:e2de71b6e1034c6ac3739fdf17d831e2f0e083908610159536d447a8bb37a88a`) e da identidade reportada pelo Trivy.
 
