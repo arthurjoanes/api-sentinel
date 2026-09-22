@@ -1,10 +1,12 @@
 # API Sentinel
 
-API de vendas com limites por organização, cache compartilhado e observabilidade.
+API de vendas para integrações de lojas, com acesso por organização, quota compartilhada e isolamento das consultas ao ERP.
 
 Uma consulta ao ERP pode ficar lenta sem bloquear o resumo de vendas. O API Sentinel separa esses caminhos, limita o trabalho em andamento e mantém a quota de cada cliente entre duas réplicas. PostgreSQL calcula os indicadores; Redis coordena quota e cache. As organizações, vendas e o ERP da demonstração são sintéticos.
 
-![Central de alertas após recuperação](docs/screenshots/followup-central-desktop.png)
+![Central de incidentes com estados e investigação](docs/screenshots/incidents-desktop.png)
+
+Prévia da interface com ocorrências sintéticas, gerada pelo renderizador da aplicação. Os resultados operacionais medidos estão em [verificação](docs/verification.md).
 
 ## O que a demonstração permite verificar
 
@@ -14,7 +16,19 @@ Uma consulta ao ERP pode ficar lenta sem bloquear o resumo de vendas. O API Sent
 - Interromper uma dependência e observar recusa controlada, alerta e recuperação.
 - Correlacionar uma requisição com logs, métricas e traces.
 
-A central reúne alertas e runbooks. Prometheus coleta as réplicas; Grafana mostra tráfego e saturação; Jaeger permite inspecionar traces. O [roteiro de demonstração](docs/demo.md) explica os cenários.
+A central organiza as ocorrências por estado e mostra impacto, ação recomendada e histórico de entregas. Recuperação recebida e encerramento pelo operador têm indicações distintas. A consulta de referência informa quando foi observada; a leitura da página é manual.
+
+Para investigar, abra o runbook do incidente, confira tráfego e saturação no Grafana e siga uma requisição no Jaeger. O [roteiro de demonstração](docs/demo.md) apresenta os cenários de consulta, isolamento e recuperação.
+
+| Quero conferir | Onde observar |
+| --- | --- |
+| Impacto, entrega repetida e recuperação de um alerta | Central → ocorrência → histórico |
+| Causa provável e procedimento de recuperação | Runbook da ocorrência ou catálogo de runbooks |
+| Quota, latência de respostas corretas, cache e ERP | Métricas · Grafana |
+| Caminho e duração de uma requisição amostrada | Traces · Jaeger |
+| Réplicas descobertas e atualização da coleta | Coleta · Prometheus |
+
+A ausência de incidentes não comprova disponibilidade global. A central não calcula métricas por cliente nem consulta os targets; as observações de coleta permanecem no Prometheus.
 
 ## Rodar no Windows
 
@@ -46,7 +60,7 @@ Todos os serviços publicados ficam em loopback:
 
 | Serviço | Endereço |
 | --- | --- |
-| Central de alertas e runbooks | [localhost:9184](http://127.0.0.1:9184/) |
+| Central de incidentes e runbooks | [localhost:9184](http://127.0.0.1:9184/) |
 | API e Swagger | [localhost:8104/docs](http://127.0.0.1:8104/docs) |
 | Grafana | [localhost:3104](http://127.0.0.1:3104/d/sentinel/api-sentinel) |
 | Jaeger | [localhost:16684](http://127.0.0.1:16684/) |
@@ -70,7 +84,7 @@ A quota usa janela fixa no Redis; admissão e circuito pertencem a cada processo
 
 O [CI](.github/workflows/ci.yml) executa análise estática, testes com PostgreSQL e Redis, validação das regras de monitoramento e jornadas HTTP pelo proxy. Os [resultados de verificação](docs/verification.md) e [ensaios de desempenho](docs/performance.md) distinguem medições reais, testes simulados e versões históricas.
 
-A [prova local de 22/09/2026](docs/evidence/publication.json) registra 253 casos isolados incluindo subtests, 73 testes HTTP e os cenários de quota, isolamento, falha e recuperação aprovados. A imagem executada também tem três rodadas adicionais de quota e scan correspondentes. O histórico de tentativas reprovadas e os limites da medição permanecem na documentação.
+A [prova operacional de 22/09/2026](docs/evidence/publication.json) registra 253 casos isolados incluindo subtests, 73 testes HTTP e os cenários de quota, isolamento, falha e recuperação aprovados. A imagem executada também tem três rodadas adicionais de quota e scan correspondentes. O histórico de tentativas reprovadas e os limites da medição permanecem na documentação. Essa prova identifica a imagem anterior à adaptação visual; a [validação da interface](docs/interface-validation.md) registra o escopo examinado nesta revisão.
 
 Os controles de acesso do Redis e do Grafana e o escopo das varreduras estão em [segurança](docs/security.md).
 

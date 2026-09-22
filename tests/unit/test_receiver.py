@@ -292,6 +292,18 @@ def test_runbooks_and_occurrence_history_are_real_routes(client: TestClient) -> 
     assert client.get("/styles.css").status_code == 200
 
 
+def test_runbook_catalog_links_to_every_available_procedure(client: TestClient) -> None:
+    from alert_receiver.ui import RUNBOOKS
+
+    catalog = client.get("/runbooks")
+    assert catalog.status_code == 200
+    for slug in RUNBOOKS:
+        assert f'href="/runbooks/{slug}"' in catalog.text
+        procedure = client.get(f"/runbooks/{slug}")
+        assert procedure.status_code == 200
+        assert 'href="/runbooks">← Todos os runbooks' in procedure.text
+
+
 def test_disabled_probe_is_not_presented_as_healthy(client: TestClient) -> None:
     assert "Probe desativado" in client.get("/").text
     assert "sentinel_probe_success NaN" in client.get("/metrics").text

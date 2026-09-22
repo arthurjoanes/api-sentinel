@@ -1,4 +1,4 @@
-// Só vence o resultado exibido; os dados continuam com atualização manual.
+// A leitura continua manual. Este script só vence a observação e abre seus detalhes.
 const observation = document.querySelector("[data-expires-in-ms]");
 
 if (observation) {
@@ -7,11 +7,10 @@ if (observation) {
   const wallDeadline = Date.now() + remaining;
 
   function expireObservation() {
-    // Os dois relógios cobrem suspensão do dispositivo e ajuste do horário.
     if (performance.now() < monotonicDeadline && Date.now() < wallDeadline) return;
-    observation.querySelector("[data-observation-title]").textContent = "Leitura desatualizada";
+    observation.querySelector("[data-observation-title]").textContent = "Resultado desatualizado";
     observation.querySelector("[data-observation-description]").textContent =
-      "Resultado vencido. Atualize a página.";
+      "O resultado do probe venceu. Atualize a leitura.";
     observation.querySelector(".status-dot").className = "status-dot warn";
   }
 
@@ -21,3 +20,11 @@ if (observation) {
     window.addEventListener("pageshow", expireObservation);
   }
 }
+
+function revealObservation() {
+  if (window.location.hash === "#observacao") {
+    document.getElementById("observacao").open = true;
+  }
+}
+window.addEventListener("hashchange", revealObservation);
+revealObservation();

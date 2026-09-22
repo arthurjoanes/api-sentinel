@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-09-22T03:22:26.276726+00:00",
+  "scope": "UI adaptation checks using mounted source and existing dependency image; no image build, load test or scan.",
+  "baseline_commit": "d03e3c559b358c8eeffab72e50d22d8e912bbd8a",
+  "source_sha256": {
+    "alert_receiver/ui.py": "a3c007faea5fedcdf7393dfc4661a23118c706cc205566ddfc7adbabbe51767f",
+    "alert_receiver/styles.css": "9067e38394fa37d77b17b08eadba3ab8e70f6500dba12e5978c6a0c4f77458b6",
+    "alert_receiver/snapshot.js": "bdaa8a40c2ae92f327a108654cef6588d12faeab1f80781ef8b0aead7e3d36bf",
+    "alert_receiver/app.py": "cc545be2e8aefeb05dfd4f640bfcbbf2d8bbd5a4dac28af56fd6af19edd63cee",
+    "scripts/render_ui_preview.py": "30ad2fe41b0303c4dcba15ca3696be0ec5d6b61354d67bb6c8b2b783dfdb6698",
+    "tests/unit/test_receiver_ui.py": "23bd38698278f1a31a1ca1da566458060d9dfea990bb5f2afd68c211f99d9d39",
+    "tests/unit/test_receiver.py": "d07bfcf5158d93536f210f75524d10e8d7ab9c93abd6b329d7372f067002ae94",
+    "docs/runbooks/erp.md": "bed7bbad9a0fe721467fb1f5cde7a5a10f14a361251837ff22bd93a2197de1f6",
+    "docs/runbooks/error-budget.md": "9a7c6d4c6297d8092efaac4268b27b4e8639809efcc684100aeb79c82491f72b",
+    "docs/runbooks/latency.md": "1f3755af2cda645da16612033e6ff47df393e8d8f56c6895589ee2e50edf7a44",
+    "docs/runbooks/replica.md": "6dc2976fd95c864b2e886964d5dcca6d3c60282b7ac8616b303c812aee4b469e",
+    "docs/runbooks/saturation.md": "e322a9fbf1b7c15a5bba785c54940d1f73dc99f5727f27b1bdc1584a454cf308",
+    "docs/runbooks/telemetry.md": "f70ae246170cfd16dd17e558847e1e261f78aa23d8b26d0d5fb9a3f40260c99a",
+    "docs/runbooks/unavailable.md": "9dd870a944c345bfe61842c198175d08c4d0ad01573727678e2f6c5f0bcc17b8"
+  },
+  "dependency_image_id": "sha256:01125213503f621fac5a7f84389976266d83374aa793cbfd06350af43568d944",
+  "checks": {
+    "pytest": {
+      "passed": 134,
+      "subtests_passed": 9,
+      "warnings": 2,
+      "scope": [
+        "test_receiver_ui",
+        "test_receiver",
+        "test_receiver_errors",
+        "test_receiver_probe",
+        "test_receiver_retention",
+        "test_diagnostic_links",
+        "test_receiver_diagnostics",
+        "test_receiver_config"
+      ]
+    },
+    "ruff": {
+      "check": "passed",
+      "format": "passed",
+      "formatted_files": 11
+    },
+    "mypy": {
+      "status": "passed",
+      "source_files": 8,
+      "scope": "alert_receiver"
+    },
+    "browser": {
+      "widths": [
+        1440,
+        768,
+        640,
+        390,
+        320
+      ],
+      "cases": [
+        "/",
+        "/empty.html",
+        "/no-active.html",
+        "/stale.html",
+        "/disabled.html",
+        "/failure.html",
+        "/error.html",
+        "/long.html",
+        "/incidents/42/",
+        "/incidents/41/",
+        "/runbooks/",
+        "/runbooks/telemetry/"
+      ],
+      "overflows": [],
+      "errors": [],
+      "firstFocus": "Pular para o conteúdo",
+      "expiryText": "Resultado desatualizado",
+      "anchorOpensDetails": true
+    }
+  },
+  "screenshots": {
+    "synthetic": true,
+    "source": "scripts/render_ui_preview.py",
+    "files_sha256": {
+      "docs/screenshots/incidents-desktop.png": "7b241d5903fc1aa6ee13388cbf033eaeb630f81f02f24b9f85d345446147cc4a",
+      "docs/screenshots/incidents-mobile.png": "5e36e4675738ad7de8173c1c5aa9d381c41d7833429db28cb6f82bcd3a9ed864",
+      "docs/screenshots/incident-history-desktop.png": "06f91d63f1f212c660ab732b1ea58962e60ad3b0e154f1267c358f7654a0bcdf",
+      "docs/screenshots/runbooks-desktop.png": "c87a4b3a592414acce4bf30705af2678babc54f5516c626801661a9b0a817c76",
+      "docs/screenshots/runbook-desktop.png": "8a8db3ea28f20b5ce2ce2f102a1edc696556013c3612e717cce3c319415b72a2"
+    }
+  },
+  "operational_baseline": {
+    "run_id": "20260922t021943129883z",
+    "status": "passed",
+    "source_tree_sha256": "d485c54b6fe01895def538c885e152799537fab6c01773052231a7c06997c0e9",
+    "image_id": "sha256:01125213503f621fac5a7f84389976266d83374aa793cbfd06350af43568d944",
+    "finished_at": "2026-09-22T02:29:00.260436+00:00"
+  },
+  "not_run": [
+    "new Docker image build",
+    "load test for adapted sources",
+    "image vulnerability scan for adapted sources",
+    "native browser zoom"
+  ]
+}

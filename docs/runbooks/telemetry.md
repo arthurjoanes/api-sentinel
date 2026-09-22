@@ -14,7 +14,7 @@ Execute os comandos na raiz do projeto, após o setup. O projeto Compose é `pf-
 
 O alerta de telemetria também verifica `up{job="prometheus"} == 0`: target presente com scrape falhando não equivale a coleta saudável. Três ou mais falhas de webhook em um minuto (demo) ou cinco minutos (referência), persistindo pelo `for` do perfil, sinalizam problema de entrega mesmo quando os targets respondem ao scrape. Confira `alertmanager_notifications_failed_total{integration="webhook"}` por categoria e os resultados de recebimento antes de atribuir a causa. Um erro isolado e uma contagem antiga sem incremento não disparam essa condição.
 
-Este alerta usa a mesma cadeia de entrega sob observação. Enquanto o receiver ou sua credencial estiverem quebrados, ele pode existir no Prometheus/Alertmanager sem chegar à caixa; não é uma garantia de notificação independente. A produção precisaria de um destino e supervisão externos.
+Este alerta usa a mesma cadeia de entrega sob observação. Enquanto o receiver ou sua credencial estiverem quebrados, ele pode existir no Prometheus/Alertmanager sem chegar à central; não é uma garantia de notificação independente. A produção precisaria de um destino e supervisão externos.
 
 ```powershell
 docker compose -p pf-api-sentinel --profile observability ps
@@ -35,7 +35,7 @@ A retenção padrão é 30 dias, configurável por `ALERT_RETENTION_DAYS` entre 
 
 ## Configuração do probe indisponível
 
-Se sentinel_probe_config_valid está em 0, confira os arquivos de credencial técnica e expected-replicas. O probe não faz uma consulta enquanto esses arquivos são inválidos; sentinel_probe_success e sentinel_expected_replicas ficam NaN, e o timestamp da última consulta real não avança. O alerta correto é de telemetria: o estado do negócio é desconhecido. A UI informa “Observação indisponível”.
+Se sentinel_probe_config_valid está em 0, confira os arquivos de credencial técnica e expected-replicas. O probe não faz uma consulta enquanto esses arquivos são inválidos; sentinel_probe_success e sentinel_expected_replicas ficam NaN, e o timestamp da última consulta real não avança. O alerta correto é de telemetria: o estado do negócio é desconhecido. A central informa “Consulta indisponível”; abra “Detalhes da observação” para conferir o resultado registrado.
 
 Arquivo presente não garante que a credencial ainda esteja autorizada. Uma resposta HTTP 401/403 após consulta válida entra como http_error; confira expiração, revogação e escopo da credencial própria do probe, sem imprimir o token. Ela pode explicar a falha da jornada técnica mesmo quando outros clientes ainda conseguem consultar.
 
@@ -53,6 +53,6 @@ Confirme scrape recente, dados coerentes, probe voltando a atualizar e entrega f
 
 ## Ocorrência de perda de réplica sem entrega de recuperação
 
-Compare o estado persistido da caixa com targets, probe e alertas atuais antes de concluir que a API continua indisponível. A revisão encontrou uma ocorrência de perda de réplica cuja recuperação foi suprimida pela antiga inibição; a configuração foi corrigida, sem apagar o histórico.
+Compare o estado persistido da central com targets, probe e alertas atuais antes de concluir que a API continua indisponível. A revisão encontrou uma ocorrência de perda de réplica cuja recuperação foi suprimida pela antiga inibição; a configuração foi corrigida, sem apagar o histórico.
 
 Para reconciliar exclusivamente uma ocorrência `SentinelReplicaLost` ainda ativa no ambiente demo, execute `python scripts/reconcile_replica.py ID` na raiz do projeto. O comando recusa targets antigos/ausentes, probe inválido/antigo ou qualquer alerta ainda ativo no Alertmanager. Ele registra `operator_reconciled` e guarda antes/depois em `artifacts/reconciliation-ID.json`. Preserva contagem e horário das entregas originais: não fabrica um webhook resolved nem afirma o instante exato em que o serviço se recuperou. Uma ocorrência já reconciliada não deve ser reconciliada novamente.

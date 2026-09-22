@@ -60,7 +60,7 @@ def test_no_active_incidents_does_not_claim_service_health() -> None:
     assert "Aguardando o primeiro teste" in document
     assert "Valores esperados" in document
     assert "Fixture validada" not in document
-    assert "Probe OK" not in document
+    assert "Consulta de referência validada" not in document
 
 
 def test_stale_probe_does_not_reuse_last_success_as_current_health() -> None:
@@ -69,7 +69,7 @@ def test_stale_probe_does_not_reuse_last_success_as_current_health() -> None:
     probe.checked_at = datetime.now(UTC) - timedelta(seconds=30)
     document = ui.home(page(), probe, "all")
     assert "Resultado desatualizado" in document
-    assert "Probe OK" not in document
+    assert "Consulta de referência validada" not in document
 
 
 def test_compact_row_preserves_state_and_escapes_alert_metadata() -> None:
@@ -151,7 +151,7 @@ def test_probe_states_never_claim_more_than_the_observation(
     probe.checked_at = None if age is None else datetime.now(UTC) - timedelta(seconds=age)
     document = ui.home(page(), probe, "all")
     assert expected in document
-    assert "Probe OK" not in document
+    assert "Consulta de referência validada" not in document
     assert "Ver no Prometheus" in document
     assert "Réplicas observadas" in document
     assert "Veja os targets do Prometheus" in document
@@ -161,7 +161,7 @@ def test_timestamp_without_timezone_is_not_current_evidence() -> None:
     probe = ProbeState(result="success", checked_at=datetime(2026, 1, 1))
     document = ui.home(page(), probe, "all")
     assert "Resultado indisponível" in document
-    assert "Probe OK" not in document
+    assert "Consulta de referência validada" not in document
 
 
 def test_fresh_result_has_bounded_display_lifetime_without_navigation() -> None:
@@ -169,7 +169,7 @@ def test_fresh_result_has_bounded_display_lifetime_without_navigation() -> None:
     probe = ProbeState(result="success", checked_at=observed, stale_after_seconds=120)
     document = ui.probe_observation(probe, observed + timedelta(seconds=20))
     assert 'data-expires-in-ms="100000"' in document
-    assert "Probe OK" in document
+    assert "Consulta de referência validada" in document
     assert "não confirma a saúde de todo o sistema" not in document
 
 
@@ -201,3 +201,52 @@ def test_history_read_error_offers_retry_without_an_empty_success_state() -> Non
     assert "Histórico indisponível" in document
     assert "Nenhum incidente" not in document
     assert 'href="/"' in document
+
+
+def test_manual_closure_is_neutral_in_the_incident_list() -> None:
+    now = datetime.now(UTC)
+    incident = Incident(
+        id=1,
+        fingerprint="abcdef12",
+        starts_at=now,
+        ends_at=now,
+        first_received_at=now,
+        last_received_at=now,
+        status="resolved",
+        deliveries=1,
+        labels={},
+        annotations={"summary": "Réplica ausente", "reconciliation": "Conferida"},
+    )
+    document = ui.incident_row(incident)
+    assert 'class="badge neutral">Encerrado pelo operador' in document
+    assert 'class="badge good"' not in document
+    assert "Recuperação" not in document
+
+
+def test_late_event_keeps_delivery_and_effect_distinct() -> None:
+    event = IncidentEvent(
+        received_at=datetime.now(UTC), delivered_status="firing", transition="late_firing_ignored"
+    )
+    document = ui.event_item(event)
+    assert "Entrega firing" in document
+    assert "sem reabrir a ocorrência" in document
+    assert "Recuperação confirmada" not in document
+
+
+def test_runbook_preserves_code_lists_and_safe_section_navigation() -> None:
+    document = ui.runbook_page(
+        "telemetry",
+        "# Diagnóstico\n## Confira <script>\n1. Veja `up`\n2. Confira & repita\n"
+        "\n```sh\n<script>não executar</script>\n```\n## Recuperação\n- Confirmar a entrega",
+    )
+    assert "<ol><li>Veja <code>up</code></li><li>Confira &amp; repita</li></ol>" in document
+    assert "<script>" not in document
+    assert "&lt;script&gt;não executar&lt;/script&gt;" in document
+    elements = Elements(document).tags
+    section_ids = {attrs["id"] for tag, attrs in elements if tag == "h2"}
+    links = {
+        attrs["href"][1:]
+        for tag, attrs in elements
+        if tag == "a" and (attrs.get("href") or "").startswith("#etapa-")
+    }
+    assert links == section_ids == {"etapa-1", "etapa-2"}

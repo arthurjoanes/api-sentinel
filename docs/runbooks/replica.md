@@ -35,6 +35,8 @@ Depois da recriação, confirme descoberta do novo endereço no Prometheus e pas
 
 Verifique dois targets up quando desejadas duas réplicas, probe com resultado conhecido correto e resolved na mesma ocorrência. Execute uma consulta comercial e acompanhe pool/erros. Se o proxy permaneceu com upstream obsoleto, recarregue sua configuração através do Compose do projeto e repita a jornada.
 
+Se a ocorrência foi encerrada pelo operador, a central informa esse estado separadamente. O encerramento não substitui uma entrega de recuperação nem estabelece o instante em que o serviço voltou. Consulte o procedimento de reconciliação no runbook de telemetria.
+
 ## Limites
 
 As duas réplicas rodam no mesmo host.

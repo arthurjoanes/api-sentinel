@@ -26,9 +26,7 @@ from alert_receiver.probe import ProbeState, ReceiverMetrics, probe_loop
 from alert_receiver.storage import AlertStore
 
 logger = logging.getLogger("sentinel.receiver")
-RUNBOOKS = frozenset(
-    {"unavailable", "error-budget", "latency", "saturation", "replica", "telemetry", "erp"}
-)
+RUNBOOKS = frozenset(ui.RUNBOOKS)
 IncidentId = Annotated[int, PathParameter(ge=1, le=2**63 - 1)]
 
 
@@ -324,6 +322,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 status_code=503,
             )
         return HTMLResponse(ui.runbook_page(slug, markdown))
+
+    @application.get("/runbooks", response_class=HTMLResponse)
+    async def runbooks() -> str:
+        return ui.runbook_index()
 
     return application
 

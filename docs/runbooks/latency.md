@@ -29,6 +29,6 @@ docker compose -p pf-api-sentinel stats --no-stream
 
 ## Reduzir impacto e confirmar
 
-Interrompa o gerador de carga iniciado pelo teste ou reduza sua taxa. Remova a falha controlada identificada. Preserve timeouts, limites de páginas e política de quota. Confirme consulta correta, espera de pool limitada, retorno do percentil ao objetivo com volume suficiente e resolved na caixa de alertas.
+Interrompa o gerador de carga iniciado pelo teste ou reduza sua taxa. Remova a falha controlada identificada. Preserve timeouts, limites de páginas e política de quota. Confirme consulta correta, espera de pool limitada, retorno do percentil ao objetivo com volume suficiente e resolved na central de incidentes.
 
 Se os traces amostrados não incluírem o período ou a coleta estiver ausente, registre a lacuna. A falta de span não mostra que um componente é rápido.

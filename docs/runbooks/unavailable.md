@@ -4,7 +4,7 @@ O probe é executado no receiver, com tenant técnico e credencial próprios. El
 
 ## Confira primeiro
 
-1. Abra a caixa de alertas e leia condição, início e última atualização. Um receiver com probe desatualizado é falha de observação, não sinal de indisponibilidade atual.
+1. Abra a central de incidentes e leia condição, início e última atualização. Um receiver com probe desatualizado é falha de observação, não sinal de indisponibilidade atual.
 2. No Grafana, compare sentinel_probe_success com o número de targets up do job api. Verifique também Redis, PostgreSQL, falhas de autenticação e rejeições de admissão.
 3. Execute os comandos abaixo na raiz exclusiva do projeto; confirme o nome Compose pf-api-sentinel. Não pare outros projetos.
 
