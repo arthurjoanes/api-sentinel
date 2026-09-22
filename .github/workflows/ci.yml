@@ -25,10 +25,12 @@ jobs:
         shell: bash
     steps:
       - name: Obter fontes
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Preparar Python para os scripts portáveis
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: '3.12'
 
@@ -37,6 +39,35 @@ jobs:
           mkdir -p artifacts
           docker compose version
           docker build --tag pf-api-sentinel:local . 2>&1 | tee artifacts/build.log
+
+      - name: Verificar vulnerabilidades da imagem da aplicação
+        run: |
+          mkdir -p .runtime/scan
+          docker run --rm \
+            -v /var/run/docker.sock:/var/run/docker.sock:ro \
+            -v "$PWD/.runtime/scan:/reports" \
+            aquasec/trivy:0.74.0@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969 \
+            image --scanners vuln --ignorefile /dev/null --format json \
+            --output /reports/runtime.json pf-api-sentinel:local
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('.runtime/scan/runtime.json').read_text())
+          assert report['SchemaVersion'] == 2
+          assert report['Metadata']['ImageID']
+          assert {'os-pkgs', 'lang-pkgs'} <= {item.get('Class') for item in report['Results']}
+          fields = ('VulnerabilityID', 'PkgName', 'InstalledVersion', 'FixedVersion', 'Severity', 'PrimaryURL')
+          targets = [{
+              'Target': item['Target'], 'Class': item.get('Class'),
+              'Vulnerabilities': [{key: finding.get(key) for key in fields}
+                                  for finding in (item.get('Vulnerabilities') or [])]
+          } for item in report['Results']]
+          public = {'SchemaVersion': 2, 'Metadata': {key: report['Metadata'][key] for key in ('ImageID', 'OS')}, 'Results': targets}
+          Path('artifacts/runtime-vulnerabilities.json').write_text(json.dumps(public, indent=2))
+          blocked = [finding for item in targets for finding in item['Vulnerabilities'] if finding['Severity'] in ('HIGH', 'CRITICAL')]
+          print(f'Blocking HIGH/CRITICAL findings: {len(blocked)}')
+          raise SystemExit(bool(blocked))
+          PY
 
       - name: Lint, formato e tipos
         run: |
@@ -122,7 +153,7 @@ jobs:
 
       - name: Preservar relatórios e diagnóstico
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: sentinel-verification-${{ github.run_id }}-${{ github.run_attempt }}
           path: artifacts/

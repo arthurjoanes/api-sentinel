@@ -1,33 +1,24 @@
 # API Sentinel
 
-Construí uma API local pra um problema chato de integração: a loja precisa consultar vendas certas mesmo quando o ERP trava ou fica lento, e um cliente não pode derrubar os outros. Usei FastAPI, PostgreSQL e Redis. Os dados e o ERP são sintéticos.
+API de vendas com limites por organização, cache compartilhado e observabilidade.
 
-![Central após recuperação: zero incidentes em andamento e os 21 resolvidos](docs/screenshots/followup-central-desktop.png)
+Uma consulta ao ERP pode ficar lenta sem bloquear o resumo de vendas. O API Sentinel separa esses caminhos, limita o trabalho em andamento e mantém a quota de cada cliente entre duas réplicas. PostgreSQL calcula os indicadores; Redis coordena quota e cache. As organizações, vendas e o ERP da demonstração são sintéticos.
 
-Pus um NGINX na frente de duas réplicas que dividem quota e cache. Prometheus, Grafana, Jaeger e uma central de alertas mostram o que aconteceu em cada teste.
+![Central de alertas após recuperação](docs/screenshots/followup-central-desktop.png)
 
-## O que eu quis provar
+## O que a demonstração permite verificar
 
-Rodei local em 21/09/2026 (FastAPI 0.141.1/Starlette 1.3.1) e conferi cada número contra as linhas brutas do banco:
+- Consultar lojas autorizadas, resumo por período e vendas com paginação por cursor.
+- Consultar disponibilidade no ERP com prazo total, circuito e limite de resposta.
+- Saturar um cliente e conferir o atendimento do outro.
+- Interromper uma dependência e observar recusa controlada, alerta e recuperação.
+- Correlacionar uma requisição com logs, métricas e traces.
 
-- ERP lento: 114 consultas comerciais corretas e 37 falhas esperadas do ERP, sem drop; na recuperação, 101/101 corretas.
-- Quota a 60 chegadas/s por 10 s: 300 respostas corretas e 301 recusas 429, com uma ou duas réplicas. No isolamento, o outro tenant terminou 51/51.
-- Cache frio/quente/expirado: 1 / 0 / 1 SQL por fase. Com o Redis parado, recusei a consulta sem gerar SQL de resumo.
-- Dois alertas reais subiram e fecharam em 33 s e 20 s. Passaram 229 testes isolados, 70 HTTP e 47 casos de Prometheus.
+A central reúne alertas e runbooks. Prometheus coleta as réplicas; Grafana mostra tráfego e saturação; Jaeger permite inspecionar traces. O [roteiro de demonstração](docs/demo.md) explica os cenários.
 
-Os arquivos da execução estão em [verificação](docs/verification.md) e [desempenho](docs/performance.md); resumo e alertas em `artifacts/problem-review/`. O porquê está em [problem-solution.md](docs/problem-solution.md).
+## Rodar no Windows
 
-## Decisões que tomei
-
-- Quota em janela fixa de 1 s no Redis, dividida entre as réplicas. Simples e previsível; aceito burst na fronteira da janela.
-- Admissão e circuito locais a cada processo, pra cada réplica se proteger sem depender do Redis pra decidir.
-- Single-flight no cache pra o cache frio não virar stampede no banco, sem furar a quota.
-- Cancelo o SQL e limito um ERP que manda bytes devagar, em vez de deixar a conexão pendurada.
-- Deixei de fora escala distribuída de verdade: duas réplicas nesta máquina mostram coordenação, não cluster.
-
-## Rodar
-
-Docker Desktop (Linux), PowerShell e Python 3.11+, uns 2 GiB de limite. O primeiro setup baixa imagens; depois não sai pra rede.
+Requisitos: Docker Desktop com containers Linux, Compose 2.24.4+, PowerShell 7 e Python 3.11+ no host. Reserve pelo menos 2 GiB para a stack; builds e testes exigem recursos adicionais. As dependências Python da aplicação são instaladas no container.
 
 ```powershell
 ./scripts/sentinel.ps1 setup -Replicas 2
@@ -36,40 +27,55 @@ Docker Desktop (Linux), PowerShell e Python 3.11+, uns 2 GiB de limite. O primei
 ./scripts/sentinel.ps1 demo
 ```
 
-No Linux, os comandos equivalentes estão no CI ([ci.yml](.github/workflows/ci.yml)).
+O primeiro setup baixa as imagens, prepara a massa e gera tokens locais. Os testes usam bancos e projetos Docker próprios. `./scripts/sentinel.ps1 stop` encerra os containers preservando os volumes.
 
-| Serviço | Local |
-|---|---|
-| Central de alertas e runbooks | [localhost:9184](http://localhost:9184/) |
-| Grafana | [localhost:3104](http://localhost:3104/d/sentinel/api-sentinel) |
-| API e Swagger | [localhost:8104/docs](http://localhost:8104/docs) |
-| Jaeger | [localhost:16684](http://localhost:16684/) |
-| Coleta por réplica | [localhost:9104/targets](http://localhost:9104/targets) |
-| Alertmanager | [localhost:9194](http://localhost:9194/) |
+## Rodar no Linux
 
-Tudo em `127.0.0.1`. Os Bearer tokens saem no setup pra `.runtime/demo.json` (ignorado pelo Git). As credenciais do `.env.example` são só locais.
-
-```powershell
-$t = Get-Content .runtime/demo.json -Raw | ConvertFrom-Json
-Invoke-RestMethod 'http://127.0.0.1:8104/v1/stores/1/summary?start=2026-01-01&end=2026-01-31' -Headers @{Authorization="Bearer $($t.tenant_a)"}
+```sh
+docker compose -f compose.yml build api
+docker compose -f compose.yml up -d --wait postgres redis
+docker compose -f compose.yml run --rm -e REPLICAS=2 tools python scripts/bootstrap.py
+docker compose -f compose.yml run --rm tools python -c 'import json; from pathlib import Path; p=Path("/secrets/public-urls.json"); p.write_text(json.dumps({"grafana":"http://127.0.0.1:3104","jaeger":"http://127.0.0.1:16684","prometheus":"http://127.0.0.1:9104","alertmanager":"http://127.0.0.1:9194"})); p.chmod(0o644)'
+docker compose -f compose.yml --profile observability up -d --scale api=2
+umask 077
+mkdir -p .runtime
+docker compose -f compose.yml cp --index 1 api:/secrets/demo.json .runtime/demo.json
 ```
 
-Rotas: lojas autorizadas, resumo por período, vendas por cursor e SKU no ERP. A massa vai de 1º/01 a 1º/03/2026; dinheiro em centavos. [Contrato de dados](docs/data-contract.md).
+Todos os serviços publicados ficam em loopback:
 
-## Onde está cada coisa
+| Serviço | Endereço |
+| --- | --- |
+| Central de alertas e runbooks | [localhost:9184](http://127.0.0.1:9184/) |
+| API e Swagger | [localhost:8104/docs](http://127.0.0.1:8104/docs) |
+| Grafana | [localhost:3104](http://127.0.0.1:3104/d/sentinel/api-sentinel) |
+| Jaeger | [localhost:16684](http://127.0.0.1:16684/) |
+| Coleta por réplica | [localhost:9104/targets](http://127.0.0.1:9104/targets) |
+| Alertmanager | [localhost:9194](http://127.0.0.1:9194/) |
 
-| Pergunta | Código |
-|---|---|
-| Como impedi filas ilimitadas? | [admission.py](src/api_sentinel/admission.py), [db.py](src/api_sentinel/db.py) |
-| Tenant, dinheiro e paginação certos? | [auth.py](src/api_sentinel/auth.py), [queries.py](src/api_sentinel/queries.py), [cursor.py](src/api_sentinel/cursor.py) |
-| Stampede sem furar a quota? | [cache.py](src/api_sentinel/cache.py) |
-| Cancelar SQL e conter ERP lento? | [telemetry.py](src/api_sentinel/telemetry.py), [erp.py](src/api_sentinel/erp.py) |
-| Alertar com a API parada? | [probe.py](alert_receiver/probe.py), [regras](monitoring/rules), [SLO](docs/slo.md) |
+Os tokens ficam em `.runtime/demo.json`, ignorado pelo Git. Exemplo de consulta em PowerShell:
 
-[Arquitetura](docs/architecture.md) · [demo](docs/demo.md) · [decisões técnicas](docs/decisoes-tecnicas.md).
+```powershell
+$tokens = Get-Content .runtime/demo.json -Raw | ConvertFrom-Json
+Invoke-RestMethod 'http://127.0.0.1:8104/v1/stores/1/summary?start=2026-01-01&end=2026-01-31' -Headers @{Authorization="Bearer $($tokens.tenant_a)"}
+```
+
+A massa cobre janeiro e fevereiro de 2026. Valores monetários são inteiros em centavos. O [contrato de dados](docs/data-contract.md) define escopo, cobertura e paginação.
+
+## Arquitetura e verificação
+
+A quota usa janela fixa no Redis; admissão e circuito pertencem a cada processo. O cache evita cálculos simultâneos da mesma chave sem dispensar a quota. O prazo da requisição inclui espera por conexão e SQL, com cancelamento do trabalho quando o cliente desconecta.
+
+[Arquitetura](docs/architecture.md) · [decisões técnicas](docs/decisoes-tecnicas.md) · [problema e solução](docs/problem-solution.md).
+
+O [CI](.github/workflows/ci.yml) executa análise estática, testes com PostgreSQL e Redis, validação das regras de monitoramento e jornadas HTTP pelo proxy. Os [resultados de verificação](docs/verification.md) e [ensaios de desempenho](docs/performance.md) distinguem medições reais, testes simulados e versões históricas.
+
+A [prova local de 22/09/2026](docs/evidence/publication.json) registra 253 casos isolados incluindo subtests, 73 testes HTTP e os cenários de quota, isolamento, falha e recuperação aprovados. A imagem executada também tem três rodadas adicionais de quota e scan correspondentes. O histórico de tentativas reprovadas e os limites da medição permanecem na documentação.
+
+Os controles de acesso do Redis e do Grafana e o escopo das varreduras estão em [segurança](docs/security.md).
 
 ## Limites
 
-A quota é janela fixa, então dá burst na fronteira. As duas réplicas coordenam, mas não são cluster distribuído. O dataset é fixo e versionado; o TTL de cache não promete consistência forte pra escrita futura. O SLO de 30 dias é referência, não resultado de uma demo curta. Traces com amostragem de 25% e retenção em memória. O host inteiro é ponto único de falha, inclusive pro monitoramento. O CI está pronto mas não rodou no GitHub porque não publiquei; por isso sem badge.
+A janela fixa permite rajadas em sua fronteira. As duas réplicas compartilham um host, que continua sendo ponto único de falha. A demonstração não mede um SLO de 30 dias nem capacidade de um cluster. O dataset é imutável; o TTL do cache não oferece consistência forte para uma futura operação de escrita. Traces usam amostragem de 25% e armazenamento em memória.
 
-Python, FastAPI, PostgreSQL, Redis, NGINX, Prometheus/Grafana/Jaeger. Licença MIT.
+Python · FastAPI · PostgreSQL · Redis · NGINX · Prometheus · Grafana · Jaeger. [Licença MIT](LICENSE).

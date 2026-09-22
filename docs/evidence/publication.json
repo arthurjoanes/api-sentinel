@@ -1,0 +1,1726 @@
+{
+  "schema_version": 1,
+  "scope": "Local Docker demonstration using synthetic business data and real local HTTP, PostgreSQL, Redis, proxy, alerts and traces.",
+  "run_id": "20260922t021943129883z",
+  "started_at": "2026-09-22T02:19:43.130383+00:00",
+  "finished_at": "2026-09-22T02:29:00.260436+00:00",
+  "status": "passed",
+  "source_kind": "source_archive",
+  "source_unchanged": true,
+  "git_blob_verification": {
+    "clean_filters_changed_operational_files": 0,
+    "line_endings": "LF for text; binary data unchanged",
+    "gitattributes_sha256": "68357240d3209bb57c9284623e5e428a798a284d5e8782b68a2a1cdc5ce969e5"
+  },
+  "operational_source_files": 110,
+  "source_tree_sha256": "d485c54b6fe01895def538c885e152799537fab6c01773052231a7c06997c0e9",
+  "image_id": "sha256:01125213503f621fac5a7f84389976266d83374aa793cbfd06350af43568d944",
+  "docker_resources": "CPUs=16 memory_bytes=16707645440 version=29.7.2",
+  "measurement_conditions": {
+    "dedicated_host": false,
+    "external_containers_preserved": true,
+    "scope": "Shared Windows/Docker host; complete final run identifies acceptance, earlier failed runs remain recorded. A later pass does not establish the cause of an earlier failure.",
+    "quota_host_cpu_observation": {
+      "image_id": "sha256:01125213503f621fac5a7f84389976266d83374aa793cbfd06350af43568d944",
+      "sample_min_percent": 21,
+      "sample_max_percent": 83,
+      "sample_count": 32,
+      "first_sample_at": "2026-09-22T02:29:48.9861987Z",
+      "last_sample_at": "2026-09-22T02:31:23.8783851Z",
+      "source_sha256": "9da9aa82ecff33fde2723d1394c4c0a729513df8b13e355ba940fd1bb51f17cc",
+      "scope": "Host samples across the bounded three-round quota window, not a dedicated or completely idle host; not continuous extrema or measurements of the separate full proof."
+    }
+  },
+  "compose_version": "5.5.0",
+  "checks": [
+    {
+      "name": "concurrent-services",
+      "exit_code": 0
+    },
+    {
+      "name": "docker-resources",
+      "exit_code": 0
+    },
+    {
+      "name": "compose-version",
+      "exit_code": 0
+    },
+    {
+      "name": "demo-before",
+      "exit_code": 0
+    },
+    {
+      "name": "build",
+      "exit_code": 0
+    },
+    {
+      "name": "image-id",
+      "exit_code": 0
+    },
+    {
+      "name": "lint",
+      "exit_code": 0
+    },
+    {
+      "name": "format",
+      "exit_code": 0
+    },
+    {
+      "name": "types",
+      "exit_code": 0
+    },
+    {
+      "name": "monitoring",
+      "exit_code": 0
+    },
+    {
+      "name": "isolated-tests",
+      "exit_code": 0
+    },
+    {
+      "name": "isolated-cleanup",
+      "exit_code": 0
+    },
+    {
+      "name": "database",
+      "exit_code": 0
+    },
+    {
+      "name": "seed",
+      "exit_code": 0
+    },
+    {
+      "name": "start",
+      "exit_code": 0
+    },
+    {
+      "name": "investigation-links",
+      "exit_code": 0
+    },
+    {
+      "name": "oracle",
+      "exit_code": 0
+    },
+    {
+      "name": "contract-mutations",
+      "exit_code": 0
+    },
+    {
+      "name": "http-tests",
+      "exit_code": 0
+    },
+    {
+      "name": "load-warmup",
+      "exit_code": 0
+    },
+    {
+      "name": "load-mixed-normal",
+      "exit_code": 0
+    },
+    {
+      "name": "load-mixed-erp-degraded",
+      "exit_code": 0
+    },
+    {
+      "name": "load-mixed-recovered",
+      "exit_code": 0
+    },
+    {
+      "name": "load-warmup-one",
+      "exit_code": 0
+    },
+    {
+      "name": "load-quota-one",
+      "exit_code": 0
+    },
+    {
+      "name": "load-warmup-two",
+      "exit_code": 0
+    },
+    {
+      "name": "load-quota-two",
+      "exit_code": 0
+    },
+    {
+      "name": "load-tenant-isolation",
+      "exit_code": 0
+    },
+    {
+      "name": "trace-correlation",
+      "exit_code": 0
+    },
+    {
+      "name": "resources-after",
+      "exit_code": 0
+    },
+    {
+      "name": "demo-after",
+      "exit_code": 0
+    },
+    {
+      "name": "cleanup-tests",
+      "exit_code": 0
+    },
+    {
+      "name": "cleanup-lab",
+      "exit_code": 0
+    }
+  ],
+  "isolated_tests": {
+    "tests": 326,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 73,
+    "seconds": 9.302,
+    "passed": 253
+  },
+  "http_tests": {
+    "tests": 73,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 17.517,
+    "passed": 73
+  },
+  "loads": [
+    {
+      "seconds": 15,
+      "completed": 151,
+      "categories": {
+        "tenant_b_capacity": 0,
+        "tenant_b_erp_failure": 18,
+        "tenant_b_other": 0,
+        "tenant_a_quota": 0,
+        "tenant_a_capacity": 0,
+        "tenant_a_erp_failure": 19,
+        "tenant_a_invalid": 0,
+        "tenant_a_other": 0,
+        "tenant_b_valid": 57,
+        "tenant_b_invalid": 0,
+        "tenant_a_valid": 57,
+        "tenant_b_quota": 0
+      },
+      "oracle_sha256": "3f9cb7ff3eff723d3f2ae377c06bb9661a9da0e840c145b8958eafa481cc3a32",
+      "scenario": "mixed-erp-degraded",
+      "mode": "degraded",
+      "offered_per_second": 10,
+      "nominal_offered": 150,
+      "started": 151,
+      "dropped": 0,
+      "success_latency_ms": {
+        "med": 6.520814,
+        "p(95)": 8.216346999999999,
+        "p(99)": 17.291537210000037,
+        "max": 21.742096
+      },
+      "thresholds": {
+        "business_failures": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "invalid_results": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "success_latency{route:sales}": {
+          "p(99)<1500": {
+            "ok": true
+          },
+          "p(95)<500": {
+            "ok": true
+          }
+        },
+        "dropped_iterations": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "success_latency{route:stores}": {
+          "p(95)<500": {
+            "ok": true
+          },
+          "p(99)<1500": {
+            "ok": true
+          }
+        },
+        "success_latency{route:summary}": {
+          "p(95)<500": {
+            "ok": true
+          },
+          "p(99)<1500": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_a,route:sales}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_a,route:summary}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_a,route:erp}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "http_req_duration": {
+          "p(99)<3000": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_a,route:stores}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_b,route:stores}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_b,route:sales}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_b,route:summary}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_b,route:erp}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "unexpected_results": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "success_latency": {
+          "p(99)<1500": {
+            "ok": true
+          },
+          "p(95)<500": {
+            "ok": true
+          }
+        }
+      }
+    },
+    {
+      "completed": 150,
+      "categories": {
+        "tenant_a_valid": 75,
+        "tenant_a_capacity": 0,
+        "tenant_a_erp_failure": 0,
+        "tenant_a_invalid": 0,
+        "tenant_b_capacity": 0,
+        "tenant_b_erp_failure": 0,
+        "tenant_b_other": 0,
+        "tenant_a_quota": 0,
+        "tenant_a_other": 0,
+        "tenant_b_valid": 75,
+        "tenant_b_quota": 0,
+        "tenant_b_invalid": 0
+      },
+      "oracle_sha256": "3f9cb7ff3eff723d3f2ae377c06bb9661a9da0e840c145b8958eafa481cc3a32",
+      "scenario": "mixed-normal",
+      "mode": "mixed",
+      "nominal_offered": 150,
+      "started": 150,
+      "dropped": 0,
+      "seconds": 15,
+      "offered_per_second": 10,
+      "success_latency_ms": {
+        "med": 6.52682,
+        "p(95)": 8.833466099999992,
+        "p(99)": 56.49584995999997,
+        "max": 59.57806
+      },
+      "thresholds": {
+        "responses{tenant:tenant_b,route:erp}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_a,route:sales}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "invalid_results": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_a,route:erp}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_b,route:stores}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_a,route:summary}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "success_latency{route:stores}": {
+          "p(95)<500": {
+            "ok": true
+          },
+          "p(99)<1500": {
+            "ok": true
+          }
+        },
+        "business_failures": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "success_latency{route:sales}": {
+          "p(99)<1500": {
+            "ok": true
+          },
+          "p(95)<500": {
+            "ok": true
+          }
+        },
+        "dropped_iterations": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "success_latency{route:summary}": {
+          "p(95)<500": {
+            "ok": true
+          },
+          "p(99)<1500": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_b,route:summary}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_a,route:stores}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "unexpected_results": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_b,route:sales}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "success_latency": {
+          "p(95)<500": {
+            "ok": true
+          },
+          "p(99)<1500": {
+            "ok": true
+          }
+        },
+        "http_req_duration": {
+          "p(99)<3000": {
+            "ok": true
+          }
+        }
+      }
+    },
+    {
+      "seconds": 10,
+      "offered_per_second": 10,
+      "nominal_offered": 100,
+      "dropped": 0,
+      "categories": {
+        "tenant_b_erp_failure": 0,
+        "tenant_a_valid": 51,
+        "tenant_a_other": 0,
+        "tenant_b_quota": 0,
+        "tenant_b_capacity": 0,
+        "tenant_b_invalid": 0,
+        "tenant_b_other": 0,
+        "tenant_a_quota": 0,
+        "tenant_a_capacity": 0,
+        "tenant_a_erp_failure": 0,
+        "tenant_a_invalid": 0,
+        "tenant_b_valid": 50
+      },
+      "oracle_sha256": "3f9cb7ff3eff723d3f2ae377c06bb9661a9da0e840c145b8958eafa481cc3a32",
+      "scenario": "mixed-recovered",
+      "mode": "mixed",
+      "started": 101,
+      "completed": 101,
+      "success_latency_ms": {
+        "med": 6.712497,
+        "p(95)": 7.812122,
+        "p(99)": 17.592795,
+        "max": 18.173171
+      },
+      "thresholds": {
+        "dropped_iterations": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "unexpected_results": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_b,route:sales}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_a,route:sales}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "success_latency": {
+          "p(95)<500": {
+            "ok": true
+          },
+          "p(99)<1500": {
+            "ok": true
+          }
+        },
+        "success_latency{route:sales}": {
+          "p(95)<500": {
+            "ok": true
+          },
+          "p(99)<1500": {
+            "ok": true
+          }
+        },
+        "business_failures": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_a,route:erp}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_b,route:summary}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "invalid_results": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_b,route:erp}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_a,route:summary}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_b,route:stores}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "success_latency{route:summary}": {
+          "p(95)<500": {
+            "ok": true
+          },
+          "p(99)<1500": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_a,route:stores}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "http_req_duration": {
+          "p(99)<3000": {
+            "ok": true
+          }
+        },
+        "success_latency{route:stores}": {
+          "p(99)<1500": {
+            "ok": true
+          },
+          "p(95)<500": {
+            "ok": true
+          }
+        }
+      }
+    },
+    {
+      "offered_rate": 20,
+      "configured_duration": "10s",
+      "scenario": "pool-pressure",
+      "offered_iterations": 200,
+      "tenant": "tenant_a",
+      "started": 201,
+      "completed": 201,
+      "dropped": 0,
+      "success_latency_ms": {
+        "med": 917.350754,
+        "p(95)": 917.350754,
+        "p(99)": 917.350754,
+        "max": 917.350754,
+        "avg": 917.350754,
+        "min": 917.350754
+      },
+      "thresholds": {
+        "http_req_duration": {
+          "p(99)<3000": {
+            "ok": true
+          }
+        },
+        "invalid_results": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "checks": {
+          "rate==1": {
+            "ok": true
+          }
+        },
+        "dropped_iterations": {
+          "count==0": {
+            "ok": true
+          }
+        }
+      }
+    },
+    {
+      "mode": "quota",
+      "offered_per_second": 60,
+      "completed": 601,
+      "categories": {
+        "tenant_a_quota": 301,
+        "tenant_a_invalid": 0,
+        "tenant_a_other": 0,
+        "tenant_b_quota": 0,
+        "tenant_b_invalid": 0,
+        "tenant_a_capacity": 0,
+        "tenant_a_erp_failure": 0,
+        "tenant_b_valid": 0,
+        "tenant_b_capacity": 0,
+        "tenant_b_erp_failure": 0,
+        "tenant_b_other": 0,
+        "tenant_a_valid": 300
+      },
+      "scenario": "quota-one",
+      "seconds": 10,
+      "nominal_offered": 600,
+      "started": 601,
+      "dropped": 0,
+      "oracle_sha256": "3f9cb7ff3eff723d3f2ae377c06bb9661a9da0e840c145b8958eafa481cc3a32",
+      "success_latency_ms": {
+        "med": 5.6235035,
+        "p(95)": 7.816998450000001,
+        "p(99)": 9.865842299999995,
+        "max": 18.99722
+      },
+      "thresholds": {
+        "http_req_duration": {
+          "p(99)<3000": {
+            "ok": true
+          }
+        },
+        "success_latency{route:summary}": {
+          "p(95)<500": {
+            "ok": true
+          },
+          "p(99)<1500": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_b,route:erp}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_a,route:erp}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "success_latency": {
+          "p(95)<500": {
+            "ok": true
+          },
+          "p(99)<1500": {
+            "ok": true
+          }
+        },
+        "unexpected_results": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "invalid_results": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_a,route:summary}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "business_failures": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_a,route:stores}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "success_latency{route:stores}": {
+          "p(95)<500": {
+            "ok": true
+          },
+          "p(99)<1500": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_b,route:stores}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "success_latency{route:sales}": {
+          "p(95)<500": {
+            "ok": true
+          },
+          "p(99)<1500": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_b,route:sales}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_b,route:summary}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_a,route:sales}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "dropped_iterations": {
+          "count==0": {
+            "ok": true
+          }
+        }
+      }
+    },
+    {
+      "categories": {
+        "tenant_b_quota": 0,
+        "tenant_b_erp_failure": 0,
+        "tenant_b_valid": 0,
+        "tenant_b_capacity": 0,
+        "tenant_b_invalid": 0,
+        "tenant_b_other": 0,
+        "tenant_a_valid": 300,
+        "tenant_a_quota": 301,
+        "tenant_a_capacity": 0,
+        "tenant_a_erp_failure": 0,
+        "tenant_a_invalid": 0,
+        "tenant_a_other": 0
+      },
+      "mode": "quota",
+      "seconds": 10,
+      "oracle_sha256": "3f9cb7ff3eff723d3f2ae377c06bb9661a9da0e840c145b8958eafa481cc3a32",
+      "scenario": "quota-two",
+      "offered_per_second": 60,
+      "nominal_offered": 600,
+      "started": 601,
+      "completed": 601,
+      "dropped": 0,
+      "success_latency_ms": {
+        "med": 6.925499,
+        "p(95)": 11.361525950000003,
+        "p(99)": 22.996693779999987,
+        "max": 43.729169
+      },
+      "thresholds": {
+        "http_req_duration": {
+          "p(99)<3000": {
+            "ok": true
+          }
+        },
+        "success_latency{route:summary}": {
+          "p(95)<500": {
+            "ok": true
+          },
+          "p(99)<1500": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_b,route:erp}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "invalid_results": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "success_latency{route:stores}": {
+          "p(95)<500": {
+            "ok": true
+          },
+          "p(99)<1500": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_a,route:summary}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_b,route:sales}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "business_failures": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_a,route:stores}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "success_latency{route:sales}": {
+          "p(95)<500": {
+            "ok": true
+          },
+          "p(99)<1500": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_a,route:sales}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "unexpected_results": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_a,route:erp}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_b,route:summary}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_b,route:stores}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "dropped_iterations": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "success_latency": {
+          "p(95)<500": {
+            "ok": true
+          },
+          "p(99)<1500": {
+            "ok": true
+          }
+        }
+      }
+    },
+    {
+      "nominal_offered": 650,
+      "completed": 652,
+      "categories": {
+        "tenant_a_quota": 301,
+        "tenant_a_other": 0,
+        "tenant_b_valid": 51,
+        "tenant_b_capacity": 0,
+        "tenant_b_invalid": 0,
+        "tenant_b_other": 0,
+        "tenant_a_valid": 300,
+        "tenant_a_capacity": 0,
+        "tenant_a_erp_failure": 0,
+        "tenant_a_invalid": 0,
+        "tenant_b_quota": 0,
+        "tenant_b_erp_failure": 0
+      },
+      "oracle_sha256": "3f9cb7ff3eff723d3f2ae377c06bb9661a9da0e840c145b8958eafa481cc3a32",
+      "scenario": "tenant-isolation",
+      "mode": "isolation",
+      "started": 652,
+      "dropped": 0,
+      "seconds": 10,
+      "offered_per_second": 65,
+      "success_latency_ms": {
+        "med": 7.341863,
+        "p(95)": 11.128150999999999,
+        "p(99)": 17.626791,
+        "max": 26.736967
+      },
+      "thresholds": {
+        "responses{tenant:tenant_a,route:summary}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "http_req_duration": {
+          "p(99)<3000": {
+            "ok": true
+          }
+        },
+        "business_failures": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "unexpected_results": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_b,route:erp}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "success_latency": {
+          "p(95)<500": {
+            "ok": true
+          },
+          "p(99)<1500": {
+            "ok": true
+          }
+        },
+        "invalid_results": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_b,route:summary}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_b,route:stores}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_a,route:sales}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "success_latency{route:stores}": {
+          "p(95)<500": {
+            "ok": true
+          },
+          "p(99)<1500": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_a,route:stores}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_b,route:sales}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "success_latency{route:sales}": {
+          "p(95)<500": {
+            "ok": true
+          },
+          "p(99)<1500": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_a,route:erp}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "dropped_iterations": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "success_latency{route:summary}": {
+          "p(95)<500": {
+            "ok": true
+          },
+          "p(99)<1500": {
+            "ok": true
+          }
+        }
+      }
+    },
+    {
+      "tenant": "tenant_a",
+      "started": 101,
+      "completed": 101,
+      "dropped": 0,
+      "offered_rate": 10,
+      "configured_duration": "10s",
+      "scenario": "traces-down",
+      "offered_iterations": 100,
+      "success_latency_ms": {
+        "min": 7.037914,
+        "med": 8.323998,
+        "p(95)": 11.411645,
+        "p(99)": 20.450229,
+        "max": 20.990517,
+        "avg": 8.843902910891087
+      },
+      "thresholds": {
+        "http_req_duration": {
+          "p(99)<3000": {
+            "ok": true
+          }
+        },
+        "dropped_iterations": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "checks": {
+          "rate==1": {
+            "ok": true
+          }
+        },
+        "invalid_results": {
+          "count==0": {
+            "ok": true
+          }
+        }
+      }
+    },
+    {
+      "scenario": "warmup-one",
+      "seconds": 5,
+      "offered_per_second": 10,
+      "completed": 50,
+      "oracle_sha256": "3f9cb7ff3eff723d3f2ae377c06bb9661a9da0e840c145b8958eafa481cc3a32",
+      "mode": "mixed",
+      "nominal_offered": 50,
+      "started": 50,
+      "dropped": 0,
+      "categories": {
+        "tenant_b_erp_failure": 0,
+        "tenant_b_invalid": 0,
+        "tenant_b_other": 0,
+        "tenant_a_erp_failure": 0,
+        "tenant_a_invalid": 0,
+        "tenant_a_other": 0,
+        "tenant_b_quota": 0,
+        "tenant_a_valid": 25,
+        "tenant_a_quota": 0,
+        "tenant_a_capacity": 0,
+        "tenant_b_valid": 25,
+        "tenant_b_capacity": 0
+      },
+      "success_latency_ms": {
+        "med": 6.4448445,
+        "p(95)": 10.041550049999987,
+        "p(99)": 17.82417438,
+        "max": 18.207569
+      },
+      "thresholds": {
+        "responses{tenant:tenant_b,route:stores}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_b,route:erp}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "unexpected_results": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_b,route:summary}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "success_latency{route:sales}": {
+          "p(99)<1500": {
+            "ok": true
+          },
+          "p(95)<500": {
+            "ok": true
+          }
+        },
+        "http_req_duration": {
+          "p(99)<3000": {
+            "ok": true
+          }
+        },
+        "success_latency{route:stores}": {
+          "p(95)<500": {
+            "ok": true
+          },
+          "p(99)<1500": {
+            "ok": true
+          }
+        },
+        "invalid_results": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_a,route:erp}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "success_latency": {
+          "p(95)<500": {
+            "ok": true
+          },
+          "p(99)<1500": {
+            "ok": true
+          }
+        },
+        "dropped_iterations": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_b,route:sales}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "success_latency{route:summary}": {
+          "p(95)<500": {
+            "ok": true
+          },
+          "p(99)<1500": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_a,route:stores}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "business_failures": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_a,route:sales}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_a,route:summary}": {
+          "count>=0": {
+            "ok": true
+          }
+        }
+      }
+    },
+    {
+      "seconds": 5,
+      "started": 51,
+      "categories": {
+        "tenant_a_quota": 0,
+        "tenant_a_erp_failure": 0,
+        "tenant_a_invalid": 0,
+        "tenant_b_valid": 25,
+        "tenant_b_capacity": 0,
+        "tenant_b_erp_failure": 0,
+        "tenant_b_other": 0,
+        "tenant_a_capacity": 0,
+        "tenant_a_other": 0,
+        "tenant_b_quota": 0,
+        "tenant_b_invalid": 0,
+        "tenant_a_valid": 26
+      },
+      "oracle_sha256": "3f9cb7ff3eff723d3f2ae377c06bb9661a9da0e840c145b8958eafa481cc3a32",
+      "scenario": "warmup-two",
+      "mode": "mixed",
+      "offered_per_second": 10,
+      "nominal_offered": 50,
+      "completed": 51,
+      "dropped": 0,
+      "success_latency_ms": {
+        "p(95)": 17.6046105,
+        "p(99)": 25.618304000000002,
+        "max": 26.217915,
+        "med": 7.054792
+      },
+      "thresholds": {
+        "responses{tenant:tenant_a,route:stores}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "success_latency": {
+          "p(95)<500": {
+            "ok": true
+          },
+          "p(99)<1500": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_b,route:stores}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "http_req_duration": {
+          "p(99)<3000": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_b,route:erp}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_b,route:sales}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "dropped_iterations": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "success_latency{route:stores}": {
+          "p(95)<500": {
+            "ok": true
+          },
+          "p(99)<1500": {
+            "ok": true
+          }
+        },
+        "unexpected_results": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "invalid_results": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_b,route:summary}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "business_failures": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_a,route:erp}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_a,route:sales}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "success_latency{route:summary}": {
+          "p(95)<500": {
+            "ok": true
+          },
+          "p(99)<1500": {
+            "ok": true
+          }
+        },
+        "success_latency{route:sales}": {
+          "p(95)<500": {
+            "ok": true
+          },
+          "p(99)<1500": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_a,route:summary}": {
+          "count>=0": {
+            "ok": true
+          }
+        }
+      }
+    },
+    {
+      "offered_per_second": 10,
+      "nominal_offered": 50,
+      "dropped": 0,
+      "categories": {
+        "tenant_a_valid": 26,
+        "tenant_a_capacity": 0,
+        "tenant_a_other": 0,
+        "tenant_b_valid": 25,
+        "tenant_b_quota": 0,
+        "tenant_b_capacity": 0,
+        "tenant_b_erp_failure": 0,
+        "tenant_b_invalid": 0,
+        "tenant_a_quota": 0,
+        "tenant_a_erp_failure": 0,
+        "tenant_a_invalid": 0,
+        "tenant_b_other": 0
+      },
+      "oracle_sha256": "3f9cb7ff3eff723d3f2ae377c06bb9661a9da0e840c145b8958eafa481cc3a32",
+      "started": 51,
+      "completed": 51,
+      "scenario": "warmup",
+      "mode": "mixed",
+      "seconds": 5,
+      "success_latency_ms": {
+        "p(99)": 16.7609565,
+        "max": 17.588639,
+        "med": 6.879663,
+        "p(95)": 11.393189
+      },
+      "thresholds": {
+        "invalid_results": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "success_latency{route:sales}": {
+          "p(95)<500": {
+            "ok": true
+          },
+          "p(99)<1500": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_b,route:stores}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "success_latency{route:summary}": {
+          "p(95)<500": {
+            "ok": true
+          },
+          "p(99)<1500": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_b,route:erp}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "unexpected_results": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "success_latency": {
+          "p(95)<500": {
+            "ok": true
+          },
+          "p(99)<1500": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_a,route:summary}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_a,route:stores}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "http_req_duration": {
+          "p(99)<3000": {
+            "ok": true
+          }
+        },
+        "success_latency{route:stores}": {
+          "p(95)<500": {
+            "ok": true
+          },
+          "p(99)<1500": {
+            "ok": true
+          }
+        },
+        "business_failures": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_a,route:sales}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "dropped_iterations": {
+          "count==0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_a,route:erp}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_b,route:summary}": {
+          "count>=0": {
+            "ok": true
+          }
+        },
+        "responses{tenant:tenant_b,route:sales}": {
+          "count>=0": {
+            "ok": true
+          }
+        }
+      }
+    }
+  ],
+  "cache": {
+    "cold_sql": 1.0,
+    "warm_sql": 0.0,
+    "expiry_sql": 1.0,
+    "requests_each_phase": 4
+  },
+  "auth_optimization": {
+    "pool_size": 2,
+    "admission_limit": 8,
+    "acquisition_timeout_seconds": 0.2,
+    "request_auth_timeout_seconds": 0.5,
+    "isolation": "AUTOCOMMIT",
+    "pre_ping": true,
+    "credential_cache": false,
+    "verified_transaction_commands_per_request": {
+      "before": 4,
+      "after": 0
+    }
+  },
+  "runtime_optimization": {
+    "stdlib_precompiled_in_image": true,
+    "healthcheck": {
+      "client": "BusyBox wget",
+      "interval_seconds": 5,
+      "read_timeout_seconds": 2,
+      "docker_timeout_seconds": 3,
+      "endpoint": "/health/live",
+      "contract": [
+        "200 accepted",
+        "500 rejected",
+        "closed port rejected",
+        "silent server rejected at 2 seconds"
+      ]
+    },
+    "protobuf": {
+      "version": "6.33.6",
+      "implementation": "upb",
+      "source": "sdist with SHA-256 frozen in uv.lock",
+      "build_tools_removed": true,
+      "trace_sample_ratio": 0.25
+    }
+  },
+  "bounded_quota_validation": {
+    "image_id": "sha256:01125213503f621fac5a7f84389976266d83374aa793cbfd06350af43568d944",
+    "fresh_api_processes": 3,
+    "trace_sample_ratio": 0.25,
+    "offered_per_second": 60,
+    "seconds_each": 10,
+    "rounds": [
+      {
+        "categories": {
+          "tenant_a_invalid": 0,
+          "tenant_b_quota": 0,
+          "tenant_b_capacity": 0,
+          "tenant_b_erp_failure": 0,
+          "tenant_a_erp_failure": 0,
+          "tenant_a_other": 0,
+          "tenant_b_valid": 0,
+          "tenant_b_invalid": 0,
+          "tenant_b_other": 0,
+          "tenant_a_valid": 300,
+          "tenant_a_quota": 301,
+          "tenant_a_capacity": 0
+        },
+        "offered_per_second": 60,
+        "nominal_offered": 600,
+        "completed": 601,
+        "oracle_sha256": "3f9cb7ff3eff723d3f2ae377c06bb9661a9da0e840c145b8958eafa481cc3a32",
+        "scenario": "quota-sample25-1",
+        "mode": "quota",
+        "seconds": 10,
+        "started": 601,
+        "dropped": 0
+      },
+      {
+        "seconds": 10,
+        "offered_per_second": 60,
+        "nominal_offered": 600,
+        "started": 600,
+        "dropped": 0,
+        "mode": "quota",
+        "completed": 600,
+        "categories": {
+          "tenant_a_valid": 300,
+          "tenant_a_quota": 300,
+          "tenant_a_invalid": 0,
+          "tenant_a_other": 0,
+          "tenant_b_quota": 0,
+          "tenant_b_erp_failure": 0,
+          "tenant_b_invalid": 0,
+          "tenant_b_other": 0,
+          "tenant_a_capacity": 0,
+          "tenant_a_erp_failure": 0,
+          "tenant_b_valid": 0,
+          "tenant_b_capacity": 0
+        },
+        "oracle_sha256": "3f9cb7ff3eff723d3f2ae377c06bb9661a9da0e840c145b8958eafa481cc3a32",
+        "scenario": "quota-sample25-2"
+      },
+      {
+        "scenario": "quota-sample25-3",
+        "mode": "quota",
+        "seconds": 10,
+        "started": 600,
+        "dropped": 0,
+        "oracle_sha256": "3f9cb7ff3eff723d3f2ae377c06bb9661a9da0e840c145b8958eafa481cc3a32",
+        "offered_per_second": 60,
+        "nominal_offered": 600,
+        "completed": 600,
+        "categories": {
+          "tenant_b_invalid": 0,
+          "tenant_b_other": 0,
+          "tenant_a_invalid": 0,
+          "tenant_a_other": 0,
+          "tenant_b_valid": 0,
+          "tenant_b_quota": 0,
+          "tenant_b_capacity": 0,
+          "tenant_a_valid": 300,
+          "tenant_a_quota": 300,
+          "tenant_a_capacity": 0,
+          "tenant_a_erp_failure": 0,
+          "tenant_b_erp_failure": 0
+        }
+      }
+    ]
+  },
+  "final_targets_up": 2,
+  "final_active_incidents": 0,
+  "fixture_final": {
+    "store_id": 7,
+    "start": "2026-01-01",
+    "end": "2026-01-01",
+    "currency": "BRL",
+    "revenue_cents": 12500,
+    "order_count": 2,
+    "average_ticket_cents": 6250,
+    "data_updated_at": "2026-09-22T02:22:14.937111+00:00",
+    "observed_at": "2026-09-22T02:28:42.552244+00:00",
+    "dataset_version": "v1-9a22e96438804d54",
+    "coverage": {
+      "starts_on": "2026-01-01",
+      "ends_on": "2026-01-01",
+      "complete": true
+    },
+    "cache_age_seconds": 11.013
+  },
+  "artifact_secret_check": {
+    "files": 96,
+    "matching_paths": []
+  },
+  "vulnerabilities": {
+    "tool": "Trivy 0.74.0",
+    "scope": "Measured application image only; PostgreSQL, Redis, proxy, observability and load-generator images are outside this scan.",
+    "image_id": "sha256:27813f6d7271bad3639c242db41a9d1d3bda429856fee315cb08b1a6939bc8b3",
+    "identity": {
+      "daemon_image_id": "sha256:01125213503f621fac5a7f84389976266d83374aa793cbfd06350af43568d944",
+      "config_digest": "sha256:27813f6d7271bad3639c242db41a9d1d3bda429856fee315cb08b1a6939bc8b3",
+      "manifest_chain": [
+        "sha256:01125213503f621fac5a7f84389976266d83374aa793cbfd06350af43568d944",
+        "sha256:60537aeb1f1fee382fa8d06e9d4d1b34f6bbf2767f9d724dd3a2cd0ab621ac90"
+      ],
+      "diff_ids": [
+        "sha256:74d97c428c51a828f9051a7a40a53ff1fc99e54fc30323ce36760701b0b7f711",
+        "sha256:d1475f57bfeb95f8d89bad4de04d7af788036223b8505b2b5791158c8d885ff0",
+        "sha256:90630b4239d75c9daa2f10f7bb6bfe9b45cfc1419783384dd9873dbf2b732fc3",
+        "sha256:23d9641aa36e31a0b3699cec59ff9f51478b65b47f5f2c7de83d48293d4d4852",
+        "sha256:c8a82b5b2d94fed969c9eb0a99d2c4dc78130c0b668385cc80f39f4ea027f853",
+        "sha256:7aaf100397c31a9857dd45df00e6ecfc5ad93a6b03352b8647dcbff043c497a5",
+        "sha256:9ca4d52d8b2eb8bae6f1a4cf04acd3b8d510f83aef5dda2f675eabf60f5844e6",
+        "sha256:0a7b4a039009159441b62ca5b2b0a3c79daa0c1ac01c3d2eaedc38cd47dc9623",
+        "sha256:8983e9e973a65e160db0b849aca2e0fa88f20faf3760f3358ba0797e6ae9dbf8",
+        "sha256:3bcf8520c7a814dbf5e3154d5aa367de74f130576c8b552dac956b3d835f5c2e"
+      ],
+      "archive_sha256": "a6739eac969045b73899907570b274f7369b7bae4cccfe5d9580934af841c759",
+      "config_and_filesystem_verified": true
+    },
+    "scanner_image": "aquasec/trivy:0.74.0@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969",
+    "database_updated_at": "2026-09-21T07:13:21.413091201Z",
+    "database_sha256": "a325c841036f662fee39ed929422f113030cd36ca71c55f6192cbc5f2d5d01b1",
+    "os": {
+      "Family": "alpine",
+      "Name": "3.24.2"
+    },
+    "counts_by_severity": {},
+    "created_at": "2026-09-22T02:33:04.586296403Z",
+    "targets": [
+      {
+        "target": "/scan/image.tar (alpine 3.24.2)",
+        "class": "os-pkgs",
+        "type": "alpine"
+      },
+      {
+        "target": "Python",
+        "class": "lang-pkgs",
+        "type": "python-pkg"
+      },
+      {
+        "target": "usr/local/bin/uv",
+        "class": "lang-pkgs",
+        "type": "rustbinary"
+      }
+    ],
+    "excluded_findings": 0
+  },
+  "earlier_attempts": [
+    {
+      "run_id": "20260922t010740342553z",
+      "status": "failed",
+      "stage": "load-quota-one",
+      "observed": {
+        "valid_responses": 282,
+        "quota_responses": 242,
+        "capacity_responses": 38,
+        "other_responses": 12,
+        "other_response_codes": {
+          "database_pool_busy": 11,
+          "cache_fill_busy": 1
+        },
+        "dropped_iterations": 27,
+        "api_admission_rejection_deltas": {
+          "auth": 24,
+          "tenant": 16,
+          "entry": 0
+        },
+        "database_pool_timeout_deltas": {
+          "auth": 9,
+          "data": 2
+        },
+        "cache_fill_timeout_delta": 1
+      },
+      "context": "The Git-canonical source had identical application logic. This failure involved authentication and business admission, both database pools and a cache-fill wait, not only the authentication rejections of earlier attempts. API metric deltas include traffic beyond the k6 request counts: 40 API saturation log entries do not mean 40 k6 capacity responses. A preceding Docker snapshot measured 3.12 logical CPUs outside the test; Windows samples of 90–99% at 01:21:15–36 UTC followed the failing quota interval at 01:13:30–45 UTC and do not measure host load during that interval.",
+      "causal_assessment": "The initial cause was not established. Local API throttling and client-side saturation were observed, but available timing does not distinguish database delay, synchronous Python work or scheduling as the initial trigger. Passing subsequent unchanged quota/full runs means the failure was not reproduced in those runs; it does not retroactively prove that host contention caused it. The failed evidence is retained."
+    },
+    {
+      "run_id": "20260922t005657571493z",
+      "status": "passed",
+      "context": "The complete native-protobuf plus wget-healthcheck candidate passed. A final run was then performed from a Git-canonical LF export so that publication cannot change the measured source bytes through newline filters."
+    },
+    {
+      "run_id": "quota-native-diagnostics-20260922",
+      "status": "failed",
+      "context": "Compiling protobuf to native upb reduced serialization CPU cost, but the first quota load after API startup still failed. Setting GOMAXPROCS=1 in a separate k6 control did not resolve the failure. Subsequent repeated loads passed, prompting a startup-path stack investigation; these diagnostic repetitions did not qualify the candidate for release."
+    },
+    {
+      "run_id": "20260921t232258154811z",
+      "status": "failed",
+      "cause": "The operational runner required Git metadata in a source-only archive. The runner now records source_archive without inventing a commit ID."
+    },
+    {
+      "run_id": "20260921t232355084455z",
+      "status": "failed",
+      "stage": "load-quota-one",
+      "observed": {
+        "capacity_responses": 17,
+        "other_responses": 6,
+        "dropped_iterations": 8
+      },
+      "context": "Concurrent Spark and ContainerOps workloads were active. The failed attempt was retained; acceptance criteria were not relaxed."
+    },
+    {
+      "run_id": "20260921t233947687804z",
+      "status": "failed",
+      "stage": "load-quota-one",
+      "observed": {
+        "valid_responses": 300,
+        "quota_responses": 293,
+        "capacity_responses": 8,
+        "dropped_iterations": 0
+      },
+      "context": "Failure repeated without the other heavy workloads, so contention alone did not explain it. Authentication queries were investigated before accepting a change."
+    },
+    {
+      "run_id": "auth-diagnosis-ab-20260922",
+      "status": "failed",
+      "context": "Four reduced A/B quota runs failed before bytecode compilation. AUTOCOMMIT removed four database transaction commands per request but did not independently pass the load gates. Cold Python imports in the API cgroup also affected this diagnostic; CPU sampling now uses cat."
+    },
+    {
+      "run_id": "20260922t002210344272z",
+      "status": "failed",
+      "stage": "load-quota-one",
+      "observed": {
+        "valid_responses": 300,
+        "quota_responses": 291,
+        "capacity_responses": 9,
+        "dropped_iterations": 1
+      },
+      "context": "AUTOCOMMIT and precompiled bytecode passed isolated/HTTP tests but did not pass quota. A subsequent reduced control with trace sampling disabled passed; this control was diagnostic only and is not an approved configuration."
+    }
+  ]
+}

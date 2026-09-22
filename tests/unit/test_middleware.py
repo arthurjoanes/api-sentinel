@@ -10,7 +10,7 @@ from starlette.types import ASGIApp, Message, Receive, Scope, Send
 from api_sentinel.admission import Admission
 from api_sentinel.errors import Problem
 from api_sentinel.metrics import HTTP_REQUESTS
-from api_sentinel.telemetry import RequestMiddleware, problem_response
+from api_sentinel.telemetry import RequestMiddleware, problem_response, safe_exception_context
 
 SUMMARY_ROUTE = "/v1/stores/{store_id}/summary"
 
@@ -210,6 +210,18 @@ async def test_unexpected_exception_does_not_leak_its_message(
         set(frame) == {"file", "function", "line"} for frame in diagnostic["exception_frames"]
     )
     assert_no_request_tasks()
+
+
+@pytest.mark.parametrize(
+    "filename", ["/private/project/handler.py", r"C:\private\project\handler.py"]
+)
+def test_exception_diagnostics_strip_paths_from_both_platforms(filename: str) -> None:
+    code = compile("raise RuntimeError('PRIVATE_VALUE')", filename, "exec")
+    with pytest.raises(RuntimeError) as caught:
+        exec(code, {})
+    diagnostic = safe_exception_context(caught.value)
+    assert diagnostic["exception_frames"][-1]["file"] == "handler.py"
+    assert "private" not in json.dumps(diagnostic).lower()
 
 
 async def test_probe_classification_and_generated_request_headers() -> None:

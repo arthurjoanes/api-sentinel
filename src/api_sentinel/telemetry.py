@@ -7,7 +7,7 @@ import time
 import traceback
 from collections import deque
 from datetime import UTC, datetime
-from pathlib import Path
+from pathlib import PureWindowsPath
 from uuid import uuid4
 
 from opentelemetry import trace
@@ -145,12 +145,13 @@ def normalized_route(scope: Scope) -> str:
 
 def safe_exception_context(exc: Exception) -> dict[str, object]:
     # Só localização e tipo: mensagem, código-fonte e locals podem conter credenciais/SQL.
+    # Bytecode compartilhado pode preservar o caminho Windows dentro de um container Linux.
     frames = deque(traceback.walk_tb(exc.__traceback__), maxlen=8)
     return {
         "exception_type": type(exc).__name__,
         "exception_frames": [
             {
-                "file": Path(frame.f_code.co_filename).name,
+                "file": PureWindowsPath(frame.f_code.co_filename).name,
                 "function": frame.f_code.co_name,
                 "line": line,
             }

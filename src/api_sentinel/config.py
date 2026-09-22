@@ -1,8 +1,13 @@
 from pathlib import Path
-from typing import Literal
+from typing import Literal, TypedDict
 
 from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class RedisCredentials(TypedDict):
+    username: str
+    password: str
 
 
 class Settings(BaseSettings):
@@ -12,6 +17,7 @@ class Settings(BaseSettings):
     )
     redis_url: str = "redis://redis:6379/0"
     cache_redis_url: str = "redis://redis:6379/1"
+    redis_credentials_dir: Path = Path("/redis-credentials")
     erp_url: str = "http://erp:8080"
     secrets_dir: Path = Path("/secrets")
     trace_endpoint: str = "http://jaeger:4318/v1/traces"
@@ -34,3 +40,11 @@ class Settings(BaseSettings):
         if len(value) < 32 or len(value) > 512 or not value.isascii():
             raise ValueError("O segredo do cursor deve ter entre 32 e 512 caracteres ASCII.")
         return value
+
+    def redis_credentials(self, role: Literal["quota", "cache"]) -> RedisCredentials:
+        value = (
+            (self.redis_credentials_dir / f"{role}-password").read_text(encoding="ascii").strip()
+        )
+        if len(value) != 64 or not all(char.isalnum() or char in "_-" for char in value):
+            raise ValueError(f"Invalid Redis credential file for {role}.")
+        return {"username": role, "password": value}

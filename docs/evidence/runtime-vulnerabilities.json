@@ -1,0 +1,31 @@
+{
+  "SchemaVersion": 2,
+  "Metadata": {
+    "ImageID": "sha256:27813f6d7271bad3639c242db41a9d1d3bda429856fee315cb08b1a6939bc8b3",
+    "OS": {
+      "Family": "alpine",
+      "Name": "3.24.2"
+    }
+  },
+  "CreatedAt": "2026-09-22T02:33:04.586296403Z",
+  "Results": [
+    {
+      "Target": "/scan/image.tar (alpine 3.24.2)",
+      "Class": "os-pkgs",
+      "Type": "alpine",
+      "Vulnerabilities": []
+    },
+    {
+      "Target": "Python",
+      "Class": "lang-pkgs",
+      "Type": "python-pkg",
+      "Vulnerabilities": []
+    },
+    {
+      "Target": "usr/local/bin/uv",
+      "Class": "lang-pkgs",
+      "Type": "rustbinary",
+      "Vulnerabilities": []
+    }
+  ]
+}

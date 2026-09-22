@@ -1,4 +1,10 @@
 .git
+.github
+.gitleaks.toml
+README.md
+docs/*
+!docs/runbooks/
+!docs/runbooks/**
 .venv
 .runtime
 artifacts
@@ -7,3 +13,5 @@ artifacts
 .mypy_cache
 .ruff_cache
 .env
+.env.*
+!.env.example

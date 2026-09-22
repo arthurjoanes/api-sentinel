@@ -63,6 +63,7 @@ def fingerprint() -> dict[str, str]:
         "deploy",
         "migrations",
         "tests",
+        "docs/runbooks",
     ):
         files.extend(
             path
@@ -157,7 +158,22 @@ def main() -> None:
 
     def mixed(name: str, mode: str, seconds: int) -> dict:
         before = exp.snapshot()
+        api_ids = ops.compose("ps", "-q", "api").splitlines()
+
+        def cpu_snapshot() -> dict:
+            # Não iniciar outro interpretador dentro do cgroup medido: imports
+            # frios disputariam a mesma quota de CPU imediatamente antes da carga.
+            return {
+                instance: {
+                    name: ops.command("docker", "exec", instance, "cat", "/sys/fs/cgroup/" + name)
+                    for name in ("cpu.stat", "cpu.max", "cpu.pressure")
+                }
+                for instance in api_ids
+            }
+
+        cpu_before = cpu_snapshot()
         measured_start = time.time()
+        log_since = datetime.now(UTC).isoformat()
 
         def resources() -> str:
             time.sleep(seconds / 2)
@@ -192,6 +208,14 @@ def main() -> None:
                     timeout=seconds + 90,
                 )
             finally:
+                (output / ("api-logs-" + name + ".log")).write_text(
+                    ops.compose("logs", "--no-color", "--since", log_since, "api"),
+                    encoding="utf-8",
+                )
+                (output / ("cpu-" + name + ".json")).write_text(
+                    json.dumps({"before": cpu_before, "after": cpu_snapshot()}, indent=2),
+                    encoding="utf-8",
+                )
                 (output / ("resources-" + name + ".jsonl")).write_text(
                     sample.result(), encoding="utf-8"
                 )
@@ -246,12 +270,24 @@ def main() -> None:
     tests = ["docker", "compose", "-p", project + "-tests", "-f", str(ROOT / "compose.test.yml")]
     save()
     try:
-        record["working_tree"] = run("git-state", ["git", "status", "--short"])
-        revision = subprocess.run(
-            ["git", "rev-parse", "--verify", "-q", "HEAD"], cwd=ROOT, capture_output=True, text=True
-        )
-        record["git_revision"] = revision.stdout.strip() if revision.returncode == 0 else None
-        record["revision_probe_exit_code"] = revision.returncode
+        if (ROOT / ".git").exists():
+            record["source_kind"] = "git_checkout"
+            record["working_tree"] = run("git-state", ["git", "status", "--short"])
+            revision = subprocess.run(
+                ["git", "rev-parse", "--verify", "-q", "HEAD"],
+                cwd=ROOT,
+                capture_output=True,
+                text=True,
+            )
+            record["git_revision"] = revision.stdout.strip() if revision.returncode == 0 else None
+            record["revision_probe_exit_code"] = revision.returncode
+        else:
+            record.update(
+                source_kind="source_archive",
+                working_tree=None,
+                git_revision=None,
+                revision_probe_exit_code=None,
+            )
         record["active_containers_before"] = run(
             "concurrent-services", ["docker", "ps", "--format", "{{.Names}} {{.Image}}"]
         ).splitlines()

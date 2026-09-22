@@ -24,10 +24,11 @@ from api_sentinel.telemetry import RequestMiddleware
 class CancellationLab:
     db: Database
     observer: AsyncConnection
+    kind: str
 
 
-@pytest.fixture
-async def cancellation_lab() -> AsyncIterator[CancellationLab]:
+@pytest.fixture(params=["data", "auth"])
+async def cancellation_lab(request: pytest.FixtureRequest) -> AsyncIterator[CancellationLab]:
     url = os.getenv("TEST_DATABASE_URL")
     if not url:
         pytest.skip("Requer TEST_DATABASE_URL e PostgreSQL de testes isolado.")
@@ -43,12 +44,12 @@ async def cancellation_lab() -> AsyncIterator[CancellationLab]:
     )
     try:
         # Handshake fora da medição: o teste mede cancelamento do SQL, não conexão inicial.
-        async with db.connection() as connection:
+        async with db.connection(request.param) as connection:
             assert await connection.scalar(text("SELECT 1")) == 1
             assert await connection.scalar(text("SHOW statement_timeout")) == "800ms"
         async with observer_engine.connect() as observer:
             await observer.execute(text("SELECT 1"))
-            yield CancellationLab(db, observer)
+            yield CancellationLab(db, observer, request.param)
     finally:
         await db.close()
         await observer_engine.dispose()
@@ -94,7 +95,7 @@ async def test_cancel_active_sql_and_reuse_pool(
     trigger: str,
     record_testsuite_property: Callable[[str, object], None],
 ) -> None:
-    db, observer = cancellation_lab.db, cancellation_lab.observer
+    db, observer, kind = cancellation_lab.db, cancellation_lab.observer, cancellation_lab.kind
     loop = asyncio.get_running_loop()
     entry, business = Admission(48, "entry"), Admission(1, "tenant")
     request_events: asyncio.Queue[Message] = asyncio.Queue()
@@ -116,7 +117,7 @@ async def test_cancel_active_sql_and_reuse_pool(
         nonlocal pid, sql_started_at, cancellation_observed_at, sql_completed
         try:
             with business.enter():
-                async with db.connection() as connection:
+                async with db.connection(kind) as connection:
                     pid = int(await connection.scalar(text("SELECT pg_backend_pid()")))
                     sql_started_at = loop.time()
                     acquired.set()
@@ -176,7 +177,8 @@ async def test_cancel_active_sql_and_reuse_pool(
         assert cleanup_seconds < 0.35
         # O SQL duraria 600 ms; o statement_timeout configurado é 800 ms.
         assert sql_lifetime_seconds < 0.5
-        pool = cast(AsyncAdaptedQueuePool, db.engine.sync_engine.pool)
+        engine = db.auth_engine if kind == "auth" else db.engine
+        pool = cast(AsyncAdaptedQueuePool, engine.sync_engine.pool)
         assert pool.checkedout() == 0
         assert entry.active == business.active == 0
 
@@ -187,7 +189,7 @@ async def test_cancel_active_sql_and_reuse_pool(
                     break
                 await asyncio.sleep(0.002)
         assert activity is None or activity["state"] != "active"
-        async with db.connection() as connection:
+        async with db.connection(kind) as connection:
             assert await connection.scalar(text("SELECT 42")) == 42
             replacement_pid = int(await connection.scalar(text("SELECT pg_backend_pid()")))
         assert pool.checkedout() == 0
@@ -207,6 +209,7 @@ async def test_cancel_active_sql_and_reuse_pool(
             assert json.loads(sent[1]["body"])["code"] == "request_deadline_exceeded"
 
         measurements: dict[str, object] = {
+            "pool": kind,
             "trigger": trigger,
             "backend_pid": pid,
             "replacement_pid": replacement_pid,
@@ -221,7 +224,7 @@ async def test_cancel_active_sql_and_reuse_pool(
             "pool_reusable": True,
         }
         for name, value in measurements.items():
-            record_testsuite_property(f"{trigger}_{name}", value)
+            record_testsuite_property(f"{kind}_{trigger}_{name}", value)
         print(json.dumps(measurements, sort_keys=True))
     finally:
         if not task.done():

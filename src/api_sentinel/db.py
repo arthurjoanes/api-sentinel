@@ -30,7 +30,11 @@ class Database:
             },
         )
         self.engine = create_async_engine(url, pool_size=4, **options)
-        self.auth_engine = create_async_engine(url, pool_size=2, **options)
+        # Autenticação faz um único SELECT. AUTOCOMMIT evita BEGIN/ROLLBACK tanto
+        # na consulta quanto no pre_ping, mantendo a leitura atual a cada request.
+        self.auth_engine = create_async_engine(
+            url, pool_size=2, isolation_level="AUTOCOMMIT", **options
+        )
         for kind in ("data", "auth"):
             DB_POOL.labels(kind, "checked_out").set(0)
             DB_POOL.labels(kind, "idle").set(0)

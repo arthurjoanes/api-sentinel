@@ -1,117 +1,51 @@
-# Testes executados
+# Verificação
 
-## Execução atual
+Execução **20260922t021943129883z**, iniciada em 2026-09-22T02:19:43.130383+00:00 e concluída em 2026-09-22T02:29:00.260436+00:00: **aprovada**, incluindo recuperação e limpeza dos projetos temporários. Foi usada uma cópia das fontes de publicação; `.git`, caches e credenciais de execução ficaram fora do contexto Docker. As fontes operacionais e os sete runbooks ficaram inalterados durante a prova. Os arquivos de texto usam LF e seus bytes foram conferidos contra os filtros de publicação do Git, preservando os binários.
 
-Execução [20260921t064944662185z](../artifacts/problem-review/20260921t064944662185z/run.json), de 06:49:44 a 06:57:51 UTC em 21/09/2026: aprovada, inclusive limpeza. Imagem e hashes das fontes constam no registro. Fontes operacionais ficaram inalteradas durante a medição. A massa é sintética; HTTP, PostgreSQL, Redis, proxy e entrega de alertas são reais locais.
+O [registro público](evidence/publication.json) contém a imagem exata, a impressão digital das fontes, os contadores de carga e o resultado de cada etapa. Os dados comerciais e o ERP são sintéticos; HTTP, PostgreSQL, Redis, proxy, entrega de alertas e traces foram executados em serviços locais reais.
 
-- Ruff e formato: 64 arquivos; mypy: 27 fontes. Build com lock congelado.
-- 229 testes isolados e nove subtestes em 9,84 s. Os 70 HTTP ignorados nessa suíte passaram separadamente pelo proxy em 15,08 s; não são contados duas vezes.
-- 47 casos Prometheus: 26 demo, 13 referência, quatro de entrega e quatro de frescor. Promtool/amtool validaram as configurações; as séries desses testes são sintéticas.
-- Treze verificações do contrato da carga, incluindo mutações de respostas 200 incorretas. Três guardas operacionais recusaram projeto inválido, saída fora de artifacts e injeção na demo.
-- Carga, dependências, quota, pressão, revogação nas duas réplicas, alerta e recuperação passaram. [Resumo](../artifacts/problem-review/20260921t064944662185z/summary.json), [tabela](../artifacts/problem-review/20260921t064944662185z/load-table.md) e [método/limites](performance.md).
-
-| Critério | Resultado executado |
+| Verificação | Resultado |
 |---|---|
-| Mistura normal → ERP degradado → recuperação | 151/151 corretas; 114 comerciais corretas +37 falhas esperadas exclusivamente ERP; 101/101 corretas após retorno |
-| Quota e isolamento | 300 corretas +301 quota em 601 conclusões, tanto em 1 como 2 réplicas; A: 300 corretas + 301 por quota; B: 51/51 corretas no isolamento |
-| Cache e Redis | Quatro chamadas/fase: SQL 1/0/1. Redis inteiro parado: 503 quota_unavailable, live 200, ready 503 e zero SQL de resumo; volta ao total correto |
-| Banco pressionado | 201/201 recusas 503 previstas, sem drop; não houve amostra de sucesso nessa fase. Após liberação: receita de 27.877.248 centavos e zero conexões de dados emprestadas |
-| Traces parados | 100/100 resumos corretos, zero drops; RSS aumentou 786.432 bytes nessa janela, sem alegação de estabilidade longa |
-| Alertas | Réplica: firing 32,172 s/resolved 19,859 s; API inteira: 30,062 s/18,968 s. Mesma ocorrência por ciclo; sete incidentes finais resolvidos |
-| Estado final | Duas réplicas coletadas após recriação, fixture 12.500/2/6.250, trace/log correlacionados; 81 arquivos examinados sem tokens/segredos conhecidos da execução |
+| Build, Ruff, formato e mypy | Aprovados; dependências instaladas com lock congelado |
+| Testes isolados | 253 casos aprovados no XML, incluindo subtests, em 9,30 s; 73 testes HTTP reservados para a etapa seguinte |
+| Testes HTTP pelo proxy | 73 aprovados em 17,52 s, sem skips |
+| Monitoramento | Configurações Prometheus/Alertmanager e séries sintéticas de regras aprovadas |
+| Contrato da carga | Respostas financeiras verificadas contra cálculo independente por linhas SQL, incluindo mutações inválidas do contrato |
+| Cache | Quatro chamadas concorrentes por fase: SQL de resumo 1.0/0.0/1.0 em frio/quente/expirado |
+| Quota e isolamento | Taxas e critérios preservados com uma e duas réplicas; contadores completos em [desempenho](performance.md) |
+| Dependências e pressão | Redis, ERP, backend de traces e bloqueio do banco exercitados, com respostas previstas e recuperação |
+| Autenticação | Revogação entre réplicas, escopos e organizações verificados; cancelamento e reutilização dos pools data/auth testados com PostgreSQL real |
+| Controles de acesso | Em volumes novos: Redis sem acesso anônimo e com ACL separada; Grafana Viewer sem administração ou login por senha. Usuários e sessões de volumes antigos não foram examinados |
+| Estado final | 2 réplicas coletadas, 0 incidentes ativos e fixture financeira conferida |
 
-Duas execuções anteriores, com admissão de autenticação 4, tiveram duas recusas 503 no estágio auth durante a carga de quota, mesmo após aquecimento. A admissão passou de 4 para 8, mantendo pool 2 e prazos; a repetição manteve taxas e critérios. Isso é o resultado do caso local.
+A suíte isolada e a suíte HTTP estão separadas para não contar o mesmo teste duas vezes. Testes ASGI, relógios controlados, MockTransport e séries Prometheus verificam contratos determinísticos; os cenários de banco, proxy, carga e alertas usam processos reais. A prova testa alertas firing/resolved, descoberta após recriação, correlação de logs/traces e encerramento gracioso.
 
-## Correção restrita após a medição
+## Correções verificadas nesta publicação
 
-Havia uma lacuna no registro da limpeza: TimeoutExpired/OSError do subprocess poderiam ocorrer antes de registrar exit code. O estado agora fica cleanup_pending até terminar; exceção grava failed/cleanup_failure, horário final e preserva a falha original da medição. Três testes de regressão em Python no host passaram, cobrindo sucesso pendente, os dois erros de transporte e preservação da falha original. [Log](../artifacts/problem-review/cleanup-regression.log) e [hashes antes/depois](../artifacts/problem-review/cleanup-regression.json).
+A autenticação faz um único SELECT atual por requisição. Seu pool usa AUTOCOMMIT, preservando duas conexões, pre_ping, admissão 8 e os prazos originais. Isso remove quatro comandos BEGIN/ROLLBACK por consulta, sem criar cache de credenciais. Os testes verificam ausência de transação ociosa, reconexão após término do backend e cancelamento de SQL seguido de reutilização do pool.
 
-Somente scripts/review.py e seu novo teste mudaram depois da matriz; fontes da aplicação, contratos de carga e gates permaneceram idênticos. Não se atribui essa regressão à suíte completa nem se repete a carga sem necessidade. A imagem validada contém a aplicação medida; a próxima execução do runner construirá a versão com a guarda de limpeza.
+A imagem pré-compila a biblioteca padrão e as dependências Python. O runtime permanece sem escrita de bytecode. O healthcheck periódico usa o wget já fornecido pelo BusyBox, preservando o GET de /health/live, o intervalo de 5 s, o prazo de leitura de 2 s e o timeout Docker de 3 s. Assim, a verificação não inicializa um interpretador Python dentro do mesmo limite de CPU da API. Foram verificados sucesso HTTP 200 e falha em HTTP 500, porta fechada e servidor sem resposta. As credenciais Redis são geradas em volumes exclusivos e preservadas ao repetir a inicialização; o usuário default fica desabilitado.
 
-Depois da conferência final, src/api_sentinel/queries.py mudou: coverage.complete passou a ser derivado dos limites de cobertura da loja em vez de True fixo. A matriz operacional e a suíte de testes não foram repetidas com essa versão; o hash atual do arquivo difere do registrado em run.json.
+O protobuf 6.33.6 é compilado a partir do sdist fixado no lock para usar a implementação nativa upb no Alpine. O build verifica essa implementação após remover as ferramentas de compilação. A exportação de traces permanece ativa, com amostragem de 25%.
 
-Conferência final em 07:16 UTC ([registro](../artifacts/problem-review/final-review.json)): a diferença de hashes corresponde à correção declarada; Ruff e formato passaram nos dois arquivos alterados, em container sem rede. A matriz operacional não foi repetida após essa alteração.
+As tentativas anteriores que falharam em quota foram mantidas e resumidas no registro público. AUTOCOMMIT e bytecode pré-compilado não passaram sozinhos no ensaio completo. Um controle temporário sem traces motivou a investigação do custo de tracing, mas não é a configuração aprovada. A aprovação corresponde à execução completa identificada acima, com upb nativo, coleta de CPU sem iniciar Python no cgroup da API e todos os gates originais. A falha canônica anterior não foi reproduzida nesta execução; sua causa inicial continua não demonstrada.
 
-## Estado da demonstração principal
+## Segurança e reprodução
 
-Em 07:02 UTC, APIs e receiver foram atualizados para a imagem validada, sem seed, reset ou migração ([refresh.json](../artifacts/problem-review/demo-refresh-20260921t070219z/refresh.json)). As APIs foram reconstruídas depois com a mudança de queries.py e não rodam mais essa imagem. A verificação daquele horário registrou autenticação 8, ready 200, dois targets up, fixture correta, zero incidentes ativos e quatro destinos 307 corretos. SHA de seis tabelas, incluindo 21.730 itens e credenciais, da configuração declarada/.env e de demo.json/cursor-key/webhook-token permaneceu idêntico. Os demais containers Sentinel conservaram seus IDs.
+O [scan da imagem medida](evidence/runtime-vulnerabilities.json) foi feito com Trivy 0.74.0, sem exclusões de vulnerabilidades. O archive exportado está ligado ao identificador imutável da imagem executada; o SHA-256 de sua configuração foi verificado contra o identificador informado pelo scanner. O registro preserva os dois identificadores, pois manifest e configuração são objetos distintos no formato OCI. O gate bloqueia HIGH/CRITICAL; o registro informa todas as severidades encontradas. Esse scan cobre a imagem Python da aplicação, incluindo pacotes do sistema e bibliotecas, e não representa uma varredura de todas as imagens auxiliares. Os controles e limites estão em [segurança](security.md).
 
-O primeiro verificador de refresh consultou a rota errada de incidentes e terminou com KeyError após a atualização. A correção repetiu somente leituras, sem novo restart. A comparação exata do histórico de incidentes antes/depois não foi feita porque a captura inicial era 404; o estado final contém 21 resolvidos. A comparação de dados/credenciais/segredos usou os snapshots válidos anteriores à atualização.
+Para repetir a prova completa:
 
-A navegação foi verificada por HTTP307 e HTML real ([central.html](../artifacts/problem-review/20260921t064944662185z/central.html)); não houve nova captura de navegador.
+```sh
+python scripts/review.py
+```
 
-## Etapas anteriores
+O runner constrói a imagem e grava logs, XMLs, métricas, CPU por cgroup, oráculo e cargas em `artifacts/problem-review/<UTC>/`. Ele cria namespaces próprios, preserva a demonstração principal e encerra os recursos descartáveis inclusive em caso de falha. Reserve uma janela sem outras cargas pesadas no Docker. O [roteiro operacional](demo.md) explica as variantes e a inspeção com `--keep`.
 
-Para reproduzir com o código atual, use `python scripts/review.py` e [demo.md](demo.md). Os números abaixo pertencem às etapas identificadas.
+## Escopo
 
-Testes executados em 21/09/2026 UTC. Fontes, testes, documentação e arquivos gerados ficam no projeto; bancos e segredos ficam nos volumes Docker.
+São testes curtos de uma demonstração local, com duas réplicas no mesmo host. Não medem capacidade máxima, SLO de 30 dias, alta disponibilidade entre máquinas ou implantação pública com TLS e identidade corporativa. Dados e ERP são sintéticos; os resultados financeiros e os comportamentos locais descritos acima foram verificados.
 
-A implementação inicial aprovou 117 testes unitários/integração e 62 HTTP separadamente; a saída está em `final-tests.log`/`http-tests.xml`. Esses números e os benchmarks da matriz original precedem a atualização FastAPI/Starlette e não devem ser atribuídos automaticamente ao runtime atual.
+A [execução histórica de 21/09 às 06:49 UTC](../artifacts/problem-review/20260921t064944662185z/summary.json) permanece versionada para consulta. Seus números e sua imagem pertencem àquela etapa, e não substituem a prova atual.
 
-A atualização da cadeia de dependências aprovou 165 testes isolados, com 65 HTTP explicitamente ignorados nessa suíte; os mesmos 65 passaram separadamente pelo proxy real em 15,06 s. `tests.xml`, `review-isolated-tests.log`, `review-http-tests.xml` e `review-http-tests.log` registram essa etapa. Ruff e formato passaram para 56 arquivos Python e mypy aprovou 26 fontes. Os 11 testes de UI/dashboard foram repetidos após ajustes de formato/nomenclatura e passaram; não são somados aos 165. Os avisos de depreciação Starlette TestClient/HTTPX e AnyIO foram preservados, sem falha funcional.
-
-A etapa seguinte aprovou 221 testes isolados, 70 HTTP separadamente pelo proxy, 47 casos Prometheus, Ruff/formato e mypy. Ela corrigiu janela de retenção e contagem atômica, migração aditiva de atividade administrativa, frescor configurável, bordas de credencial/SKU/ID e apresentação operacional. Arquivos: `followup-tests.xml`, `followup-isolated-tests.log`, `followup-http-tests.xml`, `followup-http-tests.log` e `followup-monitoring-checks.log`. Às 04:51:03 UTC, `followup-final-state.json` registrou ready 200, duas réplicas coletadas, probe válido e aprovado, limite de frescor exportado, novas regras carregadas/saudáveis, zero incidentes ativos e nenhuma ocorrência dos tokens atuais nos arquivos públicos examinados.
-
-O relatório pip-audit antes/depois está em `dependency-audit-before.json` e `dependency-audit-after.json`: sete IDs únicos corrigidos; 65 dependências publicadas consultadas, sem vulnerabilidades conhecidas no segundo relatório. O pacote local não está no catálogo PyPI e foi identificado como não auditável por essa ferramenta.
-
-Cancelamento real na etapa histórica `cancel-db-tests.xml`: remoção da consulta ativa em cerca de 7,070 ms após disconnect e 6,720 ms após deadline; vida SQL total de 9,402/104,731 ms, inferior ao pg_sleep de 600 ms e ao statement_timeout de 800 ms. A regressão após o ajuste dos gauges (`db-pool-cancellation-tests.xml`) repetiu a aprovação com 5,296/6,527 ms de limpeza. Isso distingue cancelamento do simples término natural da consulta. A conexão foi reutilizada com SELECT 42; checked-out zero e nenhuma task residual.
-
-## Resultados registrados
-
-Executado real significa processo/serviço real no ambiente local. Simulado significa teste determinístico de contrato, ASGI, relógio ou série Prometheus; não é apresentado como falha externa observada.
-
-| Critério crítico | Resultado | Natureza |
-|---|---|---|
-| Migração e setup repetíveis | `sentinel.ps1 setup -Replicas 2` executado novamente; manifesto status `preservado`, 21.730 itens, digest inalterado | Real PostgreSQL |
-| Cálculo monetário, pedidos e datas | Fixture manual 12.500 centavos, dois pedidos, ticket 6.250; integração testa limites do dia São Paulo | Real PostgreSQL + exemplo independente |
-| Tenant, escopo, expiração e cursores | Suíte security pelo proxy inclui IDs válidos de outro tenant, cache aquecido e cursores cruzados | Real HTTP/DB/Redis |
-| Revogação nas duas réplicas | `experiments.json.revocation`: ambas 200 antes e ambas 401 depois | Real |
-| Quota compartilhada | Mesmos 600 sucessos/601 recusas com uma e duas réplicas em 20 s a 60 req/s | Real k6/Redis |
-| Admissão sem fila ilimitada | Entrada/auth/negócio/tenant têm limites imediatos; testes concorrentes e pressão de banco | ASGI simulado + real DB/k6 |
-| SQL e índice | EXPLAIN ANALYZE: Index Only Scan, 1.862 linhas, zero heap fetches | Real massa sintética |
-| Pools, espera e timeouts | Última pressão por lock:194 respostas503, 7 respostas 200 ao liberar o lock, zero drops; checked-out final zero | Real PostgreSQL |
-| Cache frio/quente/expirado | Quatro chamadas concorrentes/fase geram 1/0/1 SQL de resumo | Real duas APIs/Redis |
-| Cache isolado versus Redis inteiro | ACL cache: cinco 200; Redis parado: 503 quota_unavailable, live 200; retorno confirmado | Real |
-| ERP independente e prazo total | Trickle real terminou 504 em 0,906 s; resumo 200; circuito abriu/recuperou | Real HTTP local |
-| Contrato de ERP/SSRF | Destino fixo; sem redirects/proxy ambiente; schema, bytes e Content-Encoding rejeitados | Configuração + testes simulados e HTTP local |
-| Cancelamento de SQL | Driver estava em pg_sleep antes do cancelamento; pool voltou a zero e conexão reutilizada | Real asyncpg/PostgreSQL |
-| Cancelamento e limites ASGI | Disconnect, prazo, corpo/resposta, rota normalizada e ausência de tarefas pendentes | ASGI simulado |
-| Encerramento gracioso | SIGTERM durante quatro requests; shutdown completo em 1,250 s, exit143, sem OOM | Real containers |
-| Métricas e dashboard | Datasource Grafana→Prometheus retornou duas réplicas; UI mostrou tráfego, latência, erros e pools | Real HTTP + inspeção visual |
-| Traces e logs correlacionados | `trace-correlation.json` liga request_id, trace_id, log e spans SQL/Redis/ERP | Real |
-| Backend de traces indisponível | 101 respostas 200, zero drops em 10 s; RSS antes/depois igual nessa janela | Real |
-| Probe independente | Tenant próprio, fixture, validação de status/schema/totais; NaN/config_valid quando configuração ausente | Real + contrato simulado |
-| Regras e ruído | promtool: 43 casos demo/referência; saudável/pico/persistência/recuperação/ausência/baixo tráfego/reset/réplica/coleta/entrega | Séries sintéticas |
-| Entrega firing/resolved | Parada de uma e de todas as APIs, receiver persiste e mantém uma ocorrência/início | Real Prometheus→AM→receiver |
-| Descoberta após recriação | IDs novos e scrapes posteriores à conclusão do recreate, sem socket Docker | Real |
-| Receiver autenticado/durável | Webhook autenticado, tamanho/schema, persistência antes do 2xx, repetição e ordem tardia | SQLite real + webhook controlado |
-| Runbooks e UI | Sete rotas de runbook retornaram200/CSP; central mostra histórico, impacto e recuperação | Real HTTP + navegador |
-| CI Linux | Workflow em `.github/workflows/ci.yml` com os mesmos containers e checks locais | Preparado |
-
-`check` executa Ruff, formato, mypy e `scripts/check_monitoring.py`. Este último valida configurações Prometheus/Alertmanager, regras e testes dos conjuntos demo e referência. Somente o conjunto `demo` estava ativo na stack.
-
-## Correções encontradas ao executar
-
-- A primeira execução HTTP começou antes da prontidão do proxy; as fixtures passaram a aguardar live/ready, fixture conhecida e duas instâncias, com timeout. A repetição passou. Repr de credenciais foi redigida para evitar exposição em falhas de pytest.
-- O middleware inicial não garantia limpeza do downstream ASGI. Foi substituído por fluxo explícito que cancela e aguarda aplicação/watcher, limita bytes e evita enviar sucesso parcial.
-- Escrita de cache com falha podia recalcular SQL já concluído; agora retorna o resultado calculado dentro da política de fallback.
-- Bytes descomprimidos podiam crescer antes do limite; ERP/probe solicitam identity e recusam outras codificações.
-- Configuração inválida do probe não é falha de negócio: fica sem observação, com NaN e alerta de telemetria. A UI distingue esse estado.
-- O writer do seed substituía credenciais com permissões que impediam a leitura do probe. Agora preserva owner/grupo/mode existentes e usa temporário exclusivo; primeira criação privada 0600. O bootstrap torna os arquivos deliberadamente legíveis nos containers autorizados pelo volume, conforme contrato local.
-- O wrapper PowerShell tratava `-e` do Docker como parâmetro comum de função; simplificado para encaminhar argumentos e propagar código de saída.
-- O teste de recriação aceitava scrape antigo. Agora exige containers novos e coleta com timestamp posterior ao recreate.
-- O gauge do pool era estimado antes de devolver a conexão; liberações simultâneas podiam deixá-lo incorreto. A versão final lê o pool após a devolução e tem regressão concorrente. Histogramas/contadores anteriores continuam úteis; gauges históricos não devem ser usados para inferir recuperação precisa.
-- URLs longas no proxy recebem Problem JSON414; respostas401 incluem `WWW-Authenticate: Bearer`.
-- O primeiro teste de pool teve seis drops do gerador; preservado como reprovado e repetido com 24 VUs. O primeiro cliente ERP usou localhost/IPv6 e incorporou atraso externo à API; repetido com 127.0.0.1.
-
-## Limites e simulações
-
-O sistema é um laboratório local: organizações, produtos, vendas e ERP foram gerados. MockTransport e cliente ASGI de teste validam contratos específicos; os testes reais de banco, proxy, carga e alerta são listados separadamente. O resumo pode cair quando PostgreSQL falha; o objetivo é rejeitar em prazo e recuperar, não eliminar indisponibilidade.
-
-Não foram validados SLO de 30 dias, escala em hosts diferentes, alta disponibilidade do banco/Redis, rede hostil pública, TLS em produção, provedor OAuth, entrega externa nem testes prolongados de memória. Não há integração Azure executada. Limites de taxa e SLO são hipóteses ajustáveis; os testes locais curtos não medem capacidade máxima.
-
-Grafana, central e Jaeger foram conferidos no navegador. Capturas em [screenshots](screenshots), incluindo o detalhe da reconciliação e a versão mobile. A correlação de trace e log está no arquivo gerado por `scripts/trace_evidence.py`.
-
-A stack final deve permanecer com duas réplicas e probe válido; `status`, Grafana e a central permitem verificar o estado atual, que pode mudar após esta execução.
-
-Auditoria final executada às 04:20:24 UTC: `artifacts/final-state.json` registra readiness 200, duas réplicas coletadas, zero incidentes ativos, contratos de borda 414/401 corretos e nenhuma ocorrência dos tokens atuais nos fontes/testes/docs/arquivos examinados. Na implementação inicial, a consulta a `pg_roles` e `role_table_grants` no PostgreSQL real confirmou `sentinel_app` sem superuser/create role/create DB e somente privilégio SELECT; papéis/permissões não foram alterados depois. `python scripts/final_audit.py` reproduz a parte HTTP/arquivos; `scripts/trace_evidence.py` espera a recuperação do ERP em ambas as réplicas antes de selecionar um trace amostrado.
+As páginas anteriores foram preservadas integralmente em [verificação antes desta publicação](verification-pre-publication-20260922.md) e [desempenho antes desta publicação](performance-pre-publication-20260922.md). Elas mantêm os estados pendentes e as conclusões das respectivas datas, incluindo a tentativa HTTP reduzida com erros de preparação. A [regressão independente de segurança](evidence/remediation-regression.json) conserva sua identidade, contagens e limites; seus casos não são somados novamente aos desta execução.

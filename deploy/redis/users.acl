@@ -1,2 +1,5 @@
-user default on nopass ~* +@all
-user cache on >cache-local-only ~summary:* ~fill:* +get +set +del +eval +ping +select +client|setinfo
+user default reset off
+user quota reset on #{quota_hash} ~quota:* +eval +incr +pexpire +pttl +ping +select +client|setinfo
+user cache reset on #{cache_hash} ~summary:* ~fill:summary:* +get +set +del +eval +ping +select +client|setinfo
+user health reset on #{health_hash} +ping
+user experiment reset on #{experiment_hash} ~summary:* ~fill:summary:* ~quota:* +acl|setuser +acl|dryrun +flushdb +pexpire +del +exists +ping +select +client|setinfo

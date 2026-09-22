@@ -1,5 +1,7 @@
 # Applied only by scripts/review.py with a unique disposable Compose project.
 services:
+  redis-init:
+    image: pf-api-sentinel-review:local
   api:
     image: pf-api-sentinel-review:local
     environment: {SENTINEL_ENV: test}

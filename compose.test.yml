@@ -1,7 +1,7 @@
 name: pf-api-sentinel-test
 services:
   postgres:
-    image: postgres:17.6-bookworm
+    image: postgres:17.11-bookworm@sha256:639ab7ceb90e13123085b741fb31ef493fba25463002f6da665352e7b534b652
     environment:
       POSTGRES_DB: sentinel_test
       POSTGRES_USER: sentinel_test
@@ -13,14 +13,32 @@ services:
       interval: 2s
       timeout: 2s
       retries: 20
-  redis:
-    image: redis:7.4.5-alpine
+  redis-init:
+    image: ${SENTINEL_TEST_IMAGE:-pf-api-sentinel:local}
+    user: root
+    working_dir: /app
+    network_mode: none
+    read_only: true
+    volumes: ['.:/app:ro', redis-credentials:/redis-credentials, redis-auth:/redis-auth, redis-admin:/redis-admin]
+    command: [python, scripts/bootstrap.py, --redis-only]
     mem_limit: 64m
+  redis:
+    image: redis:7.4.11-alpine3.21@sha256:858f009f9709ce576febc734aa78b8f6d624b82571f9ddb6bda4377c833b3499
+    mem_limit: 64m
+    command: [redis-server, --save, '', --appendonly, 'no', --aclfile, /redis-auth/users.acl]
+    volumes: [redis-auth:/redis-auth:ro]
+    depends_on:
+      redis-init: {condition: service_completed_successfully}
+    healthcheck:
+      test: [CMD-SHELL, 'REDISCLI_AUTH="$$(cat /redis-auth/health-password)" redis-cli --user health ping | grep -qx PONG']
+      interval: 2s
+      timeout: 2s
+      retries: 20
   tests:
     image: ${SENTINEL_TEST_IMAGE:-pf-api-sentinel:local}
     user: root
     working_dir: /app
-    volumes: ['.:/app', '${SENTINEL_TEST_ARTIFACTS:-./artifacts}:/artifacts']
+    volumes: ['.:/app', '${SENTINEL_TEST_ARTIFACTS:-./artifacts}:/artifacts', redis-credentials:/redis-credentials:ro, redis-admin:/redis-admin:ro]
     environment:
       DATABASE_URL: postgresql+asyncpg://sentinel_test:test-only@postgres/sentinel_test
       TEST_DATABASE_URL: postgresql+asyncpg://sentinel_test:test-only@postgres/sentinel_test
@@ -30,6 +48,10 @@ services:
     tmpfs: [/tmp]
     depends_on:
       postgres: {condition: service_healthy}
-      redis: {condition: service_started}
+      redis: {condition: service_healthy}
     command: [python, -m, pytest, -q, tests, '--junitxml=/artifacts/tests.xml']
     mem_limit: 384m
+volumes:
+  redis-credentials:
+  redis-auth:
+  redis-admin:

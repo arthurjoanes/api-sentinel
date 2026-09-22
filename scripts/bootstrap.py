@@ -1,11 +1,47 @@
 import asyncio
+import hashlib
 import os
+import re
 import secrets
 import subprocess
+import sys
 from pathlib import Path
 
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine
+
+
+def prepare_redis(
+    credentials: Path = Path("/redis-credentials"),
+    server: Path = Path("/redis-auth"),
+    admin: Path = Path("/redis-admin"),
+) -> None:
+    """Create project-specific Redis credentials; preserve them across container restarts."""
+    for directory in (credentials, server, admin):
+        directory.mkdir(parents=True, exist_ok=True)
+        directory.chmod(0o755 if directory != admin else 0o700)
+    hashes = {}
+    for role, directory in (
+        ("quota", credentials),
+        ("cache", credentials),
+        ("health", server),
+        ("experiment", admin),
+    ):
+        path = directory / f"{role}-password"
+        if not path.exists():
+            with path.open("x", encoding="ascii") as handle:
+                handle.write(secrets.token_urlsafe(48))
+        password = path.read_text(encoding="ascii").strip()
+        if not re.fullmatch(r"[A-Za-z0-9_-]{64}", password):
+            raise ValueError(f"Invalid Redis credential file for {role}; refusing to replace it.")
+        path.chmod(0o600 if directory == admin else 0o644)
+        hashes[f"{role}_hash"] = hashlib.sha256(password.encode("ascii")).hexdigest()
+    template = Path(__file__).resolve().parents[1] / "deploy" / "redis" / "users.acl"
+    acl = server / "users.acl"
+    staged = server / "users.acl.new"
+    staged.write_text(template.read_text(encoding="ascii").format(**hashes), encoding="ascii")
+    staged.chmod(0o644)
+    staged.replace(acl)
 
 
 async def grant_reader() -> None:
@@ -47,4 +83,10 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    if sys.argv[1:] == ["--redis-only"]:
+        prepare_redis()
+        print("Redis ACL and project credentials: ready")
+    elif sys.argv[1:]:
+        raise SystemExit("Use bootstrap.py [--redis-only]")
+    else:
+        main()

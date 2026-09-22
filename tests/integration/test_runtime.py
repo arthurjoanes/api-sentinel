@@ -4,19 +4,23 @@ from datetime import UTC, datetime
 
 import pytest
 from redis.asyncio import Redis
+from redis.exceptions import AuthenticationError, NoPermissionError
 
 from api_sentinel.admission import enforce_quota
 from api_sentinel.cache import RELEASE_SCRIPT, SummaryCache
+from api_sentinel.config import Settings
 from api_sentinel.errors import Problem
+from scripts.redis_admin import experiment_client
 
 
 @pytest.mark.asyncio
 async def test_atomic_global_quota_shared_between_clients() -> None:
     url = os.environ["TEST_REDIS_URL"]
-    first = Redis.from_url(url, decode_responses=True)
-    second = Redis.from_url(url, decode_responses=True)
+    first = Redis.from_url(url, **Settings().redis_credentials("quota"), decode_responses=True)
+    second = Redis.from_url(url, **Settings().redis_credentials("quota"), decode_responses=True)
+    admin = experiment_client(0)
     tenant = 991
-    await first.delete(f"quota:{tenant}")
+    await admin.delete(f"quota:{tenant}")
     try:
         results = await asyncio.gather(
             *(enforce_quota(first if i % 2 else second, tenant, 10) for i in range(30)),
@@ -26,16 +30,22 @@ async def test_atomic_global_quota_shared_between_clients() -> None:
         assert sum(isinstance(result, Problem) and result.status == 429 for result in results) == 20
         assert 0 < await first.pttl(f"quota:{tenant}") <= 1000
     finally:
-        await first.delete(f"quota:{tenant}")
+        await admin.delete(f"quota:{tenant}")
+        await admin.aclose()
         await first.aclose()
         await second.aclose()
 
 
 @pytest.mark.asyncio
 async def test_cache_stampede_expiry_and_owner_token() -> None:
-    redis = Redis.from_url(os.environ["TEST_REDIS_URL"], decode_responses=True)
+    redis = Redis.from_url(
+        os.environ["TEST_REDIS_URL"],
+        **Settings().redis_credentials("cache"),
+        decode_responses=True,
+    )
+    admin = experiment_client(0)
     cache = SummaryCache(redis, 1)
-    key = "test:summary:v1:isolated"
+    key = "summary:test:v1:isolated"
     count = 0
 
     async def compute() -> dict:
@@ -51,12 +61,12 @@ async def test_cache_stampede_expiry_and_owner_token() -> None:
         assert count == 1
         await cache.get_or_fill(key, compute)
         assert count == 1
-        await redis.pexpire(key, 1)
+        await admin.pexpire(key, 1)
         for _ in range(100):
-            if not await redis.exists(key):
+            if not await admin.exists(key):
                 break
             await asyncio.sleep(0.002)
-        assert not await redis.exists(key)
+        assert not await admin.exists(key)
         await asyncio.gather(*(cache.get_or_fill(key, compute) for _ in range(8)))
         assert count == 2
         await redis.set(f"fill:{key}", "new-owner", px=1000)
@@ -65,3 +75,46 @@ async def test_cache_stampede_expiry_and_owner_token() -> None:
     finally:
         await redis.delete(key, f"fill:{key}")
         await redis.aclose()
+        await admin.aclose()
+
+
+@pytest.mark.asyncio
+async def test_redis_anonymous_and_default_connections_cannot_execute_commands() -> None:
+    anonymous = Redis.from_url(os.environ["TEST_REDIS_URL"])
+    try:
+        with pytest.raises(AuthenticationError):
+            await anonymous.ping()
+        with pytest.raises(AuthenticationError):
+            await anonymous.execute_command("AUTH", "default", "")
+    finally:
+        await anonymous.aclose()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("role", ["cache", "quota"])
+async def test_redis_application_roles_cannot_administer_or_cross_key_scopes(role: str) -> None:
+    client = Redis.from_url(
+        os.environ["TEST_REDIS_URL"],
+        **Settings().redis_credentials(role),
+        decode_responses=True,
+    )
+    try:
+        assert await client.ping()
+        for command in (
+            ("CONFIG", "GET", "maxmemory"),
+            ("ACL", "SETUSER", "default", "on", "nopass", "+@all"),
+            ("FLUSHALL",),
+            ("FLUSHDB",),
+        ):
+            with pytest.raises(NoPermissionError):
+                await client.execute_command(*command)
+        # EVAL has to retain the caller's key and command restrictions as well.
+        with pytest.raises(NoPermissionError):
+            if role == "cache":
+                await client.get("quota:991")
+            else:
+                await client.eval("return redis.call('INCR', KEYS[1])", 1, "summary:forbidden")
+        with pytest.raises(AuthenticationError):
+            await client.execute_command("AUTH", "default", "")
+    finally:
+        await client.aclose()

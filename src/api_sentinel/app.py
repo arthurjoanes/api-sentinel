@@ -44,6 +44,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     app.state.business = Admission(settings.business_limit, "tenant", settings.tenant_limit)
     app.state.quota = Redis.from_url(
         settings.redis_url,
+        **settings.redis_credentials("quota"),
         socket_connect_timeout=0.15,
         socket_timeout=0.15,
         max_connections=32,
@@ -52,6 +53,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     )
     app.state.cache_redis = Redis.from_url(
         settings.cache_redis_url,
+        **settings.redis_credentials("cache"),
         socket_connect_timeout=0.15,
         socket_timeout=0.15,
         max_connections=32,

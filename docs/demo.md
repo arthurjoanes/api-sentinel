@@ -2,7 +2,7 @@
 
 O cliente da API é uma integração de lojas; o operador precisa reconhecer falha, encontrar a dependência envolvida e confirmar recuperação. Dados comerciais e ERP são sintéticos. PostgreSQL, Redis, proxy, regras e entrega de alertas são executados localmente.
 
-Execução de referência aprovada: [20260921t064944662185z](../artifacts/problem-review/20260921t064944662185z/summary.json). Ela contém a matriz completa, duas réplicas com quota compartilhada, falhas recuperadas e alertas entregues/resolvidos. [Verificação](verification.md) distingue a imagem medida, o ajuste posterior no registro de limpeza e a atualização da demonstração principal.
+A [verificação atual](verification.md) e o [registro público](evidence/publication.json) identificam a imagem e os resultados da última prova completa. O roteiro abaixo pode ser repetido em um projeto Docker descartável.
 
 ## Preparar a execução
 

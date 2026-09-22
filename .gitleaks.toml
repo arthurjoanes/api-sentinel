@@ -1,0 +1,28 @@
+title = "API Sentinel secret scanning"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "generic-api-key"
+
+[[rules.allowlists]]
+description = "SHA-256 source fingerprints in operational evidence"
+condition = "AND"
+regexTarget = "match"
+paths = ['''^artifacts/problem-review/[^/]+/run\.json$''']
+regexes = ['''(?:auth|test_auth_admission|test_openapi)\.py"\s*:\s*"[a-f0-9]{64}"''']
+
+[[rules.allowlists]]
+description = "Checksums of runtime files, without file contents"
+condition = "AND"
+regexTarget = "match"
+paths = ['''^artifacts/problem-review/demo-refresh-[^/]+/refresh\.json$''']
+regexes = ['''secret_files_sha256"\s*:\s*"[a-f0-9]{64} ''' ]
+
+[[rules.allowlists]]
+description = "Display label of the synthetic revocation credential, not its token"
+condition = "AND"
+regexTarget = "match"
+paths = ['''^artifacts/problem-review/[^/]+/run\.json$''']
+regexes = ['''credential_name"\s*:\s*"verification-[0-9]+"''']

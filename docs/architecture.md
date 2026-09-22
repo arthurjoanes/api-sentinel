@@ -53,7 +53,7 @@ Orçamento com duas réplicas: `2 × 1 × (4 + 2) = 12` conexões. Mais 4 ferram
 
 As configurações de admissão podem reduzir esse orçamento, preservando `tenant <= negócio <= entrada`, e recusam valores acima dos máximos desta matriz. TTL deve ficar entre 1 e 300 segundos; sampling entre 0 e 1. O startup recusa modo diferente de `demo`/`test` e segredo de cursor inválido. Isso evita iniciar com credenciais locais e uma configuração que pareça de produção, ou transformar um erro de configuração em 503 permanentes/erros tardios.
 
-A autenticação inicialmente admitia quatro operações. Duas recusas desse estágio durante uma carga de quota a 60/s, mesmo após aquecimento, motivaram o ajuste para oito. O pool e seus prazos não aumentaram; não há cache de credenciais e a revogação continua consultada em cada chamada. O ajuste e a repetição estão em [problem-solution.md](problem-solution.md) e [verification.md](verification.md).
+A autenticação admite até oito operações e usa um pool próprio de duas conexões. Cada chamada consulta expiração e revogação no banco, sem cache de credenciais. Como essa leitura usa um único SELECT, o pool de autenticação opera em AUTOCOMMIT, evitando transações extras na leitura e no pre_ping. A verificação de conexões, o prazo de espera e os limites de admissão permanecem ativos; o pool de dados mantém seu comportamento transacional. As regressões de cancelamento e reconexão estão em [verification.md](verification.md).
 
 ## Cache e falhas
 
@@ -83,7 +83,7 @@ Disponibilidade inicial de referência 99,9% e 95% das requisições elegíveis 
 
 Testes: fixture independente de dinheiro/pedidos; integração com banco/Redis próprios; segurança, cursor, revogação e cancelamento; promtool saudável/pico/falha/recuperação/ausência/reset; k6 chegada constante; falhas reais de réplica, toda API, Redis, cache, ERP e traces. Os arquivos em artifacts registram resultados observados e limites do gerador. Medições em máquina local com Docker Desktop, com outras stacks ativas.
 
-Fontes oficiais consultadas: [SQLAlchemy pools](https://docs.sqlalchemy.org/en/20/core/pooling.html), [FastAPI lifespan](https://fastapi.tiangolo.com/advanced/events/), [HTTPX timeout](https://www.python-httpx.org/advanced/timeouts/), [OWASP API Security](https://api-security.owasp.org/editions/2023/en/0x11-t10/). Versões efetivas foram fixadas pelo lock e imagens e registradas na verificação.
+Fontes oficiais consultadas: [SQLAlchemy pools](https://docs.sqlalchemy.org/en/20/core/pooling.html), [FastAPI lifespan](https://fastapi.tiangolo.com/advanced/events/), [HTTPX timeout](https://www.python-httpx.org/advanced/timeouts/), [OWASP API Security](https://owasp.org/API-Security/editions/2023/en/0x11-t10/). Versões efetivas foram fixadas pelo lock e imagens e registradas na verificação.
 
 ## Detalhes de implementação
 
@@ -98,6 +98,8 @@ O verificador da carga (`scripts/review_oracle.py`) lê linhas brutas no Postgre
 O estado só vira `passed` depois da limpeza. Durante ela, fica `cleanup_pending`; falhas de transporte do Docker, inclusive timeout antes de obter exit code, gravam `failed` e `cleanup_failure` sem apagar a falha de medição anterior. Essa correção do orquestrador foi testada separadamente depois da matriz operacional; os hashes e o escopo estão na verificação.
 
 A quota usa janela fixa de um segundo, operação Lua atômica e TTL. Pode haver burst junto à fronteira; não equivale a uma janela deslizante. Redis usa noeviction: esgotamento de memória pode afetar quota e deve falhar fechado, sem fallback para contadores locais. Cache usa usuário ACL e banco Redis distintos, permitindo testar falha apenas dessa camada. Ambos continuam no mesmo processo Redis e compartilham sua disponibilidade.
+
+O usuário Redis `default` fica desabilitado. O serviço `redis-init` gera senhas aleatórias por projeto e uma ACL com hashes antes de iniciar o Redis; os arquivos ficam em volumes próprios e são preservados em reinícios. A API recebe apenas as credenciais de `quota` e `cache`, limitadas aos comandos e prefixos de chave necessários. O healthcheck usa um terceiro usuário que só pode executar `PING`. Os experimentos leem uma credencial administrativa em outro volume, montado apenas nas ferramentas, sem incluir senha nos argumentos dos comandos. Os testes reais de Redis verificam negação de conexões anônimas, administração e acesso cruzado de chaves pelos usuários da API. [Referência de ACL](https://redis.io/docs/latest/operate/oss_and_stack/management/security/acl/).
 
 O middleware ASGI limita a resposta a 256 KiB antes de enviar headers, além dos limites de entrada. O prazo total é de dois segundos, com limpeza do downstream e do watcher antes de liberar recursos; a tentativa de enviar um erro recebe até 200 ms adicionais. Erros de protocolo anteriores à aplicação são tratados pelo proxy. A API mantém pools separados para autenticação e dados; o gauge lê o estado real após devolver conexões.
 

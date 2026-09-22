@@ -40,12 +40,15 @@ def metric(data: dict, prefix: str) -> float:
 
 def cache_permissions(enabled: bool) -> None:
     require_disposable()
-    permissions = (
-        ["+get", "+set", "+del", "+eval", "+ping", "+select", "+client|setinfo"]
-        if enabled
-        else ["-@all"]
+    compose(
+        "run",
+        "--rm",
+        "-T",
+        "tools",
+        "python",
+        "scripts/redis_admin.py",
+        "cache-enable" if enabled else "cache-disable",
     )
-    compose("exec", "-T", "redis", "redis-cli", "ACL", "SETUSER", "cache", *permissions)
 
 
 def scale(replicas: int) -> None:
@@ -117,7 +120,7 @@ def run_load(name: str, rate: int, duration: str = "20s", path: str = SUMMARY) -
 
 def cache_experiment() -> dict:
     require_disposable()
-    compose("exec", "-T", "redis", "redis-cli", "-n", "1", "FLUSHDB")
+    compose("run", "--rm", "-T", "tools", "python", "scripts/redis_admin.py", "cache-clear")
     assert query("/v1/stores/7/summary?start=2026-01-01&end=2026-01-01", "probe")[0] == 200
     before = snapshot()
     with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
@@ -129,7 +132,7 @@ def cache_experiment() -> dict:
     assert all(item[0] == 200 for item in cold + warm)
     version = cold[0][1]["dataset_version"]
     key = f"summary:v1:{version}:1:1:2026-01-01:2026-03-01"
-    compose("exec", "-T", "redis", "redis-cli", "-n", "1", "PEXPIRE", key, "1")
+    compose("run", "--rm", "-T", "tools", "python", "scripts/redis_admin.py", "expire", key)
     with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
         expired = list(pool.map(lambda _: query(), range(4)))
     final = snapshot()
