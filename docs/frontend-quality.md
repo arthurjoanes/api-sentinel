@@ -1,5 +1,7 @@
 # Qualidade da interface do receiver
 
+Leitura documental em **22/09/2026**. Este guia reúne revisões históricas; medidas, contagens e capturas pertencem aos JSONs citados junto de cada rodada, em especial [auditoria visual](evidence/art-direction/visual-audit.json) e [navegador](evidence/art-direction/browser-review.json), ambos de **22/09/2026**. A inspeção documental não repete a auditoria nem certifica conformidade integral.
+
 As [capturas de apresentação atuais](screenshots.md) foram refeitas em 22/09/2026 a partir do código atual. As comparações e provas abaixo são registros históricos das respectivas rodadas; seus arquivos e hashes não foram regravados.
 
 ## Direção visual atual — revisão de 22/09/2026
@@ -64,6 +66,8 @@ Legenda: C = conforme aos checks descritos; PC = verificação parcial; NA = nã
 Os scripts reproduzíveis estão em `docs/evidence/art-direction/reproduce`. A comparação usa um receiver isolado com banco descartável e nunca abre o banco da demonstração. Os manifests históricos não foram atualizados para apontar à nova UI. CI/publicação são posteriores a esta verificação local.
 
 ### Referências e escolhas
+
+Referências de composição registradas nesta rodada de **22/09/2026**. A seleção e as interpretações da tabela são decisões do projeto, não resultados empíricos de usabilidade; a prova de layout vem dos recibos locais acima.
 
 | Referência primária inspecionada                                                                                                                                                                                                                            | Aspecto observado → adaptação                                                                                                      | O que foi rejeitado                                                                                                 |
 | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
@@ -242,7 +246,7 @@ São medições de geometria e inspeção técnica, não prova de produtividade.
 
 | Verificação                                        | Resultado e escopo                                                                                                                                                                                                                                                                   |
 | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Build Docker                                       | Candidato `pf-api-sentinel-quality:20260922`; identidade e inventário publicado com 116 de 117 arquivos históricos no [registro](evidence/frontend-quality/package.json)                                                                                                                                            |
+| Build Docker                                       | Candidato `pf-api-sentinel-quality:20260922`; identidade e inventário publicado com 116 de 117 arquivos históricos no [registro](evidence/frontend-quality/package.json)                                                                                                             |
 | Ruff / formato / mypy na imagem                    | Sem erro; 70 arquivos Python formatados, 27 alvos de tipos                                                                                                                                                                                                                           |
 | `pytest tests/unit` na imagem, sem fontes montadas | 236 testes + 11 subtests aprovados. Três casos de acesso por UID exigem root e foram pulados nesse processo não privilegiado; os mesmos três passaram em container separado com root e capabilities limitadas. Dois avisos existentes Starlette/anyio                                |
 | HTTP em processo na imagem                         | 20 rotas; central, assets, 7 runbooks, 404, 422, 503 e bytes servidos iguais aos assets empacotados                                                                                                                                                                                  |

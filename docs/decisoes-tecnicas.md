@@ -1,5 +1,7 @@
 # Decisões técnicas e seus custos
 
+Conferência documental em **22/09/2026**. Cada decisão aponta à implementação e aos testes que definem o contrato; testes citados descrevem o que verificar. Resultados executados pertencem aos [recibos de 22/09/2026](evidence/editorial-20260922/full-run.json), sem reexecução nesta revisão de texto.
+
 As escolhas abaixo descrevem o que implementei e os compromissos do código atual. Quando não há registro de uma comparação histórica, apresento a justificativa técnica e uma alternativa plausível; não afirmo que experimentei essa alternativa. Os exemplos de entrada e resultado estão em [problema e solução](problem-solution.md); os limites configurados e os fluxos completos, em [arquitetura](architecture.md).
 
 ## Problema central e dificuldades registradas

@@ -1,5 +1,7 @@
 # Consulta pelo proxy indisponível
 
+Procedimento conferido em **22/09/2026**: [probe e fixture](../../alert_receiver/probe.py), [Compose](../../compose.yml) e [regras demo](../../monitoring/rules/demo.yml). Os comandos e prazos são instruções deste ambiente; não constituem nova medição de recuperação.
+
 O probe é executado no receiver, com tenant técnico e credencial próprios. Ele exige HTTP 200, JSON válido e receita de 12.500 centavos, 2 pedidos e ticket médio de 6.250 centavos. A falha indica perda dessa jornada; sozinha, não identifica a causa.
 
 ## Confira primeiro

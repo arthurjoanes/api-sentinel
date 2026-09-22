@@ -1,5 +1,7 @@
 # ERP simulado lento ou indisponível
 
+Procedimento conferido em **22/09/2026**: [cliente ERP](../../src/api_sentinel/erp.py), [Compose](../../compose.yml) e [regras demo](../../monitoring/rules/demo.yml). Os comandos e prazos são instruções deste ambiente; não constituem nova medição de recuperação.
+
 A integração é opcional e usa destino configurado, cliente HTTP reutilizado, limites de pool/concorrência, deadline total e circuito por processo. Resumos e vendas dependem de PostgreSQL e devem continuar funcionando sem ERP.
 
 Execute os comandos na raiz do projeto, após o setup. O projeto Compose é `pf-api-sentinel`.

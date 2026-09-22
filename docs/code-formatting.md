@@ -1,5 +1,7 @@
 # Código nos procedimentos
 
+Fonte técnica: [formatador](../alert_receiver/code_format.py), [CSS](../alert_receiver/styles.css) e [testes](../tests/unit/test_code_format.py), conferidos em **22/09/2026**. Medidas e captura pertencem ao [recibo visual de 22/09/2026, 18:05 UTC](screenshots/syntax-20260922/review.json); não houve nova captura nesta conferência documental.
+
 Os runbooks conservam a linguagem indicada no Markdown ao gerar HTML. PromQL e
 PowerShell recebem cores por função: comandos e funções em azul, strings em verde,
 parâmetros e nomes de labels em ciano, números e variáveis em âmbar, operadores e

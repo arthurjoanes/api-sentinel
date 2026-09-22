@@ -1,5 +1,7 @@
 # Uma consulta conhecida, um incidente e sua recuperação
 
+Fontes primárias desta sequência: [execução de 22/09/2026, 12:49 UTC](evidence/editorial-20260922/capture-run.json), [oráculo](evidence/editorial-20260922/capture-oracle.json) e [entregas](evidence/editorial-20260922/capture-alerts.json). Conferência documental em **22/09/2026**; as medições originais não foram refeitas.
+
 **Registro histórico:** as imagens desta página pertencem às execuções identificadas abaixo e preservam seus bytes originais. Veja a [galeria da interface atual](screenshots.md) para a apresentação do código atual.
 
 O operador precisa distinguir três coisas: a conta comercial está correta, a consulta falhou e a mesma ocorrência recebeu uma recuperação. A ausência de incidentes, sozinha, não responde à primeira pergunta.

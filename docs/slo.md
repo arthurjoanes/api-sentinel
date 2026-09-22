@@ -1,16 +1,18 @@
 # Indicadores, objetivos e alertas
 
-Os objetivos de referência são 99,9% de disponibilidade das requisições elegíveis observadas pela aplicação e 95% das respostas bem-sucedidas elegíveis abaixo de 500 ms, em janela móvel de 30 dias. São hipóteses de engenharia para este laboratório; minutos de demonstração não mostram cumprimento mensal. A definição de latência considera sucessos separadamente para impedir que rejeições rápidas aparentem melhoria.
+Especificação conferida em **22/09/2026**: [regras demo](../monitoring/rules/demo.yml), [regras de referência](../monitoring/rules/reference.yml), [Prometheus](../monitoring/prometheus/demo.yml), [Alertmanager](../monitoring/alertmanager/demo.yml) e [métricas](../src/api_sentinel/metrics.py). Objetivos são escolhas deste laboratório; os resultados operacionais vêm do [recibo de 22/09/2026](evidence/editorial-20260922/full-run.json).
+
+Os objetivos de referência são 99,9% de disponibilidade das requisições elegíveis observadas pela aplicação e 95% das respostas bem-sucedidas elegíveis em até 500 ms, em janela móvel de 30 dias. São hipóteses de engenharia para este laboratório; minutos de demonstração não mostram cumprimento mensal. A definição de latência considera sucessos separadamente para impedir que rejeições rápidas aparentem melhoria.
 
 ## Fontes e população
 
-| Indicador                    | Numerador                                                  | Denominador / população                                                  | Limitação                                                                                   |
-| ---------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------- |
-| Disponibilidade da aplicação | Respostas `success`                                        | `success + server_error`, tráfego `business`, rotas stores/summary/sales | Não observa conexões nem 503 gerados antes da API                                           |
-| Latência de sucesso          | Bucket `le="0.5"` com `outcome="success"`                  | Count do mesmo histograma e população                                    | Limite inclusivo do bucket: ≤500 ms; objetivo informal “abaixo” usa esse limite operacional |
-| Consulta pelo proxy          | Execução autenticada com status, schema e fixture corretos | Execuções do probe externo ao processo API                               | Amostragem a cada 3 s, não todas as requisições de clientes                                 |
-| Réplicas disponíveis         | Soma de `up{job="api"}`                                    | Gauge `sentinel_expected_replicas` do receiver                           | Disponibilidade de coleta não indica correção da consulta                                   |
-| Coleta e entrega             | Targets, último probe, notificações e webhooks persistidos | Séries independentes da aplicação                                        | Falha de todo o computador também derruba a supervisão local                                |
+| Indicador                    | Numerador                                                  | Denominador / população                                                  | Limitação                                                    |
+| ---------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------ |
+| Disponibilidade da aplicação | Respostas `success`                                        | `success + server_error`, tráfego `business`, rotas stores/summary/sales | Não observa conexões nem 503 gerados antes da API            |
+| Latência de sucesso          | Bucket `le="0.5"` com `outcome="success"`                  | Count do mesmo histograma e população                                    | Limite inclusivo do bucket: ≤500 ms                          |
+| Consulta pelo proxy          | Execução autenticada com status, schema e fixture corretos | Execuções do probe externo ao processo API                               | Amostragem a cada 3 s, não todas as requisições de clientes  |
+| Réplicas disponíveis         | Soma de `up{job="api"}`                                    | Gauge `sentinel_expected_replicas` do receiver                           | Disponibilidade de coleta não indica correção da consulta    |
+| Coleta e entrega             | Targets, último probe, notificações e webhooks persistidos | Séries independentes da aplicação                                        | Falha de todo o computador também derruba a supervisão local |
 
 `server_error` inclui 503 por saturação, falha de aquisição e Redis indisponível. `quota` identifica exclusivamente 429 da quota contratada; aparece em painel próprio, fora do denominador de disponibilidade. Erros de cliente, como credencial inválida ou cursor recusado, também ficam fora desse denominador. O ERP opcional tem seus próprios indicadores e alerta warning; não altera o SLI de resumos e vendas. O probe usa `traffic="probe"`, tenant e credencial próprios, sem disputar a quota do tenant sob carga.
 
@@ -96,6 +98,8 @@ Esses testes já foram executados com Prometheus 3.5.0 e Alertmanager 0.28.1. El
 O dashboard provisionado tem UID `sentinel` e fontes Prometheus/Jaeger. Abra `http://localhost:3104/d/sentinel/api-sentinel`, selecione o intervalo do incidente, compare latência com espera de pool/cache e abra Jaeger no mesmo período. O trace_id conecta a investigação aos logs JSON.
 
 ## Fontes oficiais
+
+Consulta em **22/09/2026**. As fontes explicam mecanismos de monitoramento; metas, janelas e limiares locais vêm dos arquivos de regras ligados no início.
 
 - [Google SRE: alertas multiwindow/multi-burn-rate](https://sre.google/workbook/alerting-on-slos/).
 - [Prometheus: descoberta DNS](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#dns_sd_config) e [redes Compose](https://docs.docker.com/compose/how-tos/networking/).

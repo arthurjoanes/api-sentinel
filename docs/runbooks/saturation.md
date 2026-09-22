@@ -1,5 +1,7 @@
 # Saturação com espera ou rejeição
 
+Procedimento conferido em **22/09/2026**: [admissão e quota](../../src/api_sentinel/admission.py), [Compose](../../compose.yml) e [regras demo](../../monitoring/rules/demo.yml). Os comandos e prazos são instruções deste ambiente; não constituem nova medição de recuperação.
+
 Entrada e concorrência são locais ao processo. A quota por tenant é global no Redis. O banco recebe a soma dos pools de todas as réplicas.
 
 Execute os comandos na raiz do projeto, após o setup. O projeto Compose é `pf-api-sentinel`.

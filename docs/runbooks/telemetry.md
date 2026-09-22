@@ -1,5 +1,7 @@
 # Coleta e entrega de alertas
 
+Procedimento conferido em **22/09/2026**: [configuração e retenção](../../alert_receiver/config.py), [Compose](../../compose.yml) e [regras demo](../../monitoring/rules/demo.yml). Os comandos e prazos são instruções deste ambiente; não constituem nova medição de recuperação.
+
 Verifique scrape, regras, entrega e gravação dos alertas.
 
 Execute os comandos na raiz do projeto, após o setup. O projeto Compose é `pf-api-sentinel`.

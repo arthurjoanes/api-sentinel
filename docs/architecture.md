@@ -1,5 +1,7 @@
 # Arquitetura do API Sentinel
 
+Base técnica conferida em **22/09/2026**: [serviços e imagens](../compose.yml), [admissão](../src/api_sentinel/admission.py), [pools](../src/api_sentinel/db.py), [ERP](../src/api_sentinel/erp.py) e [histórico do receiver](../alert_receiver/storage.py). Limites abaixo são configuração/contrato; medições conservam a data e a imagem dos próprios recibos.
+
 ## Fluxo
 
 API local de consultas de duas redes fictícias. Limita chamadas em andamento (concorrência) e chegadas por segundo (quota) por organização (tenant). A central de alertas, Grafana, logs JSON e Jaeger ajudam a investigar falhas. Todos os componentes desta implantação rodam no mesmo computador; duas réplicas são dois processos, não dois hosts independentes.
@@ -72,11 +74,15 @@ Esses mecanismos protegem invariantes diferentes. A quota não limita sozinha o 
 
 ## Dados e contratos
 
+Fonte: [gerador](../src/api_sentinel/seed.py), [autorização](../src/api_sentinel/auth.py) e [consulta](../src/api_sentinel/queries.py), conferidos em **22/09/2026**.
+
 Duas organizações comerciais, seis lojas e quarenta produtos; um terceiro tenant técnico exclusivo do probe, sem organização comercial, usa uma sétima loja-fixture isolada. Este acréscimo atende ao isolamento exigido para o probe. Itens guardam centavos e quantidade; pedidos são contados por `(store_id, order_id)`. Seed determinística de 60 dias, versão imutável e fixture com receita manual de 12.500 centavos em dois pedidos. Datas comerciais são dias inclusivos de São Paulo convertidos para intervalo UTC semiaberto; intervalo máximo 90 dias. Ausência de cobertura retorna erro explícito. Cursor assinado vincula tenant, loja, período e versão; ordenação por instante/id únicos. A versão avançada invalida cursores e cache.
 
 Credenciais aleatórias são armazenadas apenas como SHA-256 no banco; material local fica em volume de segredos fora do Git. Cada request consulta expiração/revogação, inclusive em duas réplicas. Papel SQL da API é somente leitura e não superusuário; migração/seed têm credencial separada.
 
 ## Matriz de limites
+
+Valores conferidos em **22/09/2026**: [configuração](../src/api_sentinel/config.py), [pools e SQL](../src/api_sentinel/db.py), [cache](../src/api_sentinel/cache.py), [ERP](../src/api_sentinel/erp.py), [telemetria](../src/api_sentinel/telemetry.py) e [proxy](../deploy/proxy/nginx.conf). São padrões de configuração, sujeitos aos escopos da tabela.
 
 | Recurso      |                                          Limite atual | Escopo e excesso                                           |
 | ------------ | ----------------------------------------------------: | ---------------------------------------------------------- |
@@ -121,11 +127,11 @@ Falhas inesperadas preservam tipo da exceção e os últimos oito locais de cód
 
 ## Indicadores e verificação
 
-Disponibilidade inicial de referência 99,9% e 95% das requisições elegíveis <500 ms em 30 dias são hipóteses, não resultados desta demo. Contador da API cobre apenas requests observados; probe/cliente medem proxy separadamente. 503 conta como falha; 429 de quota contratada é visível e separado. Prometheus descobre IPs de todas as réplicas por DNS Docker; não coleta via balanceador. Demo e referência usam arquivos mutuamente exclusivos.
+Disponibilidade inicial de referência 99,9% e 95% das respostas bem-sucedidas elegíveis ≤500 ms em 30 dias são hipóteses, não resultados desta demo. Contador da API cobre apenas requests observados; probe/cliente medem proxy separadamente. 503 conta como falha; 429 de quota contratada é visível e separado. Prometheus descobre IPs de todas as réplicas por DNS Docker; não coleta via balanceador. Demo e referência usam arquivos mutuamente exclusivos.
 
 Testes: fixture independente de dinheiro/pedidos; integração com banco/Redis próprios; segurança, cursor, revogação e cancelamento; promtool saudável/pico/falha/recuperação/ausência/reset; k6 chegada constante; falhas reais de réplica, toda API, Redis, cache, ERP e traces. Os arquivos em artifacts registram resultados observados e limites do gerador. Medições em máquina local com Docker Desktop, com outras stacks ativas.
 
-Fontes oficiais consultadas: [SQLAlchemy pools](https://docs.sqlalchemy.org/en/20/core/pooling.html), [FastAPI lifespan](https://fastapi.tiangolo.com/advanced/events/), [HTTPX timeout](https://www.python-httpx.org/advanced/timeouts/), [OWASP API Security](https://owasp.org/API-Security/editions/2023/en/0x11-t10/). Versões efetivas foram fixadas pelo lock e imagens e registradas na verificação.
+Fontes oficiais consultadas em **22/09/2026** (comportamento das ferramentas, não resultado deste laboratório): [SQLAlchemy pools](https://docs.sqlalchemy.org/en/20/core/pooling.html), [FastAPI lifespan](https://fastapi.tiangolo.com/advanced/events/), [HTTPX timeout](https://www.python-httpx.org/advanced/timeouts/), [OWASP API Security](https://owasp.org/API-Security/editions/2023/en/0x11-t10/). Versões efetivas foram fixadas pelo lock e imagens e registradas na verificação.
 
 ## Detalhes de implementação
 
