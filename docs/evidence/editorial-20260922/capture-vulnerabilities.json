@@ -1,0 +1,35 @@
+{
+  "tool": {
+    "Version": "0.74.0"
+  },
+  "created_at": "2026-09-22T12:54:56.995647043Z",
+  "image_id": "sha256:2846db49f884b5d34be6d7661ea3d2d2f7a2f07aee55f337c10ef70c18d00391",
+  "os": {
+    "Family": "alpine",
+    "Name": "3.24.2"
+  },
+  "severity_counts": {},
+  "command": "trivy image --image-src docker --scanners vuln --ignorefile /dev/null --format json <exact-local-image>",
+  "results": [
+    {
+      "Target": "pf-api-sentinel-editorial:final-20260922 (alpine 3.24.2)",
+      "Class": "os-pkgs",
+      "Type": "alpine",
+      "Vulnerabilities": null
+    },
+    {
+      "Target": "Python",
+      "Class": "lang-pkgs",
+      "Type": "python-pkg",
+      "Vulnerabilities": null
+    },
+    {
+      "Target": "usr/local/bin/uv",
+      "Class": "lang-pkgs",
+      "Type": "rustbinary",
+      "Vulnerabilities": null
+    }
+  ],
+  "scope": "Only the final application image, OS/Python/Rust packages. Auxiliary images not scanned here. No ignore file or severity filter.",
+  "warning": "Trivy did not have an EOL date for Alpine 3.24 in its built-in list; this is a scanner coverage limit, not proof of long-term support."
+}

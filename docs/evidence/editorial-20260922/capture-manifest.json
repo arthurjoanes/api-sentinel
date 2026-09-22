@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "run_id": "20260922t124941299601z",
+  "project": "pf-api-sentinel-review-20260922t124941299601z",
+  "status": "passed",
+  "started_at": "2026-09-22T12:50:04.774Z",
+  "source_script": "scripts/capture_operational_story.cjs",
+  "source_script_sha256": "df468db798b421a789de07057b01ef03cefaf7627205c9e58cf003c5e759864f",
+  "capture_tool_scope": "Collector runs outside the image and records its own hash; it may be newer than the copy in a frozen source archive.",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "method": "Read-only live browser captures; synthetic commercial fixture, real local services and alert delivery. No DOM text replacement or artificial webhooks.",
+  "screenshots": [
+    {
+      "name": "01-fixture-validada",
+      "captured_at": "2026-09-22T12:52:16.266Z",
+      "route": "/",
+      "png_sha256": "500a06026dbb564741de3f081f40cf53ce6bf713f45c1a03995a488e43a341c3",
+      "html_sha256": "4351f5523db3c1763ee4fffb74aaa5ea3224296f87be646da87536d0c9252f57",
+      "observations_sha256": "7a5b3d55fff148219c3eda946e0fcdd4e6821fa1fe3c3cc5bdb3116d1b346ad9",
+      "detail": {
+        "file": "01-fixture-validada-detalhe.png",
+        "selector": ".observation-workspace",
+        "png_sha256": "48afe1ea77dc18348fa930cf6a34f77d8d52e5eae559f8bdeefef284d80cb7d2",
+        "method": "Unaltered live locator screenshot at normal zoom"
+      }
+    },
+    {
+      "name": "02-incidente-ativo",
+      "captured_at": "2026-09-22T12:53:33.907Z",
+      "route": "/incidents/2?status=firing",
+      "png_sha256": "eb2678f40b49bb683069f3fb0b3dd7d87fd6fd8b6b478d4b2e20fec7f939fe69",
+      "html_sha256": "46317e700bce46eb2d723d6e411f5d7e74f7aeba69622b74809433683e067cf9",
+      "observations_sha256": "fd81b20c8cc1a209ec1e29618bd19e971c734f20f33170f2d9ca0327dc742c76"
+    },
+    {
+      "name": "03-mesma-ocorrencia-recuperada",
+      "captured_at": "2026-09-22T12:53:54.043Z",
+      "route": "/incidents/2?status=resolved",
+      "png_sha256": "6cd0fe7f05d22c5cac26a56375737c8ff105cdf4261be0ea266154413f641e27",
+      "html_sha256": "9f80531d353ab2cb755f470d83edcd62866f154d921236693d36301321651a9d",
+      "observations_sha256": "82961912fb56ee4db113196a099cc2ba4c5a986b34aa0f1de8dfd9dcb13d4fc6",
+      "detail": {
+        "file": "03-mesma-ocorrencia-recuperada-detalhe.png",
+        "selector": ".history",
+        "png_sha256": "7660bd18e34db469c5164c039567e2af9134fd9ead2822ab280b3be1de5f0923",
+        "method": "Unaltered live locator screenshot at normal zoom"
+      }
+    }
+  ],
+  "browser_errors": [],
+  "toolchain": {
+    "node": "v24.19.0",
+    "playwright_package": "@playwright/test",
+    "playwright_version": "1.63.0",
+    "browser_version": "153.0.4234.48"
+  },
+  "receiver_origin": "http://127.0.0.1:56118",
+  "image_id": "sha256:2846db49f884b5d34be6d7661ea3d2d2f7a2f07aee55f337c10ef70c18d00391",
+  "incident_identity": {
+    "id": 2,
+    "fingerprint": "14a9e1f8fb9f5066",
+    "starts_at": "2026-09-22T12:53:23.164000Z"
+  },
+  "finished_at": "2026-09-22T12:53:54.434Z"
+}

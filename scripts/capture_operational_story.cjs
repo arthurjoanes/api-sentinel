@@ -1,4 +1,4 @@
-/* Capture real, read-only checkpoints while review.py --scenario alerts --keep runs.
+/* Capture real, read-only checkpoints while review.py --scenario alerts|all --keep runs.
  * Start after its artifacts/problem-review/<UTC>/run.json is created, before alerts.
  * Usage: node scripts/capture_operational_story.cjs --run-dir <run-directory>
  *   --playwright-module <installed-playwright-module> --browser-executable <browser>
@@ -48,7 +48,7 @@ const loadRun = () => {
 };
 const firstRun = loadRun();
 assert(/^pf-api-sentinel-review-[a-z0-9-]+$/.test(firstRun.project), 'Expected disposable project');
-assert(firstRun.scenario === 'alerts', 'Expected bounded alerts scenario');
+assert(['alerts', 'all'].includes(firstRun.scenario), 'Expected scenario with real alert cycles');
 const deadline = Date.now() + 15 * 60 * 1000;
 const manifest = {
   schema_version: 1,
@@ -101,8 +101,9 @@ async function main() {
   const page = await browser.newPage({ viewport: manifest.viewport, locale: 'pt-BR', timezoneId: 'America/Sao_Paulo' });
   page.on('pageerror', error => manifest.browser_errors.push(error.message));
   try {
-    const run = await until('HTTP checks completed', current => current.urls &&
-      current.commands.some(c => c.name === 'http-tests' && c.exit_code === 0) && current);
+    const run = await until('alert demonstration ready', current => current.urls &&
+      current.commands.some(c => c.name === 'http-tests' && c.exit_code === 0) &&
+      (current.scenario === 'alerts' || current.phase === 'alert-demo') && current);
     const base = run.urls.receiver;
     assert.equal(new URL(base).hostname, '127.0.0.1');
     manifest.receiver_origin = base;
@@ -113,11 +114,25 @@ async function main() {
         { encoding: 'utf8', timeout: 10000, stdio: ['ignore', 'pipe', 'pipe'] }).trim();
       const ids = docker('ps', '-q', '--filter', 'label=com.docker.compose.project=' + run.project,
         '--filter', 'label=com.docker.compose.service=api').split(/\r?\n/).filter(Boolean);
-      assert(ids.length >= 1 && ids.length <= 2, 'Expected own API containers');
-      assert.equal(docker('inspect', '--format',
-        '{{index .Config.Labels "com.docker.compose.project"}}', ids[0]), run.project);
+      assert(ids.length <= 2, 'Unexpected number of own API containers');
       // Credential stays in process memory; neither command output nor token is persisted.
-      const credentials = JSON.parse(docker('exec', ids[0], 'cat', '/secrets/demo.json'));
+      // Replica loss may stop a container between `docker ps` and `exec`. Read
+      // another owned running replica; never restart a service for a screenshot.
+      let credentials;
+      for (const id of ids) {
+        assert.equal(docker('inspect', '--format',
+          '{{index .Config.Labels "com.docker.compose.project"}}', id), run.project);
+        if (docker('inspect', '--format', '{{.State.Running}}', id) !== 'true') continue;
+        try {
+          credentials = JSON.parse(docker('exec', id, 'cat', '/secrets/demo.json'));
+          break;
+        } catch {
+          if (docker('inspect', '--format', '{{.State.Running}}', id) === 'true') {
+            throw new Error('Unable to read demo credentials from an owned running replica');
+          }
+        }
+      }
+      if (!credentials) return null;
       assert(typeof credentials.probe === 'string' && credentials.probe.length >= 32);
       const fixture = await request(run.urls.proxy,
         '/v1/stores/7/summary?start=2026-01-01&end=2026-01-01', true, credentials.probe);
@@ -130,6 +145,7 @@ async function main() {
     }
 
     async function capture(name, route, observations, assertVisible = async () => {}) {
+      await page.evaluate(() => document.fonts.ready);
       await assertVisible();
       const capturedAt = new Date().toISOString();
       const pngPath = path.join(output, name + '.png');
@@ -143,6 +159,18 @@ async function main() {
       manifest.screenshots.push({ name, captured_at: capturedAt, route,
         png_sha256: hash(fs.readFileSync(pngPath)), html_sha256: hash(Buffer.from(html)),
         observations_sha256: hash(Buffer.from(json)) });
+      // Locator screenshots preserve the rendered content at normal zoom. The full
+      // page and observations above remain available so a crop cannot hide context.
+      const detailSelector = name === '01-fixture-validada' ? '.observation-workspace' :
+        name === '03-mesma-ocorrencia-recuperada' ? '.history' : null;
+      if (detailSelector) {
+        const detailName = name + '-detalhe.png';
+        const detailPath = path.join(output, detailName);
+        await page.locator(detailSelector).screenshot({ path: detailPath });
+        await assertVisible();
+        manifest.screenshots.at(-1).detail = { file: detailName, selector: detailSelector,
+          png_sha256: hash(fs.readFileSync(detailPath)), method: 'Unaltered live locator screenshot at normal zoom' };
+      }
       save();
       console.log(JSON.stringify({ captured: name, run_id: run.id, at: capturedAt }));
     }
@@ -150,7 +178,7 @@ async function main() {
     const baselineIncidents = await request(base, '/api/incidents');
     const baselineIds = new Set(baselineIncidents.incidents.map(i => i.id));
     const initialObservations = { metrics: await request(base, '/metrics', false),
-      fixture: await initialFixture(), incidents: baselineIncidents,
+      fixture: await until('known fixture from a running replica', initialFixture), incidents: baselineIncidents,
       scope: 'The fresh probe validated status, schema and expected amounts. This is not global health.' };
     await until('fresh validated fixture', async () => {
       const response = await page.goto(base + '/', { waitUntil: 'networkidle', timeout: 10000 });

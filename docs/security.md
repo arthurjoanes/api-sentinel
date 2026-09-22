@@ -20,6 +20,10 @@ Atualizar a configuração não apaga usuários, sessões ou dashboards de um vo
 
 ## Verificação e limites
 
+Na revisão de 22/09/2026, o [scan da execução completa](evidence/editorial-20260922/full-vulnerabilities.json) e o [scan da imagem final das capturas](evidence/editorial-20260922/capture-vulnerabilities.json) reportaram zero vulnerabilidades no escopo da aplicação. Trivy 0.74.0 examinou sistema, Python e binário Rust, sem exclusões ou filtro de severidade. As imagens são diferentes e estão identificadas em cada registro; nenhuma delas representa um scan dos serviços auxiliares. O aviso de ausência da data de fim de suporte do Alpine 3.24 na lista interna do scanner permanece registrado.
+
+Gitleaks 8.30.1 examinou os 12 commits alcançáveis e a cópia dos arquivos rastreados/novos publicáveis. A primeira leitura da nova evidência encontrou 12 checksums de fontes e um nome de fixture sintética. Recalculei os quatro SHA-256 e conferi o rótulo, sem confundi-los com valores de credenciais. A política passou a reconhecer apenas esses valores literais nos três caminhos exatos dos relatórios, e o nome exato em um deles. O scan seguinte passou; um token fictício no mesmo caminho continuou sendo detectado no controle positivo. [Escopo, triagem e controle](evidence/editorial-20260922/secret-review.json).
+
 O workflow de segredos examina o histórico Git. As exceções de Gitleaks identificam fingerprints de arquivos e rótulos de credenciais sintéticas, sem excluir diretórios completos. Tokens, senhas e arquivos de execução permanecem fora do repositório.
 
 O scan Trivy do CI cobre a imagem Python da aplicação, incluindo seus pacotes de sistema e bibliotecas. Ele bloqueia achados `HIGH` e `CRITICAL`, mesmo quando ainda não há correção disponível. Esse resultado não representa uma varredura de todas as imagens PostgreSQL, Redis, proxy, observabilidade e geração de carga. As versões e o escopo dos ensaios constam em [verificação](verification.md).

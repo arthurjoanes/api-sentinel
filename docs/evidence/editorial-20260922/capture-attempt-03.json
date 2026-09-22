@@ -1,0 +1,147 @@
+{
+  "run_id": "20260922t123932951573z",
+  "operational_status": "passed",
+  "explanation": "Alerts operational run passed; collector saw 503 while replica loss was being injected. No screenshot accepted.",
+  "image_id": "sha256:b012e4d0aa911a6a62eacf5bcfd3b2f612e26708664653628e1e715d73701e17",
+  "raw_run_sha256": "2a3f5d0b15004be7a3b6eb8fc22e3fde8cb7defea68f78940131c20bd754c1c0",
+  "command_results": [
+    {
+      "name": "git-state",
+      "exit_code": 0
+    },
+    {
+      "name": "concurrent-services",
+      "exit_code": 0
+    },
+    {
+      "name": "docker-resources",
+      "exit_code": 0
+    },
+    {
+      "name": "compose-version",
+      "exit_code": 0
+    },
+    {
+      "name": "demo-before",
+      "exit_code": 0
+    },
+    {
+      "name": "build",
+      "exit_code": 0
+    },
+    {
+      "name": "image-id",
+      "exit_code": 0
+    },
+    {
+      "name": "lint",
+      "exit_code": 0
+    },
+    {
+      "name": "format",
+      "exit_code": 0
+    },
+    {
+      "name": "types",
+      "exit_code": 0
+    },
+    {
+      "name": "monitoring",
+      "exit_code": 0
+    },
+    {
+      "name": "isolated-tests",
+      "exit_code": 0
+    },
+    {
+      "name": "isolated-cleanup",
+      "exit_code": 0
+    },
+    {
+      "name": "database",
+      "exit_code": 0
+    },
+    {
+      "name": "seed",
+      "exit_code": 0
+    },
+    {
+      "name": "start",
+      "exit_code": 0
+    },
+    {
+      "name": "investigation-links",
+      "exit_code": 0
+    },
+    {
+      "name": "oracle",
+      "exit_code": 0
+    },
+    {
+      "name": "contract-mutations",
+      "exit_code": 0
+    },
+    {
+      "name": "http-tests",
+      "exit_code": 0
+    },
+    {
+      "name": "trace-correlation",
+      "exit_code": 0
+    },
+    {
+      "name": "resources-after",
+      "exit_code": 0
+    },
+    {
+      "name": "demo-after",
+      "exit_code": 0
+    },
+    {
+      "name": "cleanup-tests",
+      "exit_code": 0
+    }
+  ],
+  "capture": {
+    "schema_version": 1,
+    "run_id": "20260922t123932951573z",
+    "project": "pf-api-sentinel-review-20260922t123932951573z",
+    "status": "failed",
+    "started_at": "2026-09-22T12:39:53.489Z",
+    "source_script": "scripts/capture_operational_story.cjs",
+    "source_script_sha256": "df468db798b421a789de07057b01ef03cefaf7627205c9e58cf003c5e759864f",
+    "capture_tool_scope": "Collector runs outside the image and records its own hash; it may be newer than the copy in a frozen source archive.",
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "method": "Read-only live browser captures; synthetic commercial fixture, real local services and alert delivery. No DOM text replacement or artificial webhooks.",
+    "screenshots": [],
+    "browser_errors": [],
+    "toolchain": {
+      "node": "v24.19.0",
+      "playwright_package": "@playwright/test",
+      "playwright_version": "1.63.0",
+      "browser_version": "153.0.4234.48"
+    },
+    "receiver_origin": "http://127.0.0.1:56338",
+    "image_id": "sha256:b012e4d0aa911a6a62eacf5bcfd3b2f612e26708664653628e1e715d73701e17",
+    "failure": {
+      "name": "AssertionError",
+      "message": "Unexpected HTTP response for /v1/stores/7/summary?start=2026-01-01&end=2026-01-01\n\n503 !== 200\n"
+    },
+    "finished_at": "2026-09-22T12:41:26.100Z"
+  },
+  "http_tests": {
+    "tests": 73,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "cleanup": {
+    "project": "pf-api-sentinel-review-20260922t123932951573z",
+    "exit_code": 0,
+    "finished_at": "2026-09-22T12:47:17.5288609Z",
+    "remaining": []
+  }
+}

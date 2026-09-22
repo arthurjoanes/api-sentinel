@@ -1,5 +1,25 @@
 # Desempenho e recuperação
 
+## Execução de 22/09 às 12:12 UTC
+
+Repeti a matriz completa em um projeto Docker novo, com as fontes identificadas na [prova atual](evidence/editorial-20260922/full-run.json). O tráfego usa lojas, vendas e ERP sintéticos; banco, Redis, proxy e requisições são reais. Os critérios não foram reduzidos para aprovar a rodada.
+
+| Cenário | Duração configurada | Iniciadas / concluídas | Respostas válidas | Recusas 429 | Falhas previstas do ERP |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Mistura normal, 10 chegadas/s | 15 s | 151 / 151 | 151 | 0 | 0 |
+| ERP enviando o corpo aos poucos, 10 chegadas/s | 15 s | 151 / 151 | 114 | 0 | 37 |
+| Após recuperação do ERP, 10 chegadas/s | 10 s | 100 / 100 | 100 | 0 | 0 |
+| Quota com uma réplica, 60 chegadas/s | 10 s | 600 / 600 | 300 | 300 | 0 |
+| Quota com duas réplicas, 60 chegadas/s | 10 s | 601 / 601 | 300 | 301 | 0 |
+
+Não houve iterações descartadas, respostas inválidas nem recusas de capacidade nesses cinco cenários. O gerador pode iniciar uma iteração na fronteira da duração; por isso a contagem observada não é substituída pela multiplicação nominal de taxa × segundos. As 114 respostas válidas e 37 falhas previstas do ERP são categorias diferentes, não uma taxa única de sucesso do produto.
+
+No isolamento entre organizações, A teve 300 respostas válidas e 301 recusas de quota; B teve 51 válidas e nenhuma recusa. O cache gerou **1 / 0 / 1** consultas SQL nas fases fria, quente e expirada, com quatro chamadas por fase. Redis inteiro indisponível retornou 503 e **zero SQL adicional de resumo**; cache isoladamente indisponível respondeu às cinco consultas de controle. A pressão deliberada no banco produziu 201 recusas previstas, zero resultado inválido e recuperação do pool, sem apresentá-las como consultas bem-sucedidas.
+
+Esses são ensaios curtos no mesmo host, não uma capacidade máxima ou um SLO mensal. A comparação registra resultados e denominadores completos; não atribuo redução de latência a uma troca de interface. Os tempos de alerta, no [registro próprio](evidence/editorial-20260922/full-alerts.json), também não representam tempo de resposta de uma pessoa.
+
+## Medições anteriores preservadas
+
 Medição local da execução **20260922t021943129883z**, na mesma imagem identificada em [publication.json](evidence/publication.json). Todos os cenários obrigatórios passaram. Runtime Python 3.12.14, FastAPI 0.141.1, Starlette 1.3.1, SQLAlchemy 2.0.43 e asyncpg 0.30.0; versões e limites estão fixados no projeto. Dados comerciais e ERP são sintéticos.
 
 ## Método
@@ -49,7 +69,7 @@ A imagem final pré-compila stdlib, dependências e aplicação e constrói o me
 
 Na tentativa canônica `20260922t010740342553z`, o k6 registrou 282 respostas válidas, 242 recusas por quota, 38 por capacidade, 12 outros erros e 27 drops. Os 12 outros erros foram 11 respostas `database_pool_busy` e uma `cache_fill_busy`. As métricas da API registraram rejeições nas admissões auth e tenant, timeouts nos pools auth e data e espera de preenchimento do cache expirada. Esses agregados também incluem tráfego além do k6; as 40 entradas de saturação no log da API não equivalem a 40 respostas de capacidade no gerador. Não se tratava somente das rejeições de autenticação das primeiras tentativas.
 
-Essas correções e a aprovação atual não transformam a comparação inicial em um experimento causal completo. A falha canônica anterior não foi reproduzida nesta execução; sua causa inicial continua não demonstrada. Os logs reprovados foram preservados. A primeira tabela desta página pertence à prova completa identificada; a tabela de rodadas de quota pertence à validação delimitada, com a mesma imagem.
+Essas correções e a aprovação atual não transformam a comparação inicial em um experimento causal completo. A falha canônica anterior não foi reproduzida nesta execução; sua causa inicial continua não demonstrada. Os logs reprovados foram preservados. A prova de 02:19 UTC e suas rodadas delimitadas de quota usaram a imagem histórica identificada nessa seção. A tabela de 12:12 UTC, no início desta página, pertence à nova execução `20260922t121258511380z` e à imagem registrada em seu próprio recibo; não é uma repetição com a imagem anterior.
 
 ## Limites da medição
 

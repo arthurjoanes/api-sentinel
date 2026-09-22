@@ -1,0 +1,129 @@
+{
+  "start": "2026-01-01",
+  "end": "2026-03-01",
+  "tenants": {
+    "tenant_a": {
+      "store": 1,
+      "stores": [
+        1,
+        2,
+        3
+      ],
+      "revenue_cents": 27877248,
+      "order_count": 1800,
+      "average_ticket_cents": 15487,
+      "raw_items": 3666,
+      "sales": [
+        {
+          "id": 1000590000292,
+          "order_id": 590030,
+          "sold_at": "2026-03-01T11:14:30+00:00",
+          "sku": "SKU-010",
+          "quantity": 1,
+          "unit_price_cents": 2370,
+          "line_total_cents": 2370
+        },
+        {
+          "id": 1000590000291,
+          "order_id": 590030,
+          "sold_at": "2026-03-01T11:14:30+00:00",
+          "sku": "SKU-028",
+          "quantity": 2,
+          "unit_price_cents": 4836,
+          "line_total_cents": 9672
+        },
+        {
+          "id": 1000590000283,
+          "order_id": 590029,
+          "sold_at": "2026-03-01T11:14:00+00:00",
+          "sku": "SKU-039",
+          "quantity": 2,
+          "unit_price_cents": 6343,
+          "line_total_cents": 12686
+        },
+        {
+          "id": 1000590000282,
+          "order_id": 590029,
+          "sold_at": "2026-03-01T11:14:00+00:00",
+          "sku": "SKU-010",
+          "quantity": 1,
+          "unit_price_cents": 2370,
+          "line_total_cents": 2370
+        },
+        {
+          "id": 1000590000281,
+          "order_id": 590029,
+          "sold_at": "2026-03-01T11:14:00+00:00",
+          "sku": "SKU-008",
+          "quantity": 1,
+          "unit_price_cents": 2096,
+          "line_total_cents": 2096
+        }
+      ],
+      "available": 21
+    },
+    "tenant_b": {
+      "store": 4,
+      "stores": [
+        4,
+        5,
+        6
+      ],
+      "revenue_cents": 27278142,
+      "order_count": 1800,
+      "average_ticket_cents": 15155,
+      "raw_items": 3599,
+      "sales": [
+        {
+          "id": 4000590000292,
+          "order_id": 590030,
+          "sold_at": "2026-03-01T11:14:30+00:00",
+          "sku": "SKU-037",
+          "quantity": 3,
+          "unit_price_cents": 6069,
+          "line_total_cents": 18207
+        },
+        {
+          "id": 4000590000291,
+          "order_id": 590030,
+          "sold_at": "2026-03-01T11:14:30+00:00",
+          "sku": "SKU-038",
+          "quantity": 3,
+          "unit_price_cents": 6206,
+          "line_total_cents": 18618
+        },
+        {
+          "id": 4000590000281,
+          "order_id": 590029,
+          "sold_at": "2026-03-01T11:14:00+00:00",
+          "sku": "SKU-024",
+          "quantity": 1,
+          "unit_price_cents": 4288,
+          "line_total_cents": 4288
+        },
+        {
+          "id": 4000590000273,
+          "order_id": 590028,
+          "sold_at": "2026-03-01T11:13:30+00:00",
+          "sku": "SKU-012",
+          "quantity": 2,
+          "unit_price_cents": 2644,
+          "line_total_cents": 5288
+        },
+        {
+          "id": 4000590000272,
+          "order_id": 590028,
+          "sold_at": "2026-03-01T11:13:30+00:00",
+          "sku": "SKU-011",
+          "quantity": 3,
+          "unit_price_cents": 2507,
+          "line_total_cents": 7521
+        }
+      ],
+      "available": 24
+    }
+  },
+  "dataset_version": "v1-9a22e96438804d54",
+  "raw_rows_sha256": "3f9cb7ff3eff723d3f2ae377c06bb9661a9da0e840c145b8958eafa481cc3a32",
+  "method": "Rows streamed from PostgreSQL; Python integer sum/distinct orders; no application aggregate/seed import."
+}

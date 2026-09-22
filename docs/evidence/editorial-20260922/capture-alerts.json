@@ -1,0 +1,248 @@
+{
+  "executed_at": "2026-09-22T12:53:59.162749+00:00",
+  "cycles": [
+    {
+      "alert": "SentinelReplicaLost",
+      "detection_seconds": 26.985,
+      "recovery_seconds": 19.359,
+      "firing": {
+        "id": 1,
+        "fingerprint": "59751ee2ebde8cfd",
+        "starts_at": "2026-09-22T12:52:38.164000Z",
+        "status": "firing",
+        "ends_at": null,
+        "first_received_at": "2026-09-22T12:52:43.170268Z",
+        "last_received_at": "2026-09-22T12:52:43.170268Z",
+        "deliveries": 1,
+        "labels": {
+          "alertname": "SentinelReplicaLost",
+          "environment": "demo",
+          "project": "api-sentinel",
+          "service": "api-sentinel",
+          "severity": "warning"
+        },
+        "annotations": {
+          "action": "Confira containers do projeto e DNS discovery; restaure a réplica e confirme todos os targets.",
+          "condition": "A soma de targets API disponíveis é menor que a configuração independente de réplicas esperadas.",
+          "dashboard_url": "http://localhost:3104/d/sentinel/api-sentinel",
+          "impact": "Menos réplicas para atender às consultas.",
+          "runbook_url": "http://localhost:9184/runbooks/replica",
+          "summary": "Menos réplicas disponíveis que o esperado",
+          "window": "15s persistentes; DNS refresh 5 s."
+        }
+      },
+      "resolved": {
+        "id": 1,
+        "fingerprint": "59751ee2ebde8cfd",
+        "starts_at": "2026-09-22T12:52:38.164000Z",
+        "status": "resolved",
+        "ends_at": "2026-09-22T12:52:58.164000Z",
+        "first_received_at": "2026-09-22T12:52:43.170268Z",
+        "last_received_at": "2026-09-22T12:53:03.171185Z",
+        "deliveries": 2,
+        "labels": {
+          "alertname": "SentinelReplicaLost",
+          "environment": "demo",
+          "project": "api-sentinel",
+          "service": "api-sentinel",
+          "severity": "warning"
+        },
+        "annotations": {
+          "action": "Confira containers do projeto e DNS discovery; restaure a réplica e confirme todos os targets.",
+          "condition": "A soma de targets API disponíveis é menor que a configuração independente de réplicas esperadas.",
+          "dashboard_url": "http://localhost:3104/d/sentinel/api-sentinel",
+          "impact": "Menos réplicas para atender às consultas.",
+          "runbook_url": "http://localhost:9184/runbooks/replica",
+          "summary": "Menos réplicas disponíveis que o esperado",
+          "window": "15s persistentes; DNS refresh 5 s."
+        }
+      },
+      "occurrence_count": 1,
+      "created_incidents": [
+        {
+          "id": 1,
+          "fingerprint": "59751ee2ebde8cfd",
+          "starts_at": "2026-09-22T12:52:38.164000Z",
+          "status": "resolved",
+          "ends_at": "2026-09-22T12:52:58.164000Z",
+          "first_received_at": "2026-09-22T12:52:43.170268Z",
+          "last_received_at": "2026-09-22T12:53:03.171185Z",
+          "deliveries": 2,
+          "labels": {
+            "alertname": "SentinelReplicaLost",
+            "environment": "demo",
+            "project": "api-sentinel",
+            "service": "api-sentinel",
+            "severity": "warning"
+          },
+          "annotations": {
+            "action": "Confira containers do projeto e DNS discovery; restaure a réplica e confirme todos os targets.",
+            "condition": "A soma de targets API disponíveis é menor que a configuração independente de réplicas esperadas.",
+            "dashboard_url": "http://localhost:3104/d/sentinel/api-sentinel",
+            "impact": "Menos réplicas para atender às consultas.",
+            "runbook_url": "http://localhost:9184/runbooks/replica",
+            "summary": "Menos réplicas disponíveis que o esperado",
+            "window": "15s persistentes; DNS refresh 5 s."
+          }
+        }
+      ]
+    },
+    {
+      "alert": "SentinelUnavailable",
+      "detection_seconds": 29.891,
+      "recovery_seconds": 17.843,
+      "firing": {
+        "id": 2,
+        "fingerprint": "14a9e1f8fb9f5066",
+        "starts_at": "2026-09-22T12:53:23.164000Z",
+        "status": "firing",
+        "ends_at": null,
+        "first_received_at": "2026-09-22T12:53:33.167045Z",
+        "last_received_at": "2026-09-22T12:53:33.167045Z",
+        "deliveries": 1,
+        "labels": {
+          "alertname": "SentinelUnavailable",
+          "environment": "demo",
+          "project": "api-sentinel",
+          "service": "api-sentinel",
+          "severity": "critical"
+        },
+        "annotations": {
+          "action": "Confira o proxy, a saúde das réplicas e dependências; restaure e confirme o probe em 1.",
+          "condition": "O probe retornou falha de transporte, status, schema ou total conhecido.",
+          "dashboard_url": "http://localhost:3104/d/sentinel/api-sentinel",
+          "impact": "A consulta autenticada da fixture falhou.",
+          "runbook_url": "http://localhost:9184/runbooks/unavailable",
+          "summary": "Consulta pelo proxy indisponível",
+          "window": "Probe a cada 3 s; 15s persistentes."
+        }
+      },
+      "resolved": {
+        "id": 2,
+        "fingerprint": "14a9e1f8fb9f5066",
+        "starts_at": "2026-09-22T12:53:23.164000Z",
+        "status": "resolved",
+        "ends_at": "2026-09-22T12:53:43.164000Z",
+        "first_received_at": "2026-09-22T12:53:33.167045Z",
+        "last_received_at": "2026-09-22T12:53:53.170373Z",
+        "deliveries": 2,
+        "labels": {
+          "alertname": "SentinelUnavailable",
+          "environment": "demo",
+          "project": "api-sentinel",
+          "service": "api-sentinel",
+          "severity": "critical"
+        },
+        "annotations": {
+          "action": "Confira o proxy, a saúde das réplicas e dependências; restaure e confirme o probe em 1.",
+          "condition": "O probe retornou falha de transporte, status, schema ou total conhecido.",
+          "dashboard_url": "http://localhost:3104/d/sentinel/api-sentinel",
+          "impact": "A consulta autenticada da fixture falhou.",
+          "runbook_url": "http://localhost:9184/runbooks/unavailable",
+          "summary": "Consulta pelo proxy indisponível",
+          "window": "Probe a cada 3 s; 15s persistentes."
+        }
+      },
+      "occurrence_count": 1,
+      "created_incidents": [
+        {
+          "id": 3,
+          "fingerprint": "59751ee2ebde8cfd",
+          "starts_at": "2026-09-22T12:53:23.164000Z",
+          "status": "resolved",
+          "ends_at": "2026-09-22T12:53:43.164000Z",
+          "first_received_at": "2026-09-22T12:53:33.167120Z",
+          "last_received_at": "2026-09-22T12:53:53.170448Z",
+          "deliveries": 2,
+          "labels": {
+            "alertname": "SentinelReplicaLost",
+            "environment": "demo",
+            "project": "api-sentinel",
+            "service": "api-sentinel",
+            "severity": "warning"
+          },
+          "annotations": {
+            "action": "Confira containers do projeto e DNS discovery; restaure a réplica e confirme todos os targets.",
+            "condition": "A soma de targets API disponíveis é menor que a configuração independente de réplicas esperadas.",
+            "dashboard_url": "http://localhost:3104/d/sentinel/api-sentinel",
+            "impact": "Menos réplicas para atender às consultas.",
+            "runbook_url": "http://localhost:9184/runbooks/replica",
+            "summary": "Menos réplicas disponíveis que o esperado",
+            "window": "15s persistentes; DNS refresh 5 s."
+          }
+        },
+        {
+          "id": 2,
+          "fingerprint": "14a9e1f8fb9f5066",
+          "starts_at": "2026-09-22T12:53:23.164000Z",
+          "status": "resolved",
+          "ends_at": "2026-09-22T12:53:43.164000Z",
+          "first_received_at": "2026-09-22T12:53:33.167045Z",
+          "last_received_at": "2026-09-22T12:53:53.170373Z",
+          "deliveries": 2,
+          "labels": {
+            "alertname": "SentinelUnavailable",
+            "environment": "demo",
+            "project": "api-sentinel",
+            "service": "api-sentinel",
+            "severity": "critical"
+          },
+          "annotations": {
+            "action": "Confira o proxy, a saúde das réplicas e dependências; restaure e confirme o probe em 1.",
+            "condition": "O probe retornou falha de transporte, status, schema ou total conhecido.",
+            "dashboard_url": "http://localhost:3104/d/sentinel/api-sentinel",
+            "impact": "A consulta autenticada da fixture falhou.",
+            "runbook_url": "http://localhost:9184/runbooks/unavailable",
+            "summary": "Consulta pelo proxy indisponível",
+            "window": "Probe a cada 3 s; 15s persistentes."
+          }
+        }
+      ]
+    }
+  ],
+  "dns_before": [
+    "http://192.168.0.10:8000/internal/metrics",
+    "http://192.168.0.11:8000/internal/metrics"
+  ],
+  "dns_after_recreate": [
+    "http://192.168.0.10:8000/internal/metrics",
+    "http://192.168.0.11:8000/internal/metrics"
+  ],
+  "recreation": {
+    "started_at": "2026-09-22T12:53:53.389668+00:00",
+    "completed_at": "2026-09-22T12:53:54.870931+00:00",
+    "container_ids_before": [
+      "0156e6e228f8b513366e83475ea73de5ef082a9758e5a793b4b8fa3b70ab899b",
+      "60c45dd5c77d5f5f21839a1ec86029a3566d4092ab79321078eff5ca3b017a2f"
+    ],
+    "container_ids_after": [
+      "67335ecbb2269c1527dc9a43a5eae5bbac869f373663ab15c01cdcaf3ac8b895",
+      "8878959940e9be800878f8a226bae8893ca5b953cfbef19754ee8a2c9cb7aa30"
+    ],
+    "targets_before": [
+      {
+        "scrapeUrl": "http://192.168.0.10:8000/internal/metrics",
+        "health": "up",
+        "lastScrape": "2026-09-22T12:53:49.135342602Z"
+      },
+      {
+        "scrapeUrl": "http://192.168.0.11:8000/internal/metrics",
+        "health": "up",
+        "lastScrape": "2026-09-22T12:53:52.052950823Z"
+      }
+    ],
+    "targets_after": [
+      {
+        "scrapeUrl": "http://192.168.0.10:8000/internal/metrics",
+        "health": "up",
+        "lastScrape": "2026-09-22T12:53:59.136128182Z"
+      },
+      {
+        "scrapeUrl": "http://192.168.0.11:8000/internal/metrics",
+        "health": "up",
+        "lastScrape": "2026-09-22T12:53:57.052495732Z"
+      }
+    ]
+  },
+  "receiver_independent": true
+}
