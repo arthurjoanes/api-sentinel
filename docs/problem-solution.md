@@ -1,6 +1,6 @@
 # Problemas resolvidos e como conferir
 
-Conferência em **22/09/2026**: contratos ligados ao código/testes de cada caso, [fixture financeira](../data/fixtures/manual-sales.json) e [execução completa de 22/09/2026](evidence/editorial-20260922/full-run.json). Números monetários são entradas sintéticas; contagens de carga são observações daquela execução.
+Cada caso liga o contrato ao código e aos testes. Os valores monetários vêm da [fixture sintética](../data/fixtures/manual-sales.json); as contagens de carga pertencem à [execução completa de 22/09/2026](evidence/editorial-20260922/full-run.json).
 
 Desenvolvi o laboratório para uma integração de lojas que consulta vendas e disponibilidade no ERP. Clientes, vendas e ERP são sintéticos. O resultado demonstrado é técnico: consultas com escopo correto, contenção de falhas e histórico verificável. Não houve piloto com operadores reais, medição de economia ou operação em produção.
 
@@ -28,7 +28,7 @@ Desenvolvi o laboratório para uma integração de lojas que consulta vendas e d
 
 **Como:** [erp.py](../src/api_sentinel/erp.py) usa cliente reutilizado, admissão própria, orçamento total de 900 ms, limite de bytes e circuito por processo. Redirects, compressão e formatos inesperados são recusados. Um retry elegível consome o mesmo orçamento. [Testes do runtime](../tests/unit/test_runtime.py) exercitam chunks contínuos, resposta excessiva e validação da resposta.
 
-Consultada em **22/09/2026**, a [documentação HTTPX, “Timeouts”](https://www.python-httpx.org/advanced/timeouts/#fine-tuning-the-configuration), define o timeout de leitura como espera por um trecho da resposta. O simulador reproduz esse comportamento enviando trechos antes do limite; o prazo total em `asyncio.timeout` limita a operação inteira. A fonte documenta uma biblioteca, não a frequência de falhas em ERPs reais.
+A [documentação HTTPX, “Timeouts”](https://www.python-httpx.org/advanced/timeouts/#fine-tuning-the-configuration), define o timeout de leitura como espera por um trecho da resposta. O simulador reproduz esse comportamento enviando trechos antes do limite; o prazo total em `asyncio.timeout` limita a operação inteira. A fonte documenta uma biblioteca, não a frequência de falhas em ERPs reais.
 
 **Prova de coexistência:** testes isolados não demonstram sozinhos ERP lento e vendas simultâneas. Essa medição pertence às execuções identificadas em [verificação](verification.md) e [desempenho](performance.md), com clientes de carga, resultado comercial conhecido e recuperação. Na [execução completa de 22/09 às 12:12 UTC](evidence/editorial-20260922/full-run.json), a mistura com ERP degradado concluiu 151 requisições: 114 respostas válidas e 37 falhas previstas do ERP, sem resultados inválidos ou iterações descartadas. A recuperação concluiu 100/100 válidas. São observações desse laboratório, não uma garantia de disponibilidade do ERP. A [prova anterior](evidence/publication.json) permanece identificada separadamente.
 
@@ -38,7 +38,7 @@ Consultada em **22/09/2026**, a [documentação HTTPX, “Timeouts”](https://w
 
 **Como:** coordenei o incremento e a expiração na mesma operação Redis em [enforce_quota](../src/api_sentinel/admission.py). O limite comercial configurado é 30/s por tenant; 10/s é o parâmetro explícito desse teste e o limite do tenant técnico do probe. A [admissão](../src/api_sentinel/admission.py) limita trabalho em andamento separadamente: excesso de capacidade recebe 503, não 429.
 
-A [documentação Redis, “INCR — Pattern: rate limiter 2”](https://redis.io/docs/latest/commands/incr/#pattern-rate-limiter-2), mostra a corrida entre incrementar e definir a expiração e a reúne num script Lua. Este projeto aplica o mecanismo por organização, compartilhado entre réplicas; os testes verificam admissões, recusas e TTL. Isso não elimina a dependência de Redis nem a rajada na fronteira da janela. Redis e HTTPX foram consultados em 22/09/2026; suas páginas não informam data de publicação.
+A [documentação Redis, “INCR — Pattern: rate limiter 2”](https://redis.io/docs/latest/commands/incr/#pattern-rate-limiter-2), mostra a corrida entre incrementar e definir a expiração e a reúne num script Lua. Este projeto aplica o mecanismo por organização, compartilhado entre réplicas; os testes verificam admissões, recusas e TTL. Isso não elimina a dependência de Redis nem a rajada na fronteira da janela.
 
 Na [execução pelo proxy](evidence/editorial-20260922/full-run.json), uma réplica admitiu 300 de 600 chamadas; duas admitiram 300 de 601. As restantes receberam 429, sem recusas de capacidade. Esses ensaios de dez segundos complementam o teste atômico; seus denominadores estão em [desempenho](performance.md).
 

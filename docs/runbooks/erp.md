@@ -1,6 +1,6 @@
 # ERP simulado lento ou indisponível
 
-Procedimento conferido em **22/09/2026**: [cliente ERP](../../src/api_sentinel/erp.py), [Compose](../../compose.yml) e [regras demo](../../monitoring/rules/demo.yml). Os comandos e prazos são instruções deste ambiente; não constituem nova medição de recuperação.
+O procedimento usa [cliente ERP](../../src/api_sentinel/erp.py), o [Compose](../../compose.yml) e as [regras demo](../../monitoring/rules/demo.yml). Comandos e prazos descrevem o ambiente local; resultados de recuperação têm recibos próprios.
 
 A integração é opcional e usa destino configurado, cliente HTTP reutilizado, limites de pool/concorrência, deadline total e circuito por processo. Resumos e vendas dependem de PostgreSQL e devem continuar funcionando sem ERP.
 

@@ -1,6 +1,6 @@
 # Erros sustentados e orçamento de serviço
 
-Procedimento conferido em **22/09/2026**: [regras de referência](../../monitoring/rules/reference.yml), [Compose](../../compose.yml) e [regras demo](../../monitoring/rules/demo.yml). Os comandos e prazos são instruções deste ambiente; não constituem nova medição de recuperação.
+O procedimento usa [regras de referência](../../monitoring/rules/reference.yml), o [Compose](../../compose.yml) e as [regras demo](../../monitoring/rules/demo.yml). Comandos e prazos descrevem o ambiente local; resultados de recuperação têm recibos próprios.
 
 O alerta de referência compara a fração de erros com a fração permitida pelo SLO, confirmada por janelas longa e curta e tráfego mínimo. O perfil demo usa janelas próprias menores. Uma execução de minutos não mostra disponibilidade em 30 dias.
 

@@ -1,6 +1,6 @@
 # Qualidade da interface do receiver
 
-Leitura documental em **22/09/2026**. Este guia reúne revisões históricas; medidas, contagens e capturas pertencem aos JSONs citados junto de cada rodada, em especial [auditoria visual](evidence/art-direction/visual-audit.json) e [navegador](evidence/art-direction/browser-review.json), ambos de **22/09/2026**. A inspeção documental não repete a auditoria nem certifica conformidade integral.
+Este guia reúne revisões históricas. Medidas e capturas pertencem aos JSONs de cada rodada, incluindo a [auditoria visual](evidence/art-direction/visual-audit.json) e o [navegador](evidence/art-direction/browser-review.json), de **22/09/2026**. Os resultados não certificam conformidade integral.
 
 As [capturas de apresentação atuais](screenshots.md) foram refeitas em 22/09/2026 a partir do código atual. As comparações e provas abaixo são registros históricos das respectivas rodadas; seus arquivos e hashes não foram regravados.
 

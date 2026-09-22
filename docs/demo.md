@@ -1,6 +1,6 @@
 # Demonstração operacional
 
-Roteiro conferido em **22/09/2026** contra [runner](../scripts/review.py), [wrapper](../scripts/sentinel.ps1), [Compose](../compose.yml) e [fixture](../data/fixtures/manual-sales.json). A duração sugerida da apresentação é um planejamento editorial, não tempo medido de instalação ou resultado de teste com participantes.
+O roteiro usa o [runner](../scripts/review.py), o [wrapper](../scripts/sentinel.ps1), o [Compose](../compose.yml) e a [fixture](../data/fixtures/manual-sales.json). A duração sugerida serve para planejar a apresentação; não mede o tempo de instalação nem uma sessão com participantes.
 
 O cliente da API é uma integração de lojas; o operador precisa reconhecer falha, encontrar a dependência envolvida e confirmar recuperação. Dados comerciais e ERP são sintéticos. PostgreSQL, Redis, proxy, regras e entrega de alertas são executados localmente.
 

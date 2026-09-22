@@ -1,12 +1,12 @@
 # Verificação
 
-Índice documental conferido em **22/09/2026**. As provas publicadas incluem [recibo completo](evidence/editorial-20260922/full-run.json), [XML isolado](evidence/editorial-20260922/full-tests.xml), [XML HTTP](evidence/editorial-20260922/full-http-tests.xml) e [scan](evidence/editorial-20260922/full-vulnerabilities.json), todos de **22/09/2026**. A presença de um teste no código ou de um workflow não significa que a revisão atual foi executada.
+As provas publicadas incluem o [recibo completo](evidence/editorial-20260922/full-run.json), o [XML isolado](evidence/editorial-20260922/full-tests.xml), o [XML HTTP](evidence/editorial-20260922/full-http-tests.xml) e o [scan](evidence/editorial-20260922/full-vulnerabilities.json), de **22/09/2026**. Seus resultados valem para as versões executadas; a presença de um teste ou workflow no código não aprova edições posteriores.
 
 Para entender o produto, comece pela [consulta de R$ 125,00, falha e recuperação](operational-story.md). Este documento aprofunda os resultados por execução: os pacotes abaixo são históricos e preservam suas próprias versões. Para produzir evidência da sua cópia, execute `python scripts/review.py`; a saída aponta o novo `run.json`.
 
 ## Auditoria do candidato — 22/09/2026
 
-A narrativa anterior descrevia uma inspeção sobre `f9d1c52704c285d7961da4545a9dbae7ecc2ca7b`, com resultados locais e consultas ao CI. Seus registros completos não estão ligados a um pacote público verificável nesta seção. Por isso, na revisão documental de **22/09/2026**, as contagens, tempos, inventários e conclusões de contratação sustentados apenas por essa narrativa foram retirados da apresentação de resultados comprovados.
+A narrativa anterior descrevia uma inspeção sobre `f9d1c52704c285d7961da4545a9dbae7ecc2ca7b`, com resultados locais e consultas ao CI. Seus registros completos não estão ligados a um pacote público verificável nesta seção. Por isso, as contagens, tempos, inventários e conclusões de contratação sustentados apenas por essa narrativa foram retirados da apresentação de resultados comprovados.
 
 As execuções com JSON/XML publicados continuam identificadas nas seções seguintes. A [configuração do CI](../.github/workflows/ci.yml) define os checks; sua existência não atesta aprovação de um commit. Esta revisão de documentação não repetiu builds, scans, falhas ou testes da aplicação.
 

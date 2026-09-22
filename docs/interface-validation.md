@@ -1,6 +1,6 @@
 # Validação da interface — 22/09/2026
 
-Revisão documental em **22/09/2026** sobre os recibos [navegação](evidence/interface-navigation.json), [primeira revisão](evidence/interface-review.json) e [pacote](evidence/interface-package.json). As conclusões abaixo têm as identidades e datas desses registros; não são uma validação nova da interface atual.
+Os recibos de [navegação](evidence/interface-navigation.json), [primeira revisão](evidence/interface-review.json) e [pacote](evidence/interface-package.json) identificam a versão e o alcance das conclusões abaixo. São registros históricos, não uma nova validação da interface.
 
 A revisão mais recente parte de `be419e0` e está em
 [frontend-quality.md](frontend-quality.md), com matriz de 11 dimensões, capturas
@@ -36,7 +36,7 @@ Comparações: [baseline 1440](screenshots/navigation-review/baseline-resolved-1
 
 ## Contratos e provas desta revisão
 
-Critério de contraste: [WCAG 2.2, 1.4.3](https://www.w3.org/TR/WCAG22/#contrast-minimum), consulta em **22/09/2026**. Evidência desta rodada: [registro de navegação](evidence/interface-navigation.json), de **22/09/2026**; aplicação parcial do critério não é certificação.
+Critério de contraste: [WCAG 2.2, 1.4.3](https://www.w3.org/TR/WCAG22/#contrast-minimum). Evidência desta rodada: [registro de navegação](evidence/interface-navigation.json), de **22/09/2026**; aplicação parcial do critério não é certificação.
 
 O baseline reproduziu três problemas funcionais: voltar do detalhe removia o filtro; o runbook não oferecia volta à ocorrência; investigação sem configuração abria JSON cru no navegador. A correção transporta somente filtro validado e ID numérico limitado. O retorno foca a ocorrência ou, se ela tiver saído do filtro, o conteúdo. Runbooks conservam a volta ao incidente e o foco nas seções. Erros de ferramentas oferecem HTML ao navegador; clientes JSON e redirects válidos mantêm o contrato.
 

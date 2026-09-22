@@ -1,6 +1,6 @@
 # Latência acima do objetivo
 
-Procedimento conferido em **22/09/2026**: [métricas e histogramas](../../src/api_sentinel/metrics.py), [Compose](../../compose.yml) e [regras demo](../../monitoring/rules/demo.yml). Os comandos e prazos são instruções deste ambiente; não constituem nova medição de recuperação.
+O procedimento usa [métricas e histogramas](../../src/api_sentinel/metrics.py), o [Compose](../../compose.yml) e as [regras demo](../../monitoring/rules/demo.yml). Comandos e prazos descrevem o ambiente local; resultados de recuperação têm recibos próprios.
 
 O alerta combina percentil de sucesso com volume mínimo e persistência. Não compare a latência de 503/429 rápidos com respostas corretas para afirmar melhora. Os histogramas combinam buckets entre réplicas; não calcule média dos p95 individuais.
 
