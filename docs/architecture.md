@@ -6,25 +6,74 @@ A arquitetura é definida pelos [serviços e imagens](../compose.yml), pela [adm
 
 API local de consultas de duas redes fictícias. Limita chamadas em andamento (concorrência) e chegadas por segundo (quota) por organização (tenant). A central de alertas, Grafana, logs JSON e Jaeger ajudam a investigar falhas. Todos os componentes desta implantação rodam no mesmo computador; duas réplicas são dois processos, não dois hosts independentes.
 
+O [mapa no README](../README.md#arquitetura) mostra os módulos em cada réplica. A implantação usa a rede padrão do Compose, com portas publicadas somente em `127.0.0.1`; os grupos lógicos do desenho não representam redes isoladas. NGINX resolve `api:8000` pelo DNS Docker e bloqueia `/internal`. PostgreSQL, Redis e ERP não têm porta publicada no host. O perfil `observability` acrescenta receiver, Prometheus, Alertmanager, Grafana e Jaeger; `tools` executa bootstrap, migração/seed e carga sob demanda.
+
+### Consulta comercial: autorização até o resultado
+
 ```mermaid
-flowchart LR
-  C[Cliente Bearer] --> P[NGINX :8104]
-  P --> A[FastAPI 1 ou 2 processos isolados]
-  A --> DB[(PostgreSQL)]
-  A --> R[(Redis: quota e cache)]
-  A --> E[ERP local]
-  A --> J[Jaeger OTLP]
-  M[Prometheus DNS por réplica] --> A
-  M --> X[Receiver + probe pelo proxy]
-  M --> AM[Alertmanager]
-  AM --> X
-  X --> S[(SQLite independente)]
-  G[Grafana] --> M
+sequenceDiagram
+  actor C as Cliente via NGINX
+  participant A as Réplica FastAPI
+  participant D as PostgreSQL
+  participant R as Redis
+  C->>A: GET /v1/stores/{id}/summary + Bearer
+  Note over A: Entrada local: 48 ativos, autenticação: 8
+  A->>D: Pool auth 2: hash, expiração, revogação, tenant e lojas
+  D-->>A: Principal, conexão auth devolvida
+  Note over A: Autoriza sales:read e loja antes de quota/cache
+  A->>R: DB 0: Lua INCR + PEXPIRE por tenant
+  R-->>A: Contagem e TTL, excesso 429, falha 503
+  Note over A: Admissão: 16 ativos, até 8 por tenant na réplica
+  A->>D: Pool dados 4: versão do dataset
+  D-->>A: Versão para a chave do resumo
+  A->>R: DB 1: GET chave versão + tenant + loja + período
+  alt Resumo encontrado
+    R-->>A: Resultado com observed_at
+  else Miss e lock obtido
+    A->>R: SET fill:key token NX PX 2000, repete GET
+    A->>D: SQL autorizado: receita, pedidos, unidades e ticket
+    D-->>A: Agregado em centavos e cobertura
+    A->>R: SET resumo EX 15, remove lock se token confere
+  else Outra réplica preenchendo
+    A->>R: Consulta por até 250 ms
+    R-->>A: Resumo pronto ou 503 cache_fill_busy
+  end
+  A-->>C: JSON + request_id, libera admissão
 ```
 
-Consulta: entrada global imediata → autenticação em pool próprio e prazo curto → autorização de loja/escopo → quota atômica Redis → admissão local por tenant → cache ou SQL limitado → resposta. A integração ERP libera conexão de autenticação antes de HTTP externo. Saúde e métricas têm caminhos separados. A ordem evita esgotar o banco com credenciais inválidas.
+O desenho acompanha uma chamada autorizada. Credencial inválida termina em 401; escopo ou loja indevidos, em 403. A [dependência `principal`](../src/api_sentinel/app.py) consulta o banco em cada request; o cache não dispensa autenticação nem a leitura da versão. A [consulta](../src/api_sentinel/queries.py) aplica tenant/loja/período no SQL, com valores monetários inteiros. No ramo de miss, se o segundo GET já encontrar resultado, não há novo agregado. Falha exclusiva do cache permite cálculo sob admissão, depois de aprovada a quota; queda do Redis inteiro interrompe a chamada na quota com 503.
 
-Alerta: probe independente consulta fixture pelo proxy → scrape/evaluation Prometheus → persistência `for` → agrupamento Alertmanager → webhook autenticado → transação SQLite → UI. Recuperação utiliza o mesmo fingerprint/início; uma entrega atrasada não reabre incidente resolvido.
+`/v1/stores` lista as lojas autorizadas; `/sales` consulta itens paginados e valida cursor assinado, sem usar o cache de resumo. `/availability/{sku}` percorre a mesma autenticação, autorização e quota, mas segue para [ERP](../src/api_sentinel/erp.py): 4 chamadas por processo, HTTPX com 4 conexões, até um retry dentro de 900 ms, corpo até 8 KiB e contrato estrito. Três falhas abrem o circuito por 3 s; a retomada admite uma sondagem. A conexão de autenticação já foi devolvida antes do HTTP. Saúde e métricas têm caminhos separados; `/health/ready` verifica PostgreSQL e quota, sem consultar ERP.
+
+### Observação e ciclo de um incidente
+
+```mermaid
+flowchart TB
+  subgraph BUSINESS["Caminho comercial · mesmo host"]
+    N["NGINX :80"] -->|"HTTP /v1/stores/7/summary"| A["Réplicas API :8000<br/>fixture isolada de R$ 125,00"]
+  end
+  subgraph OBS["Perfil observability · serviços independentes"]
+    X["Receiver :9184<br/>probe, webhook e central HTML"]
+    P["Prometheus :9090<br/>coleta + regras por duração"]
+    AM["Alertmanager :9093<br/>agrupa e repete entregas"]
+    S[("SQLite em receiver-data<br/>incidents + delivery_events")]
+    G["Grafana :3000<br/>dashboards provisionados"]
+    J["Jaeger<br/>OTLP :4318 · consulta :16686"]
+    P -->|"alertas firing/resolved"| AM
+    AM -->|"POST /webhook · Bearer próprio"| X
+    X -->|"transação antes do HTTP 2xx"| S
+    G -->|"PromQL"| P
+  end
+  X -->|"probe autenticado pelo proxy"| N
+  P -.->|"DNS api · GET /internal/metrics por réplica"| A
+  P -.->|"GET /metrics · probe e entregas"| X
+  A -.->|"OTLP/HTTP · amostra padrão 25%"| J
+  U["Operador no navegador"] -->|"127.0.0.1:9184 · lista e detalhe"| X
+```
+
+Setas contínuas são chamadas de consulta/entrega; pontilhadas representam telemetria. O probe pertence ao processo receiver e valida o resultado comercial conhecido, além do status HTTP. Prometheus coleta **diretamente de cada IP de réplica**, evitando que o balanceamento esconda uma instância; na [configuração demo](../monitoring/prometheus/demo.yml), coleta e avalia a cada 5 s. Grafana consulta essas séries; Jaeger recebe spans amostrados, sem participar do caminho de consulta comercial.
+
+Após o tempo `for` definido nas [regras](../monitoring/rules/demo.yml), o [Alertmanager](../monitoring/alertmanager/demo.yml) agrupa por projeto, ambiente, serviço e nome do alerta: espera inicial de 5 s, intervalo do grupo de 10 s e repetição de 5 min. `send_resolved: true` entrega recuperação. O receiver autentica e valida o webhook; [grava ocorrência e evento na mesma transação SQLite](../alert_receiver/storage.py), antes de confirmar recebimento. A chave `(fingerprint, starts_at)` reúne repetições na mesma ocorrência e impede que um firing atrasado reabra uma recuperação. Falha na gravação retorna 503 para permitir nova entrega. A central lê esse histórico e o estado do probe; atualização da página é manual.
 
 ## Seguir um caso no código
 
@@ -75,6 +124,13 @@ Esses mecanismos protegem invariantes diferentes. A quota não limita sozinha o 
 ## Dados e contratos
 
 O [gerador](../src/api_sentinel/seed.py) cria a massa descrita abaixo; a [autorização](../src/api_sentinel/auth.py) e a [consulta](../src/api_sentinel/queries.py) delimitam seu acesso.
+
+| Estado | Estrutura e proprietário | Persistência e efeito da perda |
+| --- | --- | --- |
+| Identidade e vendas | [Schema PostgreSQL](../migrations/versions/0001_initial.py): `tenants` → `stores` → `sale_items`; `products`, `credentials` e singleton `datasets`. A FK composta de item/loja inclui tenant; o índice de vendas segue tenant, loja, instante e ID. | Volume `postgres-data`. API apenas lê; bootstrap/migração/seed escrevem com papel separado. Indisponibilidade impede autenticar e consultar, mesmo com resumo em cache. |
+| Quota e preenchimento | Redis DB 0: `quota:{tenant}`; DB 1: `summary:v1:{version}:{tenant}:{store}:{start}:{end}` e `fill:{key}`. ACLs separadas para quota e cache. | Mesmo processo, memória limitada e `noeviction`; RDB/AOF desabilitados no Compose. Reinício perde contadores, locks e cache. O TTL permite reconstruir resumos, sem tornar Redis fonte comercial. |
+| Histórico de alertas | [SQLite](../alert_receiver/storage.py): `incidents` possui chave única fingerprint/início; `delivery_events` referencia ocorrência e preserva cada entrega. | Volume `receiver-data`, WAL e retenção padrão de 30 dias. Histórico independente do PostgreSQL comercial; indisponibilidade da central não implica indisponibilidade da API. |
+| Séries e traces | Prometheus guarda séries; Alertmanager mantém seu estado; Jaeger guarda traces em memória. | Prometheus: volume e retenção de 2 dias/256 MB. Jaeger: até 3.000 traces, perdidos no reinício. Esses dados apoiam investigação, sem reconstruir vendas ou substituir o histórico do receiver. |
 
 Duas organizações comerciais, seis lojas e quarenta produtos; um terceiro tenant técnico exclusivo do probe, sem organização comercial, usa uma sétima loja-fixture isolada. Este acréscimo atende ao isolamento exigido para o probe. Itens guardam centavos e quantidade; pedidos são contados por `(store_id, order_id)`. Seed determinística de 60 dias, versão imutável e fixture com receita manual de 12.500 centavos em dois pedidos. Datas comerciais são dias inclusivos de São Paulo convertidos para intervalo UTC semiaberto; intervalo máximo 90 dias. Ausência de cobertura retorna erro explícito. Cursor assinado vincula tenant, loja, período e versão; ordenação por instante/id únicos. A versão avançada invalida cursores e cache.
 
