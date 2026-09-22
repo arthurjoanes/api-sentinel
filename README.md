@@ -50,6 +50,21 @@ Recorte sem alteração de conteúdo: a segunda entrega confirma a recuperação
 - **Demonstração reproduzível:** fixture financeira, simulador de ERP, carga com conferência dos resultados, falhas controladas, testes, coleta de evidências e limpeza de projetos descartáveis.
 - **Configuração operacional:** regras do Prometheus/Alertmanager, painel do Grafana, instrumentação OpenTelemetry, correlação com Jaeger e integração no CI. Essas ferramentas são de terceiros; implementei sua configuração e integração ao laboratório.
 
+## Stack
+
+<p>
+  <img src="docs/stack/python.svg" alt="Python" width="72" height="72">
+  <img src="docs/stack/fastapi.svg" alt="FastAPI" width="72" height="72">
+  <img src="docs/stack/postgresql.svg" alt="PostgreSQL" width="72" height="72">
+  <img src="docs/stack/redis.svg" alt="Redis" width="72" height="72">
+  <img src="docs/stack/docker.svg" alt="Docker" width="72" height="72">
+  <img src="docs/stack/nginx.svg" alt="NGINX" width="72" height="72">
+  <img src="docs/stack/prometheus.svg" alt="Prometheus" width="72" height="72">
+  <img src="docs/stack/grafana.svg" alt="Grafana" width="72" height="72">
+</p>
+
+Python e FastAPI na API; PostgreSQL nos dados; Redis na quota e no cache; NGINX na entrada. Docker Compose executa os serviços. Prometheus e Grafana acompanham métricas e alertas; Jaeger recebe os traces.
+
 ## Escolhas de engenharia e seus custos
 
 Autorizei a loja **antes** de consultar o cache, para que um resultado já calculado não contorne a permissão. A credencial é consultada no banco a cada requisição; isso torna a revogação observável na próxima chamada, mas exige um orçamento próprio de conexões e tempo.
@@ -92,3 +107,5 @@ As duas réplicas compartilham um host. As execuções curtas não medem capacid
 A central mostra uma leitura atualizada manualmente. “Sem incidentes” não significa “saudável”; “Encerrado pelo operador” não significa que chegou uma recuperação. Ainda não houve sessão de uso com participantes; o [exercício preparado](docs/demo.md#exercício-com-outra-pessoa--preparado-ainda-não-realizado) permanece identificado como tal.
 
 [Licença MIT](LICENSE) · [interface e acessibilidade](docs/frontend-quality.md) · [contrato de dados](docs/data-contract.md).
+
+Ícones da stack: [Devicon — licença MIT](docs/stack/LICENSE.devicon).
