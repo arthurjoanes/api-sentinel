@@ -1,6 +1,33 @@
 # Verificação
 
-## Revisão editorial e execução atual — 22/09 às 12:12 UTC
+Para entender o produto, comece pela [consulta de R$ 125,00, falha e recuperação](operational-story.md). Este documento aprofunda os resultados por execução: os pacotes abaixo são históricos e preservam suas próprias versões. Para produzir evidência da sua cópia, execute `python scripts/review.py`; a saída aponta o novo `run.json`.
+
+## Auditoria do candidato — 22/09/2026
+
+Base examinada: `main`, `f9d1c52704c285d7961da4545a9dbae7ecc2ca7b`, remoto `https://github.com/arthurjoanes/api-sentinel.git`, árvore inicialmente limpa. Inventário: 507 arquivos rastreados (24 Markdown, 174 imagens, 95 arquivos em `docs/evidence`), nenhum novo e 2748 ignorados; as categorias se sobrepõem. Foram lidos README, instruções locais, contratos/decisões, CI, autenticação, dinheiro/período, cursor, quota/cache/ERP, persistência do receiver, testes críticos e runner. Os cinco PNGs do caso principal coincidiram com os hashes do manifesto. Os demais pacotes foram amostrados, não tomados como aprovação da fonte atual.
+
+O projeto sustenta um convite para entrevista de pleno: os cálculos são verificáveis por linhas independentes, a autorização precede o cache, o limite compartilhado é testado em Redis e a recuperação mantém a identidade da ocorrência. A stack de observabilidade tem utilidade demonstrada na investigação, com o custo explícito de vários serviços no mesmo host. Uma pergunta útil é como introduzir escrita de vendas sem servir resumos obsoletos: o dataset imutável atual não comprova essa consistência.
+
+| Requisito → evidência examinada | Situação nesta rodada |
+| --- | --- |
+| Problema, exemplo, decisão e limite → leitura simulada apenas do README | Conforme: público, ERP lento, R$ 125,00, escolhas e recuperação são compreensíveis sem reunir vários documentos. |
+| Autorização, dinheiro, fuso, concorrência e entregas → código e PostgreSQL/Redis reais | Conforme no laboratório: 261 casos e 11 subtests isolados passaram; os 73 casos HTTP separados também passaram, sem skips. O roteiro integral confirmou carga e recuperação com os critérios originais. |
+| Interface, estados, teclado e referências → UI/JS/CSS, testes de estados e capturas identificadas | Parcial: sem novo redesign ou substituição de imagens históricas; não houve sessão com participantes ou auditoria completa de leitor de tela. React/Next.js não se aplica ao HTML gerado em Python. |
+| Caso principal e evidências históricas → abertura deste guia e títulos datados | Conforme (P2 corrigido): a sequência de R$ 125,00 continua principal; as outras rodadas conservam versões e não disputam a apresentação como execução “atual”. |
+| Fontes primárias → HTTPX e Redis junto dos respectivos casos | Conforme ao alcance documental: comportamento, reprodução sintética e limites estão ligados; não se alegam incidentes, frequência ou benefícios com clientes. |
+| Instalação, CI e segurança → build, análise estática, workflow e scans | Parcial: build com lock congelado reutilizou camadas Docker; Ruff, formato e mypy em 27 fontes passaram. Scans e CI têm o alcance descrito abaixo. |
+
+O README publicado no SHA inicial foi inspecionado renderizado no GitHub: títulos, parágrafos, tabelas, código, imagens/alternativas, links, âncoras e navegação. A 320 px não houve overflow global; tabelas largas conservaram rolagem local. A cópia candidata recebeu também preview local com CSS do GitHub em 1440/320 px, claro/escuro; isso não publica nem substitui a revisão do GitHub. Links relativos e âncoras seguem a documentação oficial; a escolha de um único H1 e a densidade de imagens são preferências editoriais, não exigências da plataforma.
+
+`python scripts/review.py --scenario all --keep` concluiu a execução `20260922t162614687982z` com `passed`, fontes operacionais inalteradas e imagem `sha256:266d68b4a5ccf8dd1bb22bba9fac7cc6f0eeac0d096884fa7faaa4d388a09d3e`. Passaram build, análise estática, monitoramento, oráculo independente, mutações de contrato, testes isolados e HTTP, carga normal/ERP lento/recuperado, quota em uma/duas réplicas, isolamento, Redis indisponível, pressão no banco e revogação. Os dois alertas reais foram entregues e recuperados na mesma ocorrência; logs e Jaeger correlacionaram uma requisição. Ao final: 12500 centavos, dois pedidos, ticket 6250, dois targets coletados e nenhum incidente ativo.
+
+Os logs e JSONs dessa rodada ficaram em `artifacts/problem-review/20260922t162614687982z/`, ignorado pelo Git. O ensaio encontrou outra stack de auditoria no host e não constitui benchmark controlado de capacidade. Depois da verificação, somente seus containers foram parados; os dez volumes desse laboratório foram preservados. Não houve nova captura de incidente, estudo com participantes, publicação ou implantação. As imagens históricas abaixo continuam vinculadas às execuções originais.
+
+Gitleaks 8.30.1 examinou os 13 commits do histórico completo e os arquivos rastreados com as edições locais, com configuração existente e valores redigidos: nenhum achado. Trivy 0.74.0 examinou a imagem exata da rodada integral, com base atualizada em 22/09 às 07:24 UTC e baixada às 16:14 UTC: zero achados em sistema, Python e binário Rust, sem arquivo de exclusões. Esse resultado não abrange todas as imagens auxiliares; o scanner também advertiu que Alpine 3.24 não constava em sua lista de fim de suporte. Permanecem dois avisos de depreciação em dependências dos testes, sem falha ou remoção de asserções.
+
+O [CI `35744710942`](https://github.com/arthurjoanes/api-sentinel/actions/runs/35744710942), no SHA inicial, passou em build, scan, análise estática, monitoramento, integração e HTTP real. Foram inspecionados os passos e o workflow, incluindo coleta em falha e upload de `artifacts/`. A API confirmou o artefato não expirado, com expiração em 29/09; seu ZIP autenticado não foi baixado. Os resumos sanitizados versionados abaixo continuam disponíveis após a expiração do artefato. O CI não aprova automaticamente estas edições locais.
+
+## Execução editorial completa — 22/09 às 12:12 UTC
 
 Executei `python scripts/review.py --scenario all --keep` em banco, rede e volumes novos. A base foi `452509b`, com alterações locais no runner/coletor identificadas pelos hashes das fontes. A [prova desta rodada](evidence/editorial-20260922/full-run.json) está aprovada; não herda o resultado do CI de outro commit.
 
@@ -16,7 +43,7 @@ O coletor de imagens desta tentativa falhou ao tentar ler a credencial de uma r�
 
 A varredura de imagem não cobre todos os serviços auxiliares nem garante ausência de vulnerabilidades desconhecidas. A carga ocorreu sem outra stack Docker ativa no início e com janela reservada. A repetição para imagens não é uma nova medição de desempenho.
 
-## Capturas atuais e instalação repetida — 22/09 às 12:49 UTC
+## Capturas do caso principal e instalação repetida — 22/09 às 12:49 UTC
 
 Executei `python scripts/review.py --scenario alerts --keep --wait-for-capture`, com o coletor em outro processo. A [prova final](evidence/editorial-20260922/capture-run.json) identifica a base `452509b`, as mudanças locais, a imagem `sha256:2846db49…` e os hashes de todas as fontes operacionais. Build, Ruff, formato, mypy, monitoramento, **261 testes isolados + 11 subtests** e **73 testes HTTP** passaram. Os 73 skips da primeira etapa são justamente os casos HTTP executados depois, sem skips.
 
