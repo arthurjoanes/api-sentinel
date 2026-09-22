@@ -71,3 +71,11 @@ O download inicial pelo espelho expirou. A tentativa no repositório oficial `gh
 Os arquivos locais de reprodução e relatórios completos estão em `.runtime/interface-package/`, ignorados pelo Git: `check_package.py`, `package-files-routes.json`, `image-inspect.json`, `image-platform-inspect.json`, `runtime.json`, `trivy.log` e `record_evidence.py`. A base está em `.runtime/trivy-cache/`. Os comandos de lint, formato, tipos e testes também constam em `commands.checks` no registro versionado.
 
 Esta rodada não iniciou a stack de observabilidade, não gerou carga nem entregas operacionais de alertas. `publication.json` foi preservado. Em `interface-review.json`, somente o nome da branch interna foi omitido; resultados, baseline e hashes das fontes permanecem iguais. Os hashes dos documentos atuais estão no registro complementar. Alterações posteriores desta documentação não mudam a imagem, pois `docs/*` é excluído do build, com exceção de `docs/runbooks/`.
+
+## Correção da exportação JUnit no CI
+
+Na [primeira execução do candidato no GitHub](https://github.com/arthurjoanes/api-sentinel/actions/runs/35685290078), o commit `75094d5` passou por build, scan, análise estática, monitoramento e suíte isolada. A etapa HTTP exibiu sucesso nos 73 casos, mas o job falhou no encerramento do pytest: `PermissionError` ao criar `/artifacts/http-tests.xml`. Não houve JUnit HTTP dessa execução no artefato; o XML de mesmo nome dentro de `problem-review/20260921t064944662185z` pertence à prova histórica.
+
+O serviço `tools` usa UID 0 com `cap_drop: ALL` e somente `CHOWN` adicional. Sem `DAC_OVERRIDE`, ele não pode criar o arquivo no diretório do bind pertencente ao runner Linux. O workflow agora prepara somente `artifacts/http-tests.xml`, com dono 0:0 e modo 0644, antes do pytest HTTP. O diretório já é criado pelo passo inicial de build; as permissões gerais, o usuário e as capabilities dos serviços não mudaram.
+
+A correção foi conferida com Actionlint e um container descartável da imagem candidata, sem rede nem serviços: diretório Linux UID 1001/modo 0755, escritor UID 0 com somente `CHOWN`. A criação foi recusada antes da preparação; a escrita no arquivo UID 0/modo 0644 passou. Esse teste verifica a exportação e não substitui a execução completa do CI no commit corrigido.

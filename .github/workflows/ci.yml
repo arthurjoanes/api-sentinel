@@ -122,6 +122,8 @@ jobs:
 
       - name: Segurança e operações pelo proxy real
         run: |
+          # tools usa root sem DAC_OVERRIDE; o diretório do bind pertence ao runner.
+          sudo install -o 0 -g 0 -m 0644 /dev/null artifacts/http-tests.xml
           docker compose -f compose.yml -p "$SMOKE_PROJECT" run --rm \
             -e RUN_HTTP_TESTS=1 -e SENTINEL_EXPECTED_REPLICAS=2 \
             -e SENTINEL_BASE_URL=http://proxy \
