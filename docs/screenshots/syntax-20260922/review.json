@@ -1,0 +1,425 @@
+{
+  "reviewed_at": "2026-09-22T18:05:57.275Z",
+  "scope": "Presentation-only syntax highlighting; exact source text preserved, no commands executed",
+  "browser": "153.0.4234.48",
+  "source_files_sha256": {
+    "alert_receiver/code_format.py": "947d0b7fca9be449c8ce2037e96ac0d3e7dd2dfb19f5c9b67b76c894bd59f053",
+    "alert_receiver/ui.py": "d053446845a524196bde252e8a2a797b16bd48a4a8b0cd34d217b6b6e4c6876c",
+    "alert_receiver/styles.css": "a3dee4c4fbb4cb8f19fc5200fa5dda32d7b527dda6eba2fe118ddda91ec6a4ec"
+  },
+  "views": [
+    {
+      "name": "erp.md",
+      "url": "http://localhost:9184/runbooks/erp",
+      "width": 1120,
+      "sourcePreserved": true,
+      "scrollWidth": 1120,
+      "blocks": [
+        {
+          "width": 842,
+          "scrollWidth": 842
+        },
+        {
+          "width": 842,
+          "scrollWidth": 842
+        },
+        {
+          "width": 842,
+          "scrollWidth": 842
+        }
+      ]
+    },
+    {
+      "name": "error-budget.md",
+      "url": "http://localhost:9184/runbooks/error-budget",
+      "width": 1120,
+      "sourcePreserved": true,
+      "scrollWidth": 1120,
+      "blocks": [
+        {
+          "width": 842,
+          "scrollWidth": 842
+        },
+        {
+          "width": 842,
+          "scrollWidth": 842
+        }
+      ]
+    },
+    {
+      "name": "latency.md",
+      "url": "http://localhost:9184/runbooks/latency",
+      "width": 1120,
+      "sourcePreserved": true,
+      "scrollWidth": 1120,
+      "blocks": [
+        {
+          "width": 842,
+          "scrollWidth": 987
+        },
+        {
+          "width": 842,
+          "scrollWidth": 842
+        }
+      ]
+    },
+    {
+      "name": "replica.md",
+      "url": "http://localhost:9184/runbooks/replica",
+      "width": 1120,
+      "sourcePreserved": true,
+      "scrollWidth": 1120,
+      "blocks": [
+        {
+          "width": 842,
+          "scrollWidth": 842
+        },
+        {
+          "width": 842,
+          "scrollWidth": 842
+        },
+        {
+          "width": 842,
+          "scrollWidth": 842
+        }
+      ]
+    },
+    {
+      "name": "saturation.md",
+      "url": "http://localhost:9184/runbooks/saturation",
+      "width": 1120,
+      "sourcePreserved": true,
+      "scrollWidth": 1120,
+      "blocks": [
+        {
+          "width": 842,
+          "scrollWidth": 842
+        },
+        {
+          "width": 842,
+          "scrollWidth": 842
+        }
+      ]
+    },
+    {
+      "name": "telemetry.md",
+      "url": "http://localhost:9184/runbooks/telemetry",
+      "width": 1120,
+      "sourcePreserved": true,
+      "scrollWidth": 1120,
+      "blocks": [
+        {
+          "width": 842,
+          "scrollWidth": 842
+        },
+        {
+          "width": 842,
+          "scrollWidth": 842
+        }
+      ]
+    },
+    {
+      "name": "unavailable.md",
+      "url": "http://localhost:9184/runbooks/unavailable",
+      "width": 1120,
+      "sourcePreserved": true,
+      "scrollWidth": 1120,
+      "blocks": [
+        {
+          "width": 842,
+          "scrollWidth": 842
+        },
+        {
+          "width": 842,
+          "scrollWidth": 842
+        }
+      ]
+    },
+    {
+      "name": "erp.md",
+      "url": "http://localhost:9184/runbooks/erp",
+      "width": 390,
+      "sourcePreserved": true,
+      "scrollWidth": 390,
+      "blocks": [
+        {
+          "width": 358,
+          "scrollWidth": 428
+        },
+        {
+          "width": 358,
+          "scrollWidth": 435
+        },
+        {
+          "width": 358,
+          "scrollWidth": 358
+        }
+      ]
+    },
+    {
+      "name": "error-budget.md",
+      "url": "http://localhost:9184/runbooks/error-budget",
+      "width": 390,
+      "sourcePreserved": true,
+      "scrollWidth": 390,
+      "blocks": [
+        {
+          "width": 358,
+          "scrollWidth": 643
+        },
+        {
+          "width": 358,
+          "scrollWidth": 457
+        }
+      ]
+    },
+    {
+      "name": "latency.md",
+      "url": "http://localhost:9184/runbooks/latency",
+      "width": 390,
+      "sourcePreserved": true,
+      "scrollWidth": 390,
+      "blocks": [
+        {
+          "width": 358,
+          "scrollWidth": 979
+        },
+        {
+          "width": 358,
+          "scrollWidth": 407
+        }
+      ]
+    },
+    {
+      "name": "replica.md",
+      "url": "http://localhost:9184/runbooks/replica",
+      "width": 390,
+      "sourcePreserved": true,
+      "scrollWidth": 390,
+      "blocks": [
+        {
+          "width": 358,
+          "scrollWidth": 358
+        },
+        {
+          "width": 358,
+          "scrollWidth": 478
+        },
+        {
+          "width": 358,
+          "scrollWidth": 507
+        }
+      ]
+    },
+    {
+      "name": "saturation.md",
+      "url": "http://localhost:9184/runbooks/saturation",
+      "width": 390,
+      "sourcePreserved": true,
+      "scrollWidth": 390,
+      "blocks": [
+        {
+          "width": 358,
+          "scrollWidth": 443
+        },
+        {
+          "width": 358,
+          "scrollWidth": 471
+        }
+      ]
+    },
+    {
+      "name": "telemetry.md",
+      "url": "http://localhost:9184/runbooks/telemetry",
+      "width": 390,
+      "sourcePreserved": true,
+      "scrollWidth": 390,
+      "blocks": [
+        {
+          "width": 358,
+          "scrollWidth": 614
+        },
+        {
+          "width": 358,
+          "scrollWidth": 700
+        }
+      ]
+    },
+    {
+      "name": "unavailable.md",
+      "url": "http://localhost:9184/runbooks/unavailable",
+      "width": 390,
+      "sourcePreserved": true,
+      "scrollWidth": 390,
+      "blocks": [
+        {
+          "width": 358,
+          "scrollWidth": 507
+        },
+        {
+          "width": 358,
+          "scrollWidth": 521
+        }
+      ]
+    },
+    {
+      "name": "erp.md",
+      "url": "http://localhost:9184/runbooks/erp",
+      "width": 320,
+      "sourcePreserved": true,
+      "scrollWidth": 320,
+      "blocks": [
+        {
+          "width": 288,
+          "scrollWidth": 428
+        },
+        {
+          "width": 288,
+          "scrollWidth": 435
+        },
+        {
+          "width": 288,
+          "scrollWidth": 335
+        }
+      ]
+    },
+    {
+      "name": "error-budget.md",
+      "url": "http://localhost:9184/runbooks/error-budget",
+      "width": 320,
+      "sourcePreserved": true,
+      "scrollWidth": 320,
+      "blocks": [
+        {
+          "width": 288,
+          "scrollWidth": 643
+        },
+        {
+          "width": 288,
+          "scrollWidth": 457
+        }
+      ]
+    },
+    {
+      "name": "latency.md",
+      "url": "http://localhost:9184/runbooks/latency",
+      "width": 320,
+      "sourcePreserved": true,
+      "scrollWidth": 320,
+      "blocks": [
+        {
+          "width": 288,
+          "scrollWidth": 979
+        },
+        {
+          "width": 288,
+          "scrollWidth": 407
+        }
+      ]
+    },
+    {
+      "name": "replica.md",
+      "url": "http://localhost:9184/runbooks/replica",
+      "width": 320,
+      "sourcePreserved": true,
+      "scrollWidth": 320,
+      "blocks": [
+        {
+          "width": 288,
+          "scrollWidth": 288
+        },
+        {
+          "width": 288,
+          "scrollWidth": 478
+        },
+        {
+          "width": 288,
+          "scrollWidth": 507
+        }
+      ]
+    },
+    {
+      "name": "saturation.md",
+      "url": "http://localhost:9184/runbooks/saturation",
+      "width": 320,
+      "sourcePreserved": true,
+      "scrollWidth": 320,
+      "blocks": [
+        {
+          "width": 288,
+          "scrollWidth": 443
+        },
+        {
+          "width": 288,
+          "scrollWidth": 471
+        }
+      ]
+    },
+    {
+      "name": "telemetry.md",
+      "url": "http://localhost:9184/runbooks/telemetry",
+      "width": 320,
+      "sourcePreserved": true,
+      "scrollWidth": 320,
+      "blocks": [
+        {
+          "width": 288,
+          "scrollWidth": 614
+        },
+        {
+          "width": 288,
+          "scrollWidth": 700
+        }
+      ]
+    },
+    {
+      "name": "unavailable.md",
+      "url": "http://localhost:9184/runbooks/unavailable",
+      "width": 320,
+      "sourcePreserved": true,
+      "scrollWidth": 320,
+      "blocks": [
+        {
+          "width": 288,
+          "scrollWidth": 507
+        },
+        {
+          "width": 288,
+          "scrollWidth": 521
+        }
+      ]
+    }
+  ],
+  "minimum_token_contrast": 9.301934630048946,
+  "images": [
+    {
+      "repo": "api-sentinel",
+      "path": "docs/screenshots/syntax-20260922/runbook-code.png",
+      "url": "http://localhost:9184/runbooks/replica",
+      "viewport": {
+        "width": 1120,
+        "height": 850
+      },
+      "clip": {
+        "x": 246,
+        "y": 567,
+        "width": 842,
+        "height": 259
+      },
+      "imageDimensions": {
+        "width": 842,
+        "height": 259
+      },
+      "sha256": "2926b5183a86fb54b89c4478559af880a82159817ae7e05488627432e02b8414"
+    }
+  ],
+  "page_errors": [],
+  "external_requests": [],
+  "test_result": {
+    "passed": 68
+  },
+  "print_review": {
+    "passed": true,
+    "scope": "White background, wrapped lines and token contrast >=4.5:1 in print CSS; PDF pagination not audited"
+  }
+}

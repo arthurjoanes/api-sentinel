@@ -4,13 +4,13 @@
 
 Repeti a matriz completa em um projeto Docker novo, com as fontes identificadas na [prova atual](evidence/editorial-20260922/full-run.json). O tráfego usa lojas, vendas e ERP sintéticos; banco, Redis, proxy e requisições são reais. Os critérios não foram reduzidos para aprovar a rodada.
 
-| Cenário | Duração configurada | Iniciadas / concluídas | Respostas válidas | Recusas 429 | Falhas previstas do ERP |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| Mistura normal, 10 chegadas/s | 15 s | 151 / 151 | 151 | 0 | 0 |
-| ERP enviando o corpo aos poucos, 10 chegadas/s | 15 s | 151 / 151 | 114 | 0 | 37 |
-| Após recuperação do ERP, 10 chegadas/s | 10 s | 100 / 100 | 100 | 0 | 0 |
-| Quota com uma réplica, 60 chegadas/s | 10 s | 600 / 600 | 300 | 300 | 0 |
-| Quota com duas réplicas, 60 chegadas/s | 10 s | 601 / 601 | 300 | 301 | 0 |
+| Cenário                                        | Duração configurada | Iniciadas / concluídas | Respostas válidas | Recusas 429 | Falhas previstas do ERP |
+| ---------------------------------------------- | ------------------: | ---------------------: | ----------------: | ----------: | ----------------------: |
+| Mistura normal, 10 chegadas/s                  |                15 s |              151 / 151 |               151 |           0 |                       0 |
+| ERP enviando o corpo aos poucos, 10 chegadas/s |                15 s |              151 / 151 |               114 |           0 |                      37 |
+| Após recuperação do ERP, 10 chegadas/s         |                10 s |              100 / 100 |               100 |           0 |                       0 |
+| Quota com uma réplica, 60 chegadas/s           |                10 s |              600 / 600 |               300 |         300 |                       0 |
+| Quota com duas réplicas, 60 chegadas/s         |                10 s |              601 / 601 |               300 |         301 |                       0 |
 
 Não houve iterações descartadas, respostas inválidas nem recusas de capacidade nesses cinco cenários. O gerador pode iniciar uma iteração na fronteira da duração; por isso a contagem observada não é substituída pela multiplicação nominal de taxa × segundos. As 114 respostas válidas e 37 falhas previstas do ERP são categorias diferentes, não uma taxa única de sucesso do produto.
 
@@ -30,14 +30,14 @@ Mistura normal e ERP degradado: 10 req/s por 15 s. Recuperação: 10 req/s por 1
 
 Critérios preservados: zero drops, conteúdo incorreto e resultados inesperados; p95/p99 das respostas corretas abaixo de 500/1500 ms, inclusive nas rotas comerciais; p99 global abaixo de 3 s com aborto. Rejeições por quota e erros previstos de ERP são contados separadamente.
 
-| Cenário | Oferta nominal | Iniciadas/concluídas | 200 corretas | 429 | Falhas previstas | Drops | p50 sucesso ms | p95 sucesso ms | p99 sucesso ms |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| mixed-normal | 150 | 150/150 | 150 | 0 | 0 | 0 | 6,53 | 8,83 | 56,50 |
-| mixed-erp-degraded | 150 | 151/151 | 114 | 0 | 37 | 0 | 6,52 | 8,22 | 17,29 |
-| mixed-recovered | 100 | 101/101 | 101 | 0 | 0 | 0 | 6,71 | 7,81 | 17,59 |
-| quota-one | 600 | 601/601 | 300 | 301 | 0 | 0 | 5,62 | 7,82 | 9,87 |
-| quota-two | 600 | 601/601 | 300 | 301 | 0 | 0 | 6,93 | 11,36 | 23,00 |
-| tenant-isolation | 650 | 652/652 | 351 | 301 | 0 | 0 | 7,34 | 11,13 | 17,63 |
+| Cenário            | Oferta nominal | Iniciadas/concluídas | 200 corretas | 429 | Falhas previstas | Drops | p50 sucesso ms | p95 sucesso ms | p99 sucesso ms |
+| ------------------ | -------------: | -------------------: | -----------: | --: | ---------------: | ----: | -------------: | -------------: | -------------: |
+| mixed-normal       |            150 |              150/150 |          150 |   0 |                0 |     0 |           6,53 |           8,83 |          56,50 |
+| mixed-erp-degraded |            150 |              151/151 |          114 |   0 |               37 |     0 |           6,52 |           8,22 |          17,29 |
+| mixed-recovered    |            100 |              101/101 |          101 |   0 |                0 |     0 |           6,71 |           7,81 |          17,59 |
+| quota-one          |            600 |              601/601 |          300 | 301 |                0 |     0 |           5,62 |           7,82 |           9,87 |
+| quota-two          |            600 |              601/601 |          300 | 301 |                0 |     0 |           6,93 |          11,36 |          23,00 |
+| tenant-isolation   |            650 |              652/652 |          351 | 301 |                0 |     0 |           7,34 |          11,13 |          17,63 |
 
 As falhas previstas da mistura degradada pertencem ao ERP. Os demais caminhos comerciais precisam continuar corretos. As respostas 429 representam quota contratada, sem duplicação do limite ao passar de uma para duas réplicas. O registro público mantém também as categorias separadas por cliente e os thresholds de cada métrica; rejeições rápidas não são apresentadas como melhoria de latência das respostas úteis.
 
@@ -60,12 +60,14 @@ A implementação nativa também não bastou sozinha: a primeira carga após ini
 O healthcheck foi então trocado por wget do BusyBox, sem alterar endpoint ou prazos. Isso remove a inicialização periódica de Python do mesmo cgroup da API. O healthcheck também rejeitou HTTP 500, porta fechada e ausência de resposta no prazo. As 3 cargas delimitadas abaixo usaram processos de API recém-iniciados; as contagens vêm das rodadas reais em `bounded_quota_validation.rounds`, separadas da tabela da prova completa.
 
 | Rodada de quota | Iniciadas/concluídas | 200 corretas | 429 | Resultados inesperados | Drops |
-|---|---:|---:|---:|---:|---:|
-| 1 | 601/601 | 300 | 301 | 0 | 0 |
-| 2 | 600/600 | 300 | 300 | 0 | 0 |
-| 3 | 600/600 | 300 | 300 | 0 | 0 |
+| --------------- | -------------------: | -----------: | --: | ---------------------: | ----: |
+| 1               |              601/601 |          300 | 301 |                      0 |     0 |
+| 2               |              600/600 |          300 | 300 |                      0 |     0 |
+| 3               |              600/600 |          300 | 300 |                      0 |     0 |
 
-A imagem final pré-compila stdlib, dependências e aplicação e constrói o mesmo protobuf 6.33.6 do lock com upb nativo. A exportação de traces e a amostragem de 25% permanecem ativas na prova aprovada. A coleta de cpu.stat/cpu.max/cpu.pressure usa cat; iniciar Python dentro do cgroup medido distorcia o diagnóstico inicial. Nenhum limite de admissão, prazo, taxa ou threshold foi ampliado para aprovar esta execução.
+A imagem final pré-compila stdlib, dependências e aplicação e constrói o mesmo protobuf 6.33.6 do lock com upb nativo. A exportação de traces e a amostragem de 25% permanecem ativas na prova aprovada.
+
+A coleta de `cpu.stat`/`cpu.max`/`cpu.pressure` usa `cat`; iniciar Python dentro do cgroup medido distorcia o diagnóstico inicial. Nenhum limite de admissão, prazo, taxa ou threshold foi ampliado para aprovar esta execução.
 
 Na tentativa canônica `20260922t010740342553z`, o k6 registrou 282 respostas válidas, 242 recusas por quota, 38 por capacidade, 12 outros erros e 27 drops. Os 12 outros erros foram 11 respostas `database_pool_busy` e uma `cache_fill_busy`. As métricas da API registraram rejeições nas admissões auth e tenant, timeouts nos pools auth e data e espera de preenchimento do cache expirada. Esses agregados também incluem tráfego além do k6; as 40 entradas de saturação no log da API não equivalem a 40 respostas de capacidade no gerador. Não se tratava somente das rejeições de autenticação das primeiras tentativas.
 
@@ -73,7 +75,13 @@ Essas correções e a aprovação atual não transformam a comparação inicial 
 
 ## Limites da medição
 
-Docker informado pelo runner: `CPUs=16 memory_bytes=16707645440 version=29.7.2`. As APIs, banco, gerador e observabilidade compartilham o host. Antes da tentativa canônica reprovada, uma amostra externa registrou cerca de 3,12 CPUs lógicas em outros containers; as amostras Windows de 90–99% ocorreram depois do intervalo daquela quota. Essas observações não medem a carga efetiva do host durante a falha nem demonstram sua causa. Os recursos alheios foram preservados. Na janela das três rodadas de quota, 32 amostras do host variaram entre 21% e 83% (2026-09-22T02:29:48.9861987Z a 2026-09-22T02:31:23.8783851Z); o host não era dedicado nem completamente ocioso. Esse intervalo pertence à validação delimitada, não à prova completa. O registro público identifica a imagem e o hash da série de amostras. Os números descrevem as execuções identificadas, sem representar um benchmark em máquina exclusiva. As amostras Docker e Prometheus são observações pontuais; não representam picos contínuos nem percentis de CPU/memória. Estatísticas de poucos segundos não demonstram estabilidade prolongada.
+Docker informado pelo runner: `CPUs=16 memory_bytes=16707645440 version=29.7.2`. As APIs, banco, gerador e observabilidade compartilham o host.
+
+Antes da tentativa canônica reprovada, uma amostra externa registrou cerca de 3,12 CPUs lógicas em outros containers; as amostras Windows de 90–99% ocorreram depois do intervalo daquela quota. Essas observações não medem a carga efetiva do host durante a falha nem demonstram sua causa. Os recursos alheios foram preservados.
+
+Na janela das três rodadas de quota, 32 amostras do host variaram entre 21% e 83% (2026-09-22T02:29:48.9861987Z a 2026-09-22T02:31:23.8783851Z); o host não era dedicado nem completamente ocioso. Esse intervalo pertence à validação delimitada, não à prova completa. O registro público identifica a imagem e o hash da série de amostras.
+
+Os números descrevem as execuções identificadas, sem representar um benchmark em máquina exclusiva. As amostras Docker e Prometheus são observações pontuais; não representam picos contínuos nem percentis de CPU/memória. Estatísticas de poucos segundos não demonstram estabilidade prolongada.
 
 Falhas de ERP, Redis, banco, traces e ciclos de alertas foram provocadas e recuperadas localmente. O resultado demonstra esses cenários e contratos; não mede capacidade máxima, benefício linear de réplicas, SLO mensal, disponibilidade entre hosts ou entrega externa. Os testes e o escopo da varredura estão em [verificação](verification.md).
 

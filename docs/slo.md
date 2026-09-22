@@ -4,13 +4,13 @@ Os objetivos de referência são 99,9% de disponibilidade das requisições eleg
 
 ## Fontes e população
 
-| Indicador | Numerador | Denominador / população | Limitação |
-|---|---|---|---|
-| Disponibilidade da aplicação | Respostas `success` | `success + server_error`, tráfego `business`, rotas stores/summary/sales | Não observa conexões nem 503 gerados antes da API |
-| Latência de sucesso | Bucket `le="0.5"` com `outcome="success"` | Count do mesmo histograma e população | Limite inclusivo do bucket: ≤500 ms; objetivo informal “abaixo” usa esse limite operacional |
-| Consulta pelo proxy | Execução autenticada com status, schema e fixture corretos | Execuções do probe externo ao processo API | Amostragem a cada 3 s, não todas as requisições de clientes |
-| Réplicas disponíveis | Soma de `up{job="api"}` | Gauge `sentinel_expected_replicas` do receiver | Disponibilidade de coleta não indica correção da consulta |
-| Coleta e entrega | Targets, último probe, notificações e webhooks persistidos | Séries independentes da aplicação | Falha de todo o computador também derruba a supervisão local |
+| Indicador                    | Numerador                                                  | Denominador / população                                                  | Limitação                                                                                   |
+| ---------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------- |
+| Disponibilidade da aplicação | Respostas `success`                                        | `success + server_error`, tráfego `business`, rotas stores/summary/sales | Não observa conexões nem 503 gerados antes da API                                           |
+| Latência de sucesso          | Bucket `le="0.5"` com `outcome="success"`                  | Count do mesmo histograma e população                                    | Limite inclusivo do bucket: ≤500 ms; objetivo informal “abaixo” usa esse limite operacional |
+| Consulta pelo proxy          | Execução autenticada com status, schema e fixture corretos | Execuções do probe externo ao processo API                               | Amostragem a cada 3 s, não todas as requisições de clientes                                 |
+| Réplicas disponíveis         | Soma de `up{job="api"}`                                    | Gauge `sentinel_expected_replicas` do receiver                           | Disponibilidade de coleta não indica correção da consulta                                   |
+| Coleta e entrega             | Targets, último probe, notificações e webhooks persistidos | Séries independentes da aplicação                                        | Falha de todo o computador também derruba a supervisão local                                |
 
 `server_error` inclui 503 por saturação, falha de aquisição e Redis indisponível. `quota` identifica exclusivamente 429 da quota contratada; aparece em painel próprio, fora do denominador de disponibilidade. Erros de cliente, como credencial inválida ou cursor recusado, também ficam fora desse denominador. O ERP opcional tem seus próprios indicadores e alerta warning; não altera o SLI de resumos e vendas. O probe usa `traffic="probe"`, tenant e credencial próprios, sem disputar a quota do tenant sob carga.
 
@@ -23,9 +23,9 @@ Sem tráfego, o denominador é zero e o indicador é indefinido. Sem séries, n�
 `monitoring/prometheus/demo.yml` carrega somente `rules/demo.yml`; `reference.yml` carrega somente `rules/reference.yml`. A configuração correspondente do Alertmanager precisa ser escolhida na mesma execução. Não carregue ambos por glob. Cada regra carrega `project=api-sentinel`, `service=api-sentinel` e `environment=demo|reference`, além da severidade.
 
 | Configuração | Scrape / avaliação | Persistência `for` | Agrupamento inicial / mudanças / repetição |
-|---|---|---|---|
-| Demo | 5 s / 5 s | 15 s | 5 s / 10 s / 5 min |
-| Referência | 15 s / 30 s | 2 min | 30 s / 5 min / 4 h |
+| ------------ | ------------------ | ------------------ | ------------------------------------------ |
+| Demo         | 5 s / 5 s          | 15 s               | 5 s / 10 s / 5 min                         |
+| Referência   | 15 s / 30 s        | 2 min              | 30 s / 5 min / 4 h                         |
 
 O DNS é atualizado a cada 5 s nos dois conjuntos. Recriar uma réplica pode mudar seu IP; o Prometheus descobre o nome `api` por registros A, porta interna 8000, e coleta cada endereço. Coletar apenas o proxy perderia a identidade das instâncias. Se o DNS retirar uma réplica, sua série desaparece: por isso `SentinelReplicaLost` compara a soma dos targets disponíveis com o gauge independente de quantidade esperada, em vez de depender apenas de `up == 0`.
 
@@ -55,15 +55,15 @@ Na demo, o mesmo alerta usa mais de 5% de erros em 2 min e 30 s, com pelo menos 
 
 ## Sintomas e ações
 
-| Alerta | Condição | Primeira ação |
-|---|---|---|
-| `SentinelUnavailable` | Probe autenticado persistentemente falha | Conferir proxy, réplicas e dependências; validar fixture após restaurar |
-| `SentinelErrorBudgetBurn` | Erro acima dos limiares longo e curto com volume | Correlacionar 503/5xx com admissão, pools e Redis |
-| `SentinelLatencyHigh` | Mais de 5% de sucessos excedem 500 ms; mínimo 20/1 min demo ou 100/10 min referência | Comparar espera de pool, SQL, cache e trace |
-| `SentinelSaturation` | Rejeições com ocupação elevada, ou timeout de aquisição | Reduzir carga e conferir o orçamento de conexões |
-| `SentinelReplicaLost` | Targets disponíveis menores que o esperado | Restaurar réplica e verificar redescoberta DNS |
-| `SentinelTelemetryUnavailable` | Coleta necessária ausente/falhando, probe atrasado ou ≥3 falhas de entrega na janela | Recuperar observação e entrega; ausência de erros não indica saúde |
-| `SentinelERPUnavailable` | Circuito de pelo menos uma réplica permanece aberto | Verificar ERP e confirmar que resumos continuam úteis |
+| Alerta                         | Condição                                                                             | Primeira ação                                                           |
+| ------------------------------ | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------- |
+| `SentinelUnavailable`          | Probe autenticado persistentemente falha                                             | Conferir proxy, réplicas e dependências; validar fixture após restaurar |
+| `SentinelErrorBudgetBurn`      | Erro acima dos limiares longo e curto com volume                                     | Correlacionar 503/5xx com admissão, pools e Redis                       |
+| `SentinelLatencyHigh`          | Mais de 5% de sucessos excedem 500 ms; mínimo 20/1 min demo ou 100/10 min referência | Comparar espera de pool, SQL, cache e trace                             |
+| `SentinelSaturation`           | Rejeições com ocupação elevada, ou timeout de aquisição                              | Reduzir carga e conferir o orçamento de conexões                        |
+| `SentinelReplicaLost`          | Targets disponíveis menores que o esperado                                           | Restaurar réplica e verificar redescoberta DNS                          |
+| `SentinelTelemetryUnavailable` | Coleta necessária ausente/falhando, probe atrasado ou ≥3 falhas de entrega na janela | Recuperar observação e entrega; ausência de erros não indica saúde      |
+| `SentinelERPUnavailable`       | Circuito de pelo menos uma réplica permanece aberto                                  | Verificar ERP e confirmar que resumos continuam úteis                   |
 
 O alerta de saturação combina rejeições com ao menos um destes sinais: entrada ≥40, autenticação ≥3, negócio ≥8 ativos, pool de dados ≥3 ou pool de autenticação ≥2 conexões em uso. Usa máximo observado em 1 min (demo) ou 5 min (referência). Timeout de pool já indica espera frustrada e também dispara. Ocupação elevada isolada não alerta. O uso de amostras significa que picos muito curtos de ocupação podem não ser capturados.
 
@@ -81,9 +81,15 @@ Validação sintática e das séries sintéticas, no PowerShell:
 ./scripts/sentinel.ps1 check
 ```
 
-`check` roda Ruff, formato, mypy e `scripts/check_monitoring.py`, o mesmo script usado pelo CI. Ele executa `promtool check config`, `check rules`, `test rules` e `amtool check-config`. São 47 casos: 26 demo, 13 de referência, quatro de coleta/entrega e quatro de frescor; os oito adicionais avaliam ambos os perfis. Cobrem estado saudável, pico curto, falha sustentada, recuperação, série ausente, volume insuficiente, contador reiniciado, réplica removida/reaparecida, 429 separado, probe separado, ERP separado, pool, ocupação sem impacto, probe travado e configuração inválida ou ausente. Também cobrem autoscrape com target presente mas `up=0`, falhas repetidas de entrega com scrapes saudáveis, erro único sem ruído, contador histórico, intervalo de probe longo e relógio futuro. Os arquivos incluem expectativas de labels/annotations e resultados PromQL, não apenas parse da expressão.
+`check` roda Ruff, formato, mypy e `scripts/check_monitoring.py`, o mesmo script usado pelo CI. Ele executa `promtool check config`, `check rules`, `test rules` e `amtool check-config`. São 47 casos: 26 demo, 13 de referência, quatro de coleta/entrega e quatro de frescor; os oito adicionais avaliam ambos os perfis.
 
-O receiver publica `sentinel_probe_stale_after_seconds`, derivado do intervalo/deadline configurados. As regras usam `max(30 s, limite configurado)` na demo e `max(60 s, limite configurado)` na referência; o piso preserva a margem para coleta/avaliação. Se uma instalação anterior não exporta o gauge, permanece o piso do perfil. Um timestamp futuro aciona falha de observação e impede classificar uma resposta antiga como indisponibilidade atual. A UI pode marcar a leitura desatualizada antes do alerta persistir; os dois tempos têm finalidades diferentes.
+Cobrem estado saudável, pico curto, falha sustentada, recuperação, série ausente, volume insuficiente, contador reiniciado, réplica removida/reaparecida, 429 separado, probe separado, ERP separado, pool, ocupação sem impacto, probe travado e configuração inválida ou ausente.
+
+Também cobrem autoscrape com target presente mas `up=0`, falhas repetidas de entrega com scrapes saudáveis, erro único sem ruído, contador histórico, intervalo de probe longo e relógio futuro. Os arquivos incluem expectativas de labels/annotations e resultados PromQL, não apenas parse da expressão.
+
+O receiver publica `sentinel_probe_stale_after_seconds`, derivado do intervalo/deadline configurados. As regras usam `max(30 s, limite configurado)` na demo e `max(60 s, limite configurado)` na referência; o piso preserva a margem para coleta/avaliação. Se uma instalação anterior não exporta o gauge, permanece o piso do perfil.
+
+Um timestamp futuro aciona falha de observação e impede classificar uma resposta antiga como indisponibilidade atual. A UI pode marcar a leitura desatualizada antes do alerta persistir; os dois tempos têm finalidades diferentes.
 
 Esses testes já foram executados com Prometheus 3.5.0 e Alertmanager 0.28.1. Eles não testam entrega de rede. O aceite operacional exige a sequência real documentada em `docs/verification.md`: falha controlada → firing no Prometheus → entrega/persistência no receiver sem duplicação → restauração → resolved → probe correto e targets recuperados. Repita com todas as APIs paradas, mantendo o receiver independente. Um alerta resolvido sem probe recuperado pode indicar perda de observação; valide ambos.
 

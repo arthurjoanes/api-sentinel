@@ -171,7 +171,16 @@ summary span { display:inline; color:var(--muted); font-size:12px; font-weight:4
 .runbook ul,.runbook ol { padding-left:22px; margin:14px 0; }
 .runbook li + li { margin-top:8px; }
 .runbook p code,.runbook li code { background:#edf1f7; padding:2px 5px; }
-.runbook pre { overflow:auto; padding:18px; background:var(--navy); color:#eaf1fb; border-radius:3px; font:12px/1.8 Consolas,monospace; max-width:100%; }
+.runbook .code-block { margin:18px 0; background:var(--navy); color:#eaf1fb; border-radius:3px; }
+.runbook .code-language { display:block; padding:9px 18px; border-bottom:1px solid #465168; font-size:12px; font-weight:600; color:#c8d2e3; }
+.runbook pre { overflow:auto; padding:18px; margin:0; color:inherit; font:13px/1.8 Consolas,monospace; max-width:100%; tab-size:4; }
+.runbook pre code { font:inherit; }
+.code-block .syntax-comment { color:#b2bfd2; }
+.code-block .syntax-string { color:#a7e3ad; }
+.code-block .syntax-keyword,.code-block .syntax-operator { color:#e4b5f7; }
+.code-block .syntax-number,.code-block .syntax-variable { color:#ffd09a; }
+.code-block .syntax-function,.code-block .syntax-command { color:#9dcfff; }
+.code-block .syntax-property { color:#88e0df; }
 .runbook-outline { grid-column:1; grid-row:1; position:sticky; top:24px; padding-right:22px; border-right:1px solid #bdc9d8; }
 .runbook-outline nav { display:grid; gap:6px; margin-bottom:18px; }
 .runbook-outline .eyebrow { margin-bottom:8px; }
@@ -301,6 +310,17 @@ footer a { padding-block:4px; }
   .row-state { grid-column:1 / -1; }
   .incident-action { grid-column:2; grid-row:3; align-self:end; }
   .row-recent { grid-column:1; }
+}
+@media print {
+  .runbook .code-block { background:#fff; color:#202630; border:1px solid #c6ceda; break-inside:avoid; }
+  .runbook .code-language { color:#59636e; border-color:#c6ceda; }
+  .runbook pre { white-space:pre-wrap; overflow-wrap:anywhere; }
+  .code-block .syntax-comment { color:#59636e; }
+  .code-block .syntax-string { color:#9a3412; }
+  .code-block .syntax-keyword,.code-block .syntax-operator { color:#8250df; }
+  .code-block .syntax-number,.code-block .syntax-variable { color:#116329; }
+  .code-block .syntax-function,.code-block .syntax-command { color:#0550ae; }
+  .code-block .syntax-property { color:#0550ae; }
 }
 @media (prefers-reduced-motion:reduce) {
   *,*::before,*::after { scroll-behavior:auto; transition:none !important; animation:none !important; }

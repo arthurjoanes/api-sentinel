@@ -29,11 +29,15 @@ Essa variante executa checks, testes, dois ciclos reais de incidentes e correla�
 
 ## Apresentação de 5–8 minutos
 
-1. Problema e resultado correto (1 min). Mostre `fixture_final`: 12.500 centavos, dois pedidos, ticket 6.250. A fixture tem três itens e dois pedidos, portanto contar linhas daria o resultado errado. Em `oracle.json`, explique que totais e primeiros itens foram calculados a partir das linhas SQL, independentemente do agregado da API. A suíte HTTP verifica IDs válidos de outro tenant e cache aquecido.
-2. Falha sem contaminação (2 min). Compare `load-mixed-normal.json`, `load-mixed-erp-degraded.json` e `load-mixed-recovered.json`. A mistura e oferta são pré-definidas. Mostre respostas comerciais corretas, erros esperados exclusivamente no ERP, iterações iniciadas/concluídas e drops. Apresente percentis de sucesso separados das rejeições; p95 global menor com 503 rápidos não seria melhoria.
-3. Quota e banco (1 min). Compare `quota-one`/`quota-two`: mais réplicas não devem duplicar a quota. Em `tenant-isolation`, mostre os denominadores completos dos dois tenants. `run.json.cache` registra quatro chamadas por fase e SQL 1/0/1; Redis inteiro parado deve retornar 503 sem novo SQL de resumo. Isso difere da indisponibilidade somente do cache, que permite fallback limitado.
-4. Incidente e recuperação (2 min). Abra Incidentes na central da execução mantida e selecione Finalizados. Confira o estado Resolvido; um encerramento pelo operador tem indicação própria e não comprova recuperação recebida. Mostre a ocorrência real de perda de réplica e a de indisponibilidade total; abra a ocorrência para ver impacto, ação recomendada e a cronologia de entregas; depois abra o runbook. `alerts-real.json` contém firing/resolved da mesma ocorrência, tempos monotônicos e coleta posterior à recriação. O teste permite 90 s por transição; scrape, persistência e agrupamento explicam a espera.
-5. Investigar e limitar a conclusão (1 min). Abra Métricas · Grafana pelos links da central e o trace registrado em `trace-correlation.json` no Jaeger. Compare duração total, aquisição de pool, SQL, cache e ERP. A amostragem de 25% não garante um trace para toda requisição. Duas réplicas locais não demonstram disponibilidade entre máquinas, capacidade máxima ou SLO de 30 dias.
+1. **Problema e resultado correto (1 min).** Mostre `fixture_final`: 12.500 centavos, dois pedidos, ticket 6.250. A fixture tem três itens e dois pedidos, portanto contar linhas daria o resultado errado. Em `oracle.json`, explique que totais e primeiros itens foram calculados a partir das linhas SQL, independentemente do agregado da API. A suíte HTTP verifica IDs válidos de outro tenant e cache aquecido.
+
+2. **Falha sem contaminação (2 min).** Compare `load-mixed-normal.json`, `load-mixed-erp-degraded.json` e `load-mixed-recovered.json`. A mistura e oferta são pré-definidas. Mostre respostas comerciais corretas, erros esperados exclusivamente no ERP, iterações iniciadas/concluídas e drops. Apresente percentis de sucesso separados das rejeições; p95 global menor com 503 rápidos não seria melhoria.
+
+3. **Quota e banco (1 min).** Compare `quota-one`/`quota-two`: mais réplicas não devem duplicar a quota. Em `tenant-isolation`, mostre os denominadores completos dos dois tenants. `run.json.cache` registra quatro chamadas por fase e SQL 1/0/1; Redis inteiro parado deve retornar 503 sem novo SQL de resumo. Isso difere da indisponibilidade somente do cache, que permite fallback limitado.
+
+4. **Incidente e recuperação (2 min).** Abra Incidentes na central da execução mantida e selecione Finalizados. Confira o estado Resolvido; um encerramento pelo operador tem indicação própria e não comprova recuperação recebida. Mostre a ocorrência real de perda de réplica e a de indisponibilidade total; abra a ocorrência para ver impacto, ação recomendada e a cronologia de entregas; depois abra o runbook. `alerts-real.json` contém firing/resolved da mesma ocorrência, tempos monotônicos e coleta posterior à recriação. O teste permite 90 s por transição; scrape, persistência e agrupamento explicam a espera.
+
+5. **Investigar e limitar a conclusão (1 min).** Abra Métricas · Grafana pelos links da central e o trace registrado em `trace-correlation.json` no Jaeger. Compare duração total, aquisição de pool, SQL, cache e ERP. A amostragem de 25% não garante um trace para toda requisição. Duas réplicas locais não demonstram disponibilidade entre máquinas, capacidade máxima ou SLO de 30 dias.
 
 Os passos 2–3 usam artefatos da execução completa; `--scenario alerts` não os produz. A central não transforma ausência de incidentes em sinal de saúde: valide o probe, os targets e a fixture final.
 
@@ -76,7 +80,6 @@ try {
 
 Este é o ambiente local de exploração. Para injetar falhas e remover volumes ao terminar, use o runner isolado descrito no início; não adapte os comandos de limpeza para esta stack.
 
-
 ```sh
 docker compose -f compose.yml build api
 docker compose -f compose.yml up -d --wait postgres redis
@@ -90,14 +93,14 @@ docker compose -f compose.yml cp --index 1 api:/secrets/demo.json .runtime/demo.
 
 Todos os serviços publicados ficam em loopback:
 
-| Serviço | Endereço |
-| --- | --- |
-| Central de incidentes e runbooks | [localhost:9184](http://127.0.0.1:9184/) |
-| API e Swagger | [localhost:8104/docs](http://127.0.0.1:8104/docs) |
-| Grafana | [localhost:3104](http://127.0.0.1:3104/d/sentinel/api-sentinel) |
-| Jaeger | [localhost:16684](http://127.0.0.1:16684/) |
-| Coleta por réplica | [localhost:9104/targets](http://127.0.0.1:9104/targets) |
-| Alertmanager | [localhost:9194](http://127.0.0.1:9194/) |
+| Serviço                          | Endereço                                                        |
+| -------------------------------- | --------------------------------------------------------------- |
+| Central de incidentes e runbooks | [localhost:9184](http://127.0.0.1:9184/)                        |
+| API e Swagger                    | [localhost:8104/docs](http://127.0.0.1:8104/docs)               |
+| Grafana                          | [localhost:3104](http://127.0.0.1:3104/d/sentinel/api-sentinel) |
+| Jaeger                           | [localhost:16684](http://127.0.0.1:16684/)                      |
+| Coleta por réplica               | [localhost:9104/targets](http://127.0.0.1:9104/targets)         |
+| Alertmanager                     | [localhost:9194](http://127.0.0.1:9194/)                        |
 
 Os tokens ficam em `.runtime/demo.json`, ignorado pelo Git. Exemplo de consulta em PowerShell:
 
