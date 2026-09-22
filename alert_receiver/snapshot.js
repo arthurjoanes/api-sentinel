@@ -23,7 +23,9 @@ if (observation) {
 
 function revealLocation() {
   if (window.location.hash === "#observacao") {
-    document.getElementById("observacao").open = true;
+    const target = document.getElementById("observacao");
+    target.open = true;
+    target.querySelector("summary").focus();
   } else if (/^#incidente-\d+$/.test(window.location.hash)) {
     // The incident may have changed state or expired since the detail was opened.
     const target = document.getElementById(window.location.hash.slice(1)) || document.getElementById("conteudo");
@@ -31,4 +33,6 @@ function revealLocation() {
   }
 }
 window.addEventListener("hashchange", revealLocation);
+// A new document applies its native fragment after deferred scripts have run.
+window.addEventListener("pageshow", revealLocation);
 revealLocation();

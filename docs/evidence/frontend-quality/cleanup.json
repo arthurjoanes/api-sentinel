@@ -1,0 +1,10 @@
+{
+  "stopped_at": "2026-09-22T08:19:57.6609552Z",
+  "name": "/ui-api-quality-preview",
+  "container_id": "6a2c6d29f952d64ab2d177fc86172225880bdf31472fcb0d43582613c721d37d",
+  "port": 9816,
+  "scope": "Only the disposable synthetic receiver for this review",
+  "persistent_volumes": 0,
+  "remaining_owned_containers": [],
+  "verified_at": "2026-09-22T08:20:12.9771420Z"
+}

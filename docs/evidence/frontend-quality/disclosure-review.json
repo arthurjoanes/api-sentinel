@@ -1,0 +1,12 @@
+{
+  "checkedAt": "2026-09-22T08:08:32.452Z",
+  "originalActionAvailableByExpansion": true,
+  "probeDetailsFocusOnDocumentLoad": true,
+  "nonTextContrast": {
+    "secondaryButtonBoundary": 3.3005184352879633,
+    "focusOnWhite": 6.256123894874938,
+    "focusOnCanvas": 5.515454816817474,
+    "navigationSelectedLine": 4.89685240719442
+  },
+  "scope": "Explicit essential boundary/focus/selection colors, with button opacity; not every decorative separator"
+}

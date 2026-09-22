@@ -4,9 +4,9 @@ API de vendas para integrações de lojas, com acesso por organização, quota c
 
 Uma consulta ao ERP pode ficar lenta sem bloquear o resumo de vendas. O API Sentinel separa esses caminhos, limita o trabalho em andamento e mantém a quota de cada cliente entre duas réplicas. PostgreSQL calcula os indicadores; Redis coordena quota e cache. As organizações, vendas e o ERP da demonstração são sintéticos.
 
-![Ocorrência real do laboratório, resolvida após recuperação das réplicas da API](docs/screenshots/operational-story-20260922/20260922t054206130821z/03-mesma-ocorrencia-recuperada.png)
+![Central de incidentes com fila comparável e observação auxiliar; prévia com registros sintéticos](docs/screenshots/frontend-quality/candidate/central-desktop.png)
 
-Captura de 22/09/2026: a mesma ocorrência recebeu abertura e recuperação pelo monitoramento local. Vendas e ERP são sintéticos. Veja a [sequência completa: consulta de R$ 125,00, falha e recuperação](docs/operational-story.md), com versão, observações e limites. As [prévias sintéticas de navegação](docs/interface-validation.md) permanecem identificadas separadamente.
+Interface revisada em 22/09/2026: captura com registros sintéticos explícitos, sem afirmar o estado da stack. [Antes/depois, jornadas e validação](docs/frontend-quality.md) identificam o candidato. A [sequência operacional anterior: consulta de R$ 125,00, falha e recuperação](docs/operational-story.md) mantém suas próprias imagens, fontes e limites.
 
 ## O que a demonstração permite verificar
 
@@ -20,7 +20,7 @@ Captura de 22/09/2026: a mesma ocorrência recebeu abertura e recuperação pelo
 
 O limite 10 da tabela é o parâmetro do teste de quota; clientes comerciais da demo têm 30/s por tenant. [Problema e solução](docs/problem-solution.md) detalha os casos e suas provas. [Decisões técnicas](docs/decisoes-tecnicas.md) explica motivo, custo e limite de cada proteção.
 
-A central reúne estado, impacto, momento relevante e investigação em uma lista. Identificação e entregas ficam disponíveis por expansão; o detalhe mostra o procedimento e a cronologia. O filtro Finalizados reúne recuperações recebidas e encerramentos pelo operador, com indicações distintas. O retorno do detalhe e do runbook preserva filtro e ocorrência. A observação do probe tem validade própria; a leitura da página é manual. [Capturas e escopo da validação](docs/interface-validation.md) separam essa revisão da prova operacional.
+A central reúne estado, impacto, momento relevante e investigação em linhas comparáveis. Identificação e entregas ficam disponíveis por expansão. No detalhe ativo, o runbook orienta a investigação; após recuperação, a ação principal é conferir a observação atual, e a orientação original fica no registro histórico. O filtro Finalizados distingue recuperação recebida de encerramento administrativo. Retornos preservam filtro, ocorrência e foco. A observação do probe tem validade própria; a leitura da página é manual. [Padrões e validação da interface](docs/frontend-quality.md) separam essa revisão da prova operacional.
 
 Para investigar, abra o runbook do incidente, confira tráfego e saturação no Grafana e siga uma requisição no Jaeger. O [roteiro de demonstração](docs/demo.md) apresenta os cenários de consulta, isolamento e recuperação.
 

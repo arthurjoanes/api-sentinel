@@ -64,27 +64,27 @@ def layout(title: str, content: str, *, snapshot: bool = False, section: str = "
 <html lang="pt-BR"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
+<meta name="theme-color" content="#142438">
 <title>{escape_html(title)} · API Sentinel</title>
 <link rel="stylesheet" href="/styles.css">{script}</head><body>
 <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
 <header class="masthead">
 <a class="brand" href="/" aria-label="API Sentinel: incidentes">
 <span class="brand-mark" aria-hidden="true">S</span>
-<span>API <strong>Sentinel</strong><small>Vendas · integrações · operação</small></span></a>
+<span>API <strong>Sentinel</strong><small>Operação de integrações</small></span></a>
 <nav class="primary-nav" aria-label="Navegação principal">
 <a href="/"{incidents_current}>Incidentes</a>
 <a href="/runbooks"{runbooks_current}>Runbooks</a></nav>
 <p class="environment">Laboratório local<span>Dados sintéticos</span></p></header>
-<div class="utility-bar"><p>Operação da API <span aria-hidden="true">/</span>
-<strong>{escape_html(title)}</strong></p>
-<nav class="tools-nav" aria-label="Investigar"><span class="nav-label">Investigar em</span>
+<div class="utility-bar"><p>Receiver de alertas</p>
+<nav class="tools-nav" aria-label="Investigar"><span class="nav-label">Investigar</span>
 <a href="/tools/grafana/d/sentinel/api-sentinel">Métricas <span>Grafana ↗</span></a>
 <a href="/tools/jaeger/">Traces <span>Jaeger ↗</span></a>
 <a href="/tools/prometheus/targets">Coleta <span>Prometheus ↗</span></a></nav>
 </div><div class="workspace">
 <main id="conteudo" tabindex="-1">{content}</main>
 <footer><span>API de vendas · operação e recuperação</span>
-<span>Horários em UTC</span><a href="/runbooks/telemetry">Sobre a observação →</a></footer></div>
+<span>Horários em UTC</span><a href="/runbooks/telemetry">Sobre a observação</a></footer></div>
 </body></html>'''
 
 
@@ -110,20 +110,21 @@ def incident_row(incident: Incident, status: str = "all") -> str:
     severity = SEVERITY_LABELS.get(incident.labels.get("severity", ""), "Atenção")
     detail_url = f"/incidents/{incident.id}?status={status}"
     return f"""<li class="incident-row {tone}" id="incidente-{incident.id}" tabindex="-1">
-<div class="row-description"><div class="row-state"><span class="badge {tone}">{state}</span>
+<div class="row-state"><span class="badge {tone}">{state}</span>
 <span class="row-severity">{escape_html(severity)}</span></div>
+<div class="row-description">
 <h3>{escape_html(incident.annotations["summary"])}</h3>
 <p>{escape_html(incident.annotations.get("impact", "Impacto não informado."))}</p>
-</div><div class="row-next"><p class="row-recent"><span>{resolution_label(incident)}</span>
-<time>{escape_html(timestamp(observed))}</time></p>
-<a class="incident-action" href="{escape_html(detail_url)}"
-aria-label="Investigar ocorrência {incident.id}">Investigar →</a></div>
 <details class="row-metadata"><summary>Identificação e entregas</summary>
 <dl class="row-facts"><div><dt>Referência</dt><dd>Incidente #{incident.id}</dd></div>
 <div><dt>Serviço</dt><dd>{escape_html(incident.labels.get("service", "api-sentinel"))}</dd></div>
 <div><dt>Entregas recebidas</dt>
 <dd>{incident.deliveries} entrega{"s" if incident.deliveries != 1 else ""}</dd>
-</div></dl></details></li>"""
+</div></dl></details></div>
+<p class="row-recent"><span>{resolution_label(incident)}</span>
+<time>{escape_html(timestamp(observed))}</time></p>
+<a class="incident-action" href="{escape_html(detail_url)}"
+aria-label="Investigar ocorrência {incident.id}">Investigar</a></li>"""
 
 
 def probe_observation(probe: ProbeState, observed_at: datetime) -> str:
@@ -152,13 +153,12 @@ def probe_observation(probe: ProbeState, observed_at: datetime) -> str:
         title, description = unavailable[observation]
         tone = "neutral" if observation in {"pending", "disabled"} else "warn"
     return f'''<section class="observation" aria-label="Consulta de referência"{expires}>
-<p class="panel-label">Consulta de referência</p>
 <span class="status-dot {tone}" aria-hidden="true"></span>
 <div class="observation-result" aria-live="polite"><h2 data-observation-title>{title}</h2>
 <p data-observation-description>{description}</p></div>
 <div class="observation-time"><span>Última consulta</span>
 <time>{escape_html(timestamp(probe.checked_at))}</time>
-<a href="#observacao">Detalhes da observação ↓</a></div></section>'''
+<a href="#observacao">Detalhes da observação</a></div></section>'''
 
 
 def incident_filters(counts: dict[str, int], status: str) -> str:
@@ -190,9 +190,9 @@ def empty_incidents(status: str, resolved_count: int) -> str:
             "Conferir regras no Prometheus ↗</a>"
         )
     )
-    return f"""<section class="empty"><span class="empty-symbol" aria-hidden="true">—</span>
-<h3>{title}</h3><p>Esta lista mostra as ocorrências registradas pelo receiver.
-Para verificar a jornada da API, confira a observação do probe.</p>{action}</section>"""
+    return f"""<section class="empty"><div><h3>{title}</h3>
+<p>Ausência de registros não confirma disponibilidade. Confira a observação do probe.</p>
+</div>{action}</section>"""
 
 
 def observation_details(page: IncidentPage, probe: ProbeState) -> str:
@@ -246,20 +246,28 @@ def home(page: IncidentPage, probe: ProbeState, status: str) -> str:
         "firing": "Em andamento",
         "resolved": "Finalizados",
     }[status]
-    content = f"""<div class="page-heading">
-<div><h1>Incidentes</h1><p class="reading-meta">Atualização manual</p></div>
-<a class="button secondary" href="/?status={escape_html(status)}">↻ Atualizar leitura</a></div>
+    columns = (
+        '<div class="queue-columns" aria-hidden="true"><span>Estado</span>'
+        "<span>Ocorrência e impacto</span><span>Último registro</span><span>Ação</span></div>"
+        if entries
+        else ""
+    )
+    content = f"""<section class="inbox" aria-label="Incidentes">
+<div class="page-heading"><div><h1>Incidentes</h1>
+<p class="reading-meta">Entregas recebidas do Alertmanager</p></div>
+<a class="button secondary" href="/?status={escape_html(status)}">Atualizar leitura</a></div>
+<div class="queue-controls">
 <nav class="filters" aria-label="Filtrar incidentes">{incident_filters(counts, status)}</nav>
-<div class="triage-layout"><section class="inbox" aria-label="Incidentes">
-<div class="inbox-toolbar"><h2>{list_title}</h2><div class="list-scope"><span class="list-count">
+<div class="list-scope"><h2 class="visually-hidden">{list_title}</h2><span class="list-count">
 {len(page.records)} de {filtered_total} incidentes · limite de {page.limit}</span>
-<a class="probe-shortcut" href="#observacao">Ver probe ↓</a></div>
-</div>{inbox}
+<a href="#observacao">Ver probe</a></div>
+</div>{columns}{inbox}
 <p class="retention">
-Finalizados: últimos {page.retention_days} dias · Em andamento: sem expiração</p></section>
-<aside class="triage-aside" aria-label="Observação e escopo">
+Finalizados: últimos {page.retention_days} dias · Em andamento: sem expiração · Atualização manual
+</p></section>
+<aside class="observation-workspace" aria-label="Observação e escopo">
 {probe_observation(probe, datetime.now(UTC))}
-{observation_details(page, probe)}</aside></div>"""
+{observation_details(page, probe)}</aside>"""
     return layout("Incidentes", content, snapshot=True)
 
 
@@ -320,6 +328,30 @@ def incident_detail(incident: Incident, events: list[IncidentEvent], status: str
     state, tone = incident_state(incident)
     severity = SEVERITY_LABELS.get(incident.labels.get("severity", ""), "Atenção")
     reconciliation = incident.annotations.get("reconciliation")
+    active = incident.status == "firing"
+    alert_action = incident.annotations.get("action", "Abra o runbook desta ocorrência.")
+    if active:
+        next_step = alert_action
+        state_description = "O receiver ainda não registrou recuperação nem encerramento."
+    elif reconciliation:
+        next_step = "Confira o motivo do encerramento e a observação atual antes de intervir."
+        state_description = "Encerramento administrativo; não confirma a recuperação da API."
+    else:
+        next_step = "Confira a observação atual e as métricas antes de iniciar outra intervenção."
+        state_description = "O Alertmanager entregou a recuperação desta ocorrência."
+    original_action = (
+        '<div class="original-action"><h3>Orientação original do alerta</h3>'
+        f"<p>{escape_html(alert_action)}</p>"
+        "<p>Registrada quando o alerta estava em andamento.</p></div>"
+        if not active
+        else ""
+    )
+    observation_link = (
+        f'<a class="button" href="/?status={escape_html(status)}#observacao">'
+        "Conferir observação atual</a>"
+        if not active
+        else ""
+    )
     notice = (
         '<aside class="reconciliation"><strong>Encerrado pelo operador.</strong> '
         "Não foi recebida uma entrega de recuperação para esta ocorrência."
@@ -337,26 +369,31 @@ def incident_detail(incident: Incident, events: list[IncidentEvent], status: str
         f"Incidente #{incident.id}",
         f"""<a class="back" href="/?status={escape_html(status)}#incidente-{incident.id}">
 ← Voltar à central</a>
-<div class="detail-heading"><div class="detail-labels">
+<div class="detail-heading {tone}"><div class="detail-labels">
 <span class="badge {tone}">{state}</span><span>Incidente #{incident.id}</span>
 <span>{escape_html(severity)}</span>
 <span>{escape_html(incident.labels.get("service", "api-sentinel"))}</span></div>
 <h1>{escape_html(incident.annotations["summary"])}</h1>
-<div class="decision-strip"><div><h2>Impacto</h2>
+<p class="state-description">{state_description}</p>
+<div class="decision-strip"><div><h2>{"Impacto" if active else "Impacto registrado"}</h2>
 <p>{escape_html(incident.annotations.get("impact", "Impacto não informado. Veja o runbook."))}</p>
 </div><div><h2>Próximo passo</h2>
-<p>{escape_html(incident.annotations.get("action", "Abra o runbook desta ocorrência."))}</p>
-<a class="button" href="{escape_html(incident_runbook(incident, status))}">Abrir runbook →</a>
-</div></div><details class="incident-metadata"><summary>Datas e entregas</summary>
+<p>{escape_html(next_step)}</p>
+<div class="decision-actions">
+{observation_link}
+<a class="{"button" if active else "text-link"}"
+href="{escape_html(incident_runbook(incident, status))}">Abrir runbook</a>
+</div></div></div>
+<details class="incident-metadata"><summary>Datas e entregas</summary>
 <dl class="incident-times"><div><dt>Início do alerta</dt>
 <dd>{escape_html(timestamp(incident.starts_at))}</dd></div>
 <div><dt>{resolution_label(incident)}</dt><dd>{escape_html(timestamp(observed))}</dd></div>
 <div><dt>Entregas recebidas</dt><dd><a href="#historico">
 {incident.deliveries} entrega{"s" if incident.deliveries != 1 else ""} · histórico ↓</a>
-</dd></div></dl></details></div>
+</dd></div></dl>{original_action}</details></div>
 {notice}<div class="incident-workspace">
 <section class="history" id="historico" tabindex="-1"><div class="section-heading">
-<div><p class="eyebrow">Entregas e ações do operador</p><h2>Histórico do incidente</h2></div>
+<div><h2>Histórico do incidente</h2></div>
 <span>{len(events)} evento{"s" if len(events) != 1 else ""}</span></div>
 <p class="history-scope">Até 100 eventos recentes, do mais novo para o mais antigo.</p>
 <ol class="timeline">{history}</ol>
@@ -370,14 +407,14 @@ def incident_detail(incident: Incident, events: list[IncidentEvent], status: str
 
 def runbook_index() -> str:
     entries = "".join(
-        f'<a class="runbook-entry" href="/runbooks/{slug}"><span class="runbook-number">'
-        f"{index:02d}</span><div><h2>{escape_html(title)}</h2><p>{escape_html(description)}</p>"
-        '<span class="text-link">Abrir procedimento →</span></div></a>'
-        for index, (slug, (title, description)) in enumerate(RUNBOOKS.items(), 1)
+        f'<a class="runbook-entry" href="/runbooks/{slug}">'
+        f"<h2>{escape_html(title)}</h2><p>{escape_html(description)}</p>"
+        '<span class="text-link">Abrir procedimento</span></a>'
+        for slug, (title, description) in RUNBOOKS.items()
     )
     return layout(
         "Runbooks",
-        '<div class="page-heading"><div><p class="eyebrow">Investigar e recuperar</p>'
+        '<div class="page-heading"><div>'
         '<h1>Runbooks</h1><p class="lead">Procedimentos para os alertas deste laboratório.</p>'
         '</div><a class="text-link" href="/">Ver incidentes →</a></div>'
         '<p class="runbook-intro">Comece pela condição registrada no incidente. Confira a causa, '
@@ -412,7 +449,11 @@ def runbook_page(
             if code is None:
                 code = []
             else:
-                parts.append("<pre><code>" + escape_html("\n".join(code)) + "</code></pre>")
+                parts.append(
+                    '<pre tabindex="0" aria-label="Trecho de código"><code>'
+                    + escape_html("\n".join(code))
+                    + "</code></pre>"
+                )
                 code = None
         elif code is not None:
             code.append(line)
@@ -435,7 +476,11 @@ def runbook_page(
     if list_tag is not None:
         parts.append(f"</{list_tag}>")
     if code is not None:
-        parts.append("<pre><code>" + escape_html("\n".join(code)) + "</code></pre>")
+        parts.append(
+            '<pre tabindex="0" aria-label="Trecho de código"><code>'
+            + escape_html("\n".join(code))
+            + "</code></pre>"
+        )
     title = RUNBOOKS.get(slug, (slug, ""))[0]
     back = (
         f'<a class="back" href="/incidents/{incident_id}?status={escape_html(status)}">'
@@ -446,14 +491,15 @@ def runbook_page(
     central = f"/?status={status}" + (f"#incidente-{incident_id}" if incident_id else "")
     return layout(
         f"Runbook · {title}",
-        back + '<div class="runbook-workspace"><article class="runbook">'
-        '<p class="eyebrow">Procedimento operacional</p>'
-        + "".join(parts)
-        + '</article><aside class="runbook-outline"><nav aria-label="Neste procedimento">'
+        back + '<div class="runbook-workspace">'
+        '<aside class="runbook-outline"><nav aria-label="Neste procedimento">'
         '<p class="eyebrow">Neste procedimento</p>'
         + "".join(sections)
         + f'</nav><a class="text-link" href="{escape_html(central)}">'
-        "Voltar à central →</a></aside></div>",
+        "Voltar à central →</a></aside>"
+        '<article class="runbook"><p class="eyebrow">Procedimento operacional</p>'
+        + "".join(parts)
+        + "</article></div>",
         section="runbooks",
     )
 
@@ -461,7 +507,7 @@ def runbook_page(
 def problem_page(status: int, title: str, detail: str) -> str:
     return layout(
         title,
-        f'<section class="empty error-page"><p class="eyebrow">HTTP {status}</p>'
+        f'<section class="error-page"><p class="eyebrow">HTTP {status}</p>'
         f"<h1>{escape_html(title)}</h1><p>{escape_html(detail)}</p>"
         '<a class="button" href="/">Voltar à central</a></section>',
     )

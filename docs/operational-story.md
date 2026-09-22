@@ -1,5 +1,9 @@
 # Uma consulta conhecida, um incidente e sua recuperação
 
+Registro histórico da execução abaixo. A apresentação foi revisada depois;
+[frontend-quality.md](frontend-quality.md) documenta a interface seguinte com
+cenários sintéticos, sem repetir nem substituir esta prova operacional.
+
 **Problema central:** o operador precisa distinguir um resultado financeiro correto, uma falha da consulta e uma recuperação confirmada. Uma tela sem incidentes, sozinha, não informa se a consulta autenticada funciona.
 
 Esta sequência foi executada em **22/09/2026**, com a interface e os serviços locais reais. As vendas e o ERP são sintéticos. As três imagens pertencem à execução `20260922t054206130821z`; horários abaixo estão em UTC. O [registro completo da sequência](evidence/operational-story-20260922/20260922t054206130821z/proof.json) contém resultados, hashes, versão da ferramenta e limpeza.

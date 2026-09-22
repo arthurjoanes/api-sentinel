@@ -130,6 +130,45 @@ def test_operational_reconciliation_is_not_presented_as_a_received_webhook() -> 
     assert "<script>" not in document
 
 
+@pytest.mark.parametrize("status", ["firing", "resolved", "manual"])
+def test_current_next_step_respects_state_and_preserves_original_instruction(status: str) -> None:
+    observed = datetime.now(UTC)
+    incident = Incident(
+        id=15,
+        fingerprint="abcdef15",
+        starts_at=observed - timedelta(minutes=2),
+        ends_at=observed if status != "firing" else None,
+        first_received_at=observed - timedelta(minutes=2),
+        last_received_at=observed,
+        status="firing" if status == "firing" else "resolved",
+        deliveries=2,
+        labels={},
+        annotations={
+            "summary": "Consulta indisponível",
+            "action": "Restaure <o serviço> e valide a consulta.",
+            **({"reconciliation": "Conferido pelo operador."} if status == "manual" else {}),
+        },
+    )
+    document = ui.incident_detail(incident, [], "resolved")
+    decision = document.split('<div class="decision-strip">', 1)[1].split('<details class="', 1)[0]
+    assert "Restaure &lt;o serviço&gt; e valide a consulta." in document
+    if status == "firing":
+        assert "Restaure &lt;o serviço&gt;" in decision
+        assert "Orientação original do alerta" not in document
+    else:
+        assert "Restaure" not in decision
+        assert "Orientação original do alerta" in document
+        assert 'href="/?status=resolved#observacao"' in decision
+        assert "Impacto registrado" in decision
+        if status == "manual":
+            assert "Confira o motivo do encerramento" in decision
+            assert "não confirma a recuperação da API" in document
+            assert "O Alertmanager entregou a recuperação" not in document
+        else:
+            assert "antes de iniciar outra intervenção" in decision
+            assert "O Alertmanager entregou a recuperação" in document
+
+
 @pytest.mark.parametrize(
     ("result", "enabled", "age", "expected"),
     [

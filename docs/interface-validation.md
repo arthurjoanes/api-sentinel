@@ -1,5 +1,10 @@
 # Validação da interface — 22/09/2026
 
+A revisão mais recente parte de `be419e0` e está em
+[frontend-quality.md](frontend-quality.md), com matriz de 11 dimensões, capturas
+comparáveis e prova de empacotamento separada. As seções abaixo descrevem rodadas
+anteriores; suas imagens e hashes não são atribuídos ao candidato mais recente.
+
 Limpeza posterior sobre `28261f9`: removida somente a variável CSS `--surface`, sem consumidores nos templates ou no JavaScript. O [registro separado](evidence/interface-css-cleanup-20260922.json) guarda hashes antes/depois e conferência de sintaxe. As imagens, capturas e manifestos anteriores permanecem históricos e não representam os bytes do CSS após essa remoção; não houve novo build ou ensaio visual.
 
 ## Triagem, navegação e documentação

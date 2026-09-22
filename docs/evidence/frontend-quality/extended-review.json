@@ -1,0 +1,217 @@
+{
+  "checkedAt": "2026-09-22T08:13:53.597Z",
+  "data": [
+    {
+      "status": "all",
+      "equivalent": true,
+      "rows": [
+        {
+          "id": "incidente-1",
+          "title": "Circuito da integração ERP aberto",
+          "impact": "Consulta de SKU indisponível. Resumos e vendas usam PostgreSQL.",
+          "state": "Em andamento",
+          "observed": "22/09/2026 · 07:57:09 UTC",
+          "facts": [
+            "Incidente #1",
+            "api-sentinel",
+            "2 entregas"
+          ]
+        },
+        {
+          "id": "incidente-3",
+          "title": "Menos réplicas disponíveis que o esperado",
+          "impact": "Menos réplicas para atender às consultas.",
+          "state": "Encerrado pelo operador",
+          "observed": "22/09/2026 · 07:57:09 UTC",
+          "facts": [
+            "Incidente #3",
+            "api-sentinel",
+            "1 entrega"
+          ]
+        },
+        {
+          "id": "incidente-2",
+          "title": "Consultas OK acima de 500 ms",
+          "impact": "Clientes esperam mais que o objetivo de latência.",
+          "state": "Resolvido",
+          "observed": "22/09/2026 · 07:55:09 UTC",
+          "facts": [
+            "Incidente #2",
+            "api-sentinel",
+            "3 entregas"
+          ]
+        }
+      ]
+    },
+    {
+      "status": "firing",
+      "equivalent": true,
+      "rows": [
+        {
+          "id": "incidente-1",
+          "title": "Circuito da integração ERP aberto",
+          "impact": "Consulta de SKU indisponível. Resumos e vendas usam PostgreSQL.",
+          "state": "Em andamento",
+          "observed": "22/09/2026 · 07:57:09 UTC",
+          "facts": [
+            "Incidente #1",
+            "api-sentinel",
+            "2 entregas"
+          ]
+        }
+      ]
+    },
+    {
+      "status": "resolved",
+      "equivalent": true,
+      "rows": [
+        {
+          "id": "incidente-3",
+          "title": "Menos réplicas disponíveis que o esperado",
+          "impact": "Menos réplicas para atender às consultas.",
+          "state": "Encerrado pelo operador",
+          "observed": "22/09/2026 · 07:57:09 UTC",
+          "facts": [
+            "Incidente #3",
+            "api-sentinel",
+            "1 entrega"
+          ]
+        },
+        {
+          "id": "incidente-2",
+          "title": "Consultas OK acima de 500 ms",
+          "impact": "Clientes esperam mais que o objetivo de latência.",
+          "state": "Resolvido",
+          "observed": "22/09/2026 · 07:55:09 UTC",
+          "facts": [
+            "Incidente #2",
+            "api-sentinel",
+            "3 entregas"
+          ]
+        }
+      ]
+    }
+  ],
+  "performance": [
+    {
+      "name": "baseline",
+      "width": 1440,
+      "domReadyMs": 24.30000000447035,
+      "domNodes": 2511,
+      "rows": 100,
+      "overflow": false,
+      "scriptCount": 1,
+      "externalResources": [],
+      "htmlBytes": 90725,
+      "domReadyMsSamples": [
+        33.69999999552965,
+        26.299999997019768,
+        26.200000002980232,
+        25.899999998509884,
+        26.100000001490116,
+        24.30000000447035
+      ],
+      "warmMedianMs": 26.100000001490116,
+      "scope": "One warmup + five local loads; no CPU/network throttling; synthetic 100-row maximum; not a production SLA or INP measurement"
+    },
+    {
+      "name": "candidate",
+      "width": 1440,
+      "domReadyMs": 26,
+      "domNodes": 2413,
+      "rows": 100,
+      "overflow": false,
+      "scriptCount": 1,
+      "externalResources": [],
+      "htmlBytes": 87678,
+      "domReadyMsSamples": [
+        25.5,
+        27.399999998509884,
+        27,
+        27.399999998509884,
+        25.69999999552965,
+        26
+      ],
+      "warmMedianMs": 27,
+      "scope": "One warmup + five local loads; no CPU/network throttling; synthetic 100-row maximum; not a production SLA or INP measurement"
+    },
+    {
+      "name": "baseline",
+      "width": 390,
+      "domReadyMs": 27.399999998509884,
+      "domNodes": 2511,
+      "rows": 100,
+      "overflow": false,
+      "scriptCount": 1,
+      "externalResources": [],
+      "htmlBytes": 90725,
+      "domReadyMsSamples": [
+        27.399999998509884,
+        27.799999997019768,
+        27.100000001490116,
+        30.100000001490116,
+        30.5,
+        27.399999998509884
+      ],
+      "warmMedianMs": 27.799999997019768,
+      "scope": "One warmup + five local loads; no CPU/network throttling; synthetic 100-row maximum; not a production SLA or INP measurement"
+    },
+    {
+      "name": "candidate",
+      "width": 390,
+      "domReadyMs": 28,
+      "domNodes": 2413,
+      "rows": 100,
+      "overflow": false,
+      "scriptCount": 1,
+      "externalResources": [],
+      "htmlBytes": 87678,
+      "domReadyMsSamples": [
+        45.5,
+        25.30000000447035,
+        28.799999997019768,
+        27.599999994039536,
+        26.700000002980232,
+        28
+      ],
+      "warmMedianMs": 27.599999994039536,
+      "scope": "One warmup + five local loads; no CPU/network throttling; synthetic 100-row maximum; not a production SLA or INP measurement"
+    }
+  ],
+  "controls": [
+    {
+      "route": "/",
+      "smallTargets": []
+    },
+    {
+      "route": "/incidents/2",
+      "smallTargets": []
+    },
+    {
+      "route": "/runbooks",
+      "smallTargets": []
+    },
+    {
+      "route": "/runbooks/erp",
+      "smallTargets": []
+    },
+    {
+      "route": "/__review/empty",
+      "smallTargets": []
+    },
+    {
+      "route": "/tools/grafana/",
+      "smallTargets": []
+    }
+  ],
+  "keyboard": {
+    "recoveredObservationReturnsFilterAndFocus": true,
+    "activeRunbookPrimary": true,
+    "codeFocusable": true
+  },
+  "fastNavigation": {
+    "delayedFiringRequestMs": 250,
+    "latestResolvedRemains": true,
+    "mechanism": "Native document navigation; no shared client response cache"
+  }
+}
