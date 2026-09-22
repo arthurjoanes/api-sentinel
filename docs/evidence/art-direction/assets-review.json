@@ -1,0 +1,81 @@
+{
+  "checkedAt": "2026-09-22T09:02:45.203Z",
+  "faces": [
+    {
+      "selector": "h1",
+      "fonts": [
+        {
+          "familyName": "IBM Plex Sans SmBld",
+          "postScriptName": "IBMPlexSans-SmBld",
+          "isCustomFont": true,
+          "glyphCount": 10
+        }
+      ]
+    },
+    {
+      "selector": ".row-description h3",
+      "fonts": [
+        {
+          "familyName": "IBM Plex Sans SmBld",
+          "postScriptName": "IBMPlexSans-SmBld",
+          "isCustomFont": true,
+          "glyphCount": 33
+        }
+      ]
+    },
+    {
+      "selector": ".row-description p",
+      "fonts": [
+        {
+          "familyName": "IBM Plex Sans",
+          "postScriptName": "IBMPlexSans",
+          "isCustomFont": true,
+          "glyphCount": 63
+        }
+      ]
+    },
+    {
+      "selector": ".row-recent time",
+      "fonts": [
+        {
+          "familyName": "IBM Plex Sans",
+          "postScriptName": "IBMPlexSans",
+          "isCustomFont": true,
+          "glyphCount": 24
+        }
+      ]
+    }
+  ],
+  "resources": [
+    {
+      "name": "http://127.0.0.1:9818/styles.css",
+      "bytes": 21105
+    },
+    {
+      "name": "http://127.0.0.1:9818/snapshot.js",
+      "bytes": 2013
+    },
+    {
+      "name": "http://127.0.0.1:9818/assets/mark-light.svg",
+      "bytes": 545
+    },
+    {
+      "name": "http://127.0.0.1:9818/assets/plex-sans-regular.woff2",
+      "bytes": 63320
+    },
+    {
+      "name": "http://127.0.0.1:9818/assets/plex-sans-semibold.woff2",
+      "bytes": 67360
+    },
+    {
+      "name": "http://127.0.0.1:9818/assets/favicon.svg",
+      "bytes": 545
+    }
+  ],
+  "consoleErrors": [],
+  "offline": {
+    "scope": "Already loaded document remains readable; no offline reload or service worker promised",
+    "readable": true
+  },
+  "zoom": "CSS zoom 200%; native browser zoom not measured"
+}

@@ -1,0 +1,9 @@
+{
+  "checked_at": "2026-09-22T09:26:05.398238+00:00",
+  "image_id": "sha256:75bc61ec2e32e0a4c7557c782aea2ba47ab3a3ce50d33d25fe988e16f7d112fd",
+  "matches": 127,
+  "mismatches": [],
+  "license_bytes": "Original upstream CRLF preserved through exact -text attribute; WOFF2 binary; all other new proof text LF",
+  "source_manifest_sha256": "abf3aec892cbc9ab428c76e2f4a03137e2ffd6a35c81a64a42e17ff67ede8b3c",
+  "scope": "Raw worktree bytes match the final packaged image manifest. Browser views predate metadata-only .gitattributes correction; application bytes unchanged."
+}

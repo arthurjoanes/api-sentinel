@@ -7,3 +7,6 @@
 *.Dockerfile text eol=lf
 Dockerfile text eol=lf
 *.png binary
+*.woff2 binary
+# Preserve the upstream OFL notice byte for byte.
+/alert_receiver/assets/plex-LICENSE.txt -text

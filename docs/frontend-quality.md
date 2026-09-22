@@ -1,5 +1,82 @@
 # Qualidade da interface do receiver
 
+## Direção visual atual — revisão de 22/09/2026
+
+Esta seção substitui a descrição visual da rodada anterior; as evidências anteriores abaixo permanecem históricas. Base desta rodada: `88dcebdf65399db19563c8bfe1406ab24a110d61`. A API, autenticação, deduplicação, reconciliação e probe mantêm seus contratos. O único acréscimo de rota é uma lista fechada de assets locais; a CSP permite fontes da própria origem e continua sem `unsafe-inline`.
+
+### Diagnóstico, alternativas e resultado
+
+A fila já era linear, mas ficava dentro de um grande card; observação e retenção pareciam rodapé. O detalhe repetia a superfície da fila e o runbook parecia outro painel. Foram comparadas duas propostas com a mesma fila sintética: **A**, mesa de triagem com observação lateral; **B**, fila escura em largura total. [A](screenshots/art-direction/proposals/a.png) / [B](screenshots/art-direction/proposals/b.png). A foi escolhida porque distingue ocorrência e consulta de referência. B acrescentava uma grande superfície escura sem resolver suficientemente a organização.
+
+```text
+Nome + Incidentes/Runbooks                    Contexto do laboratório
+Destinos de investigação
+Título e filtros | fila comparável            Observação e validade
+Estado | ocorrência/impacto | registro | ação  Detalhes / escopo
+```
+
+No detalhe, estado e próximo passo precedem um registro cronológico com horário em coluna. Recuperação recebida e encerramento manual mantêm textos e ações diferentes. O runbook usa coluna de leitura e sumário com âncoras, sem card externo. A faixa de observação tem superfície cinza neutra e largura limitada; no celular passa abaixo da fila. O ajuste de 320 px reduz a quebra do contexto do laboratório sem removê-lo.
+
+Paleta: grafite `#1a2231`, texto `#202630`, fundo branco `#ffffff`, contexto `#f1f3f6`, ação azul `#2056b8`; verde `#16623e`, vermelho `#a52c35` e âmbar `#815711` têm rótulos semânticos. Foco e seleção são independentes de estado. Transições de 180 ms respondem à interação, com movimento reduzido. Não há atividade animada nem atualização automática da lista.
+
+IBM Plex Sans foi comparada com Source Sans 3 e Segoe UI usando os mesmos textos e números. A escolha mantém títulos compactos e numerais legíveis; pesos 400/600 são locais, com fallback de sistema e `font-display:swap`. O CDP confirmou **IBM Plex Sans/IBM Plex Sans SmBld**, sem fallback nos quatro trechos examinados. As fontes originais somam 130.080 bytes. [SIL OFL e copyright](../alert_receiver/assets/plex-LICENSE.txt); fontes/fontes de origem e hashes em [assets](evidence/art-direction/assets.json). O símbolo representa várias entregas convergindo para uma ocorrência, não um sinal de saúde.
+
+### Dados e decisões preservados
+
+| Informação | Semântica / uso / limite |
+|---|---|
+| Contagem nos filtros | Ocorrências na mesma leitura SQLite; Finalizados inclui recuperações e encerramentos administrativos. Não é disponibilidade |
+| Fila | Máximo de 100 registros; ativos primeiro, depois mais recentes. Impacto é a anotação original, não uma métrica calculada |
+| Último registro | Última entrega nos ativos; término nos finalizados. Horários explícitos em UTC; sem “agora” inventado |
+| Histórico | Até 100 eventos recebidos da ocorrência, em ordem inversa. Entrega atrasada permanece registrada sem reabrir incidente resolvido |
+| Probe | Resultado de uma consulta de referência, válido por seu TTL; vencido, desativado e pendente não assumem sucesso. Não cobre toda a stack |
+| Investigação | Links para Grafana/Jaeger/Prometheus com destino configurado; falha de configuração tem página HTML de retorno e não altera o histórico |
+
+### Matriz da revisão atual
+
+Legenda: C = conforme aos checks descritos; PC = verificação parcial; NA = não aplicável. Não representa certificação nem aprovação por usuários.
+
+| Dimensão | Central / filtros | Detalhe ativo/recuperado/manual | Runbooks / catálogo | Vazio/probe/erros |
+|---|---|---|---|---|
+| Objetivo e público | C | C | C | C |
+| Hierarquia | C | C | C | C |
+| Layout e densidade | C | C | C | C |
+| Tipografia e cor | C | C | C | C |
+| Indicadores e tabelas | C | C | NA | C |
+| Navegação e ações | C | C | C | C |
+| Estados e atualização | C | C | C | C |
+| Acessibilidade e reflow | PC | PC | PC | PC |
+| Desempenho | PC | PC | PC | PC |
+| Manutenção | C | C | C | C |
+| Dados e contratos | C | C | C | C |
+
+### Provas desta rodada
+
+- [Jornadas e estados](evidence/art-direction/browser-review.json): 12 jornadas por teclado/filtros, 26 rotas em 5 larguras de 320 a 1440 px; sem overflow ou erro JS. Recuperado/manual, expiração do probe, fallback e foco de retorno conferidos.
+- [Antes/depois](evidence/art-direction/comparison.json): mesmos registros SQLite, filtro, horário e viewport; 1920/1440/768/390/320, com fontes carregadas antes da geometria. [Fila antes](screenshots/art-direction/baseline-all-1440.png) / [depois](screenshots/art-direction/candidate-all-1440.png). As ocorrências são **fixtures de apresentação**, marcadas na tela; não são estado operacional novo.
+- [Contraste e alinhamento](evidence/art-direction/visual-audit.json), [fontes, assets e zoom](evidence/art-direction/assets-review.json), [foco e detalhes](evidence/art-direction/disclosure-review.json). Contraste textual medido em 40 combinações; alvos e limites essenciais separados. Leitor de tela e zoom nativo não foram testados; zoom CSS 200% e reflow foram.
+- [Equivalência e custo](evidence/art-direction/extended-review.json): valores/estados idênticos nos três filtros; 100 linhas sintéticas, uma carga de aquecimento e cinco locais, sem rede/CPU limitadas. DOMReady não mede SLA, INP nem todo o custo das fontes. Fonte local acrescenta bytes, não consultas externas. Documento já carregado continua legível offline; recarregar a aplicação offline não é suportado nem prometido.
+- [Imagem candidata](evidence/art-direction/package.json), [127 hashes](evidence/art-direction/source-files.json): build `pf-api-sentinel-art:20260922`, lint/formato/mypy e **237 testes + 11 subtests** passaram dentro da imagem, sem bind de fontes. Três testes de permissões exigem UID0 e foram pulados no processo UID10001; o [arquivo separado](evidence/art-direction/private-file-tests.json) passou com 4 casos em UID0, incluindo os três pulados. 25 rotas/arquivos do pacote conferidos.
+- [Trivy](evidence/art-direction/trivy.json): zero HIGH/CRITICAL, inclusive sem correção, sem ignorefile, com cache válido. A identidade é a mesma da imagem testada. Não houve nova carga, stack completa ou prova operacional.
+
+Os scripts reproduzíveis estão em `docs/evidence/art-direction/reproduce`. A comparação usa um receiver isolado com banco descartável e nunca abre o banco da demonstração. Os manifests históricos não foram atualizados para apontar à nova UI. CI/publicação são posteriores a esta verificação local.
+
+### Referências e escolhas
+
+| Referência primária inspecionada | Aspecto observado → adaptação | O que foi rejeitado |
+|---|---|---|
+| [Linear, redesign descrito pela equipe](https://linear.app/now/how-we-redesigned-the-linear-ui) — imagem “After” do artigo | Conteúdo principal, lista e metadados separados por luminosidade; reduzir chrome e dar uma superfície própria ao contexto auxiliar | Copiar a navegação em L, comentários, comandos ou identidade do produto |
+| [Grafana, estado de alertas](https://grafana.com/docs/grafana/latest/alerting/monitor-status/view-alert-state/) e [regra no Grafana Play](https://play.grafana.org/alerting/grafana/three-times-more-page-views-than-users/view) — sessão pública carregada | Estado/condição e histórico têm funções diferentes; aprofundamento técnico acessível sem transformar todo metadado em destaque | Gráficos sem série, ações de silenciar/excluir inexistentes e tratar saúde da regra como disponibilidade do serviço |
+| [Allure, demonstração oficial](https://allure-framework.github.io/allure3-demo/awesomeAll/) — relatório público | Linhas comparáveis, estado junto do resultado e evidência por aprofundamento | Anel percentual, árvore de suítes e categorias sem correspondência com as operações deste projeto |
+| [Swavee, portfolio dos autores](https://www.behance.net/gallery/241721015/Visual-Identity-design-for-Swavee) — imagens de identidade, não estudo de usuários | Consistência entre símbolo, wordmark e versões de aplicação | Símbolo, vidro, gradientes, peças publicitárias e qualquer alegação de exclusividade jurídica |
+| [Web Interface Guidelines](https://github.com/vercel-labs/web-interface-guidelines/blob/main/command.md), [Carbon dashboards](https://carbondesignsystem.com/data-visualization/dashboards/) | Estados explícitos, agrupamento por decisão, foco, reflow e movimento funcional | Usar a referência como prova de aprovação por usuários ou copiar um dashboard completo |
+
+Consulta visual em 22/09/2026. As capturas oficiais e o registro de navegação ficam no caderno externo de pesquisa `art-direction-api-container-20260922`; não integram os assets do produto. As adaptações são inferências de design verificadas no navegador, não resultados de estudo com usuários. Nenhum código ou asset desses produtos foi incorporado.
+
+As skills `frontend-design` e `web-design-guidelines` orientaram a revisão. React/Next.js continua não aplicável: o HTML é gerado em Python. A marca vetorial é original para este projeto; os glifos dos wordmarks derivam das fontes licenciadas abaixo. Os SVGs têm versões compacta, wordmark, clara e monocromática; o favicon usa o símbolo. O nome continua sendo texto real na interface. Sem garantia de exclusividade jurídica da marca.
+
+## Registro anterior — preservado
+
 ## Produto e escopo
 
 O operador deste laboratório usa a central para escolher qual ocorrência investigar,

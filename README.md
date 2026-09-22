@@ -1,10 +1,12 @@
 # API Sentinel
 
+A interface usa fila de ocorrências, histórico por entrega e runbooks com contexto de retorno. A observação do probe tem validade própria e não representa disponibilidade global. [Revisão visual e pacote atual](docs/frontend-quality.md#direção-visual-atual--revisão-de-22092026).
+
 API de vendas para integrações de lojas, com acesso por organização, quota compartilhada e isolamento das consultas ao ERP.
 
 Uma consulta ao ERP pode ficar lenta sem bloquear o resumo de vendas. O API Sentinel separa esses caminhos, limita o trabalho em andamento e mantém a quota de cada cliente entre duas réplicas. PostgreSQL calcula os indicadores; Redis coordena quota e cache. As organizações, vendas e o ERP da demonstração são sintéticos.
 
-![Central de incidentes com fila comparável e observação auxiliar; prévia com registros sintéticos](docs/screenshots/frontend-quality/candidate/central-desktop.png)
+![Central de incidentes com fila comparável e observação auxiliar; prévia com registros sintéticos](docs/screenshots/art-direction/central-1440.png)
 
 Interface revisada em 22/09/2026: captura com registros sintéticos explícitos, sem afirmar o estado da stack. [Antes/depois, jornadas e validação](docs/frontend-quality.md) identificam o candidato. A [sequência operacional anterior: consulta de R$ 125,00, falha e recuperação](docs/operational-story.md) mantém suas próprias imagens, fontes e limites.
 

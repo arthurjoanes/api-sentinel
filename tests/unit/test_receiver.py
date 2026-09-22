@@ -67,6 +67,28 @@ def send(client: TestClient, value: dict):
     return client.post("/webhook", json=value, headers={"Authorization": f"Bearer {TOKEN}"})
 
 
+def test_interface_assets_are_local_and_restricted(client: TestClient) -> None:
+    from alert_receiver import ui
+
+    for name, media in (
+        ("favicon.svg", "image/svg+xml"),
+        ("mark-light.svg", "image/svg+xml"),
+        ("wordmark.svg", "image/svg+xml"),
+        ("plex-sans-regular.woff2", "font/woff2"),
+        ("plex-sans-semibold.woff2", "font/woff2"),
+    ):
+        response = client.get(f"/assets/{name}")
+        assert response.status_code == 200
+        assert response.headers["content-type"].startswith(media)
+        assert response.content == (Path(ui.__file__).with_name("assets") / name).read_bytes()
+    assert client.get("/assets/../config.py").status_code == 404
+    assert client.get("/assets/config.py").status_code == 404
+    policy = client.get("/").headers["content-security-policy"]
+    assert "font-src 'self'" in policy
+    assert "default-src 'none'" in policy
+    assert "unsafe-inline" not in policy
+
+
 @pytest.mark.parametrize("status", ["all", "firing", "resolved"])
 def test_detail_and_runbook_preserve_filter_and_incident_context(client: TestClient, status: str):
     assert (
