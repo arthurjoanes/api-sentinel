@@ -14,8 +14,18 @@
     "matching_files": 117,
     "image_checked_at": "2026-09-22T08:19:38.877922+00:00",
     "workspace_checked_at": "2026-09-22T08:20:13.105102+00:00",
-    "manifest": "source-files.json",
-    "manifest_sha256": "da4bcf9a428c9657f7c65524a96c8dbca0c4fe79a2c2991c3ad60e1fbb6ee600"
+    "original_manifest": {
+      "name": "source-files.json",
+      "sha256": "da4bcf9a428c9657f7c65524a96c8dbca0c4fe79a2c2991c3ad60e1fbb6ee600"
+    },
+    "published_inventory": {
+      "path": "source-files.json",
+      "sha256": "e49fed63cdaacc8db08f921922d44af2252ee3240707633b548bc19b97488ad6",
+      "record_kind": "published_inventory_excerpt",
+      "inventory_scope": "application_and_documentation_files",
+      "files": 116,
+      "omitted_local_instruction_files": 1
+    }
   },
   "checks": [
     {
@@ -242,10 +252,6 @@
     {
       "path": "README.md",
       "sha256": "165f2d95268892f7f01c0f5a8825fee508323b9336a3b08a253d39bc6112e731"
-    },
-    {
-      "path": "AGENTS.md",
-      "sha256": "e31d6da82a568180100929ca15651c5c2d14b0b9b6dc26d0a3cd95c78278953e"
     },
     {
       "path": "docs/frontend-quality.md",
@@ -562,5 +568,12 @@
     "No load, PostgreSQL/Redis integration, full-stack recovery or CI rerun.",
     "No screen-reader, native browser zoom, Safari/Firefox or physical-mobile testing.",
     "No measured user productivity or field Web Vitals."
-  ]
+  ],
+  "documentation_inventory_scope": "application_and_documentation_files",
+  "documentation_selection": {
+    "original_record_sha256": "9f6b1022de4eda113396f1474088ebf16bea351feb7581d26800db557896168f",
+    "original_files": 5,
+    "published_files": 4,
+    "omitted_local_instruction_files": 1
+  }
 }

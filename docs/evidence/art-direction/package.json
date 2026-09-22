@@ -189,9 +189,17 @@
     "python",
     "-"
   ],
-  "source_manifest": {
-    "path": "source-files.json",
-    "sha256": "abf3aec892cbc9ab428c76e2f4a03137e2ffd6a35c81a64a42e17ff67ede8b3c"
+  "scope": "Packaged image only; no source bind, no load/full stack. Historical operational proof unchanged.",
+  "original_manifest": {
+    "name": "source-files.json",
+    "sha256": "abf3aec892cbc9ab428c76e2f4a03137e2ffd6a35c81a64a42e17ff67ede8b3c",
+    "files": 127
   },
-  "scope": "Packaged image only; no source bind, no load/full stack. Historical operational proof unchanged."
+  "published_inventory": {
+    "path": "source-files.json",
+    "sha256": "53b5c45dccfc1df0ee84f44fd1465accd997a7fe7382869c98bf70481031fe51",
+    "record_kind": "published_inventory_excerpt",
+    "inventory_scope": "application_and_documentation_files",
+    "files": 126
+  }
 }
