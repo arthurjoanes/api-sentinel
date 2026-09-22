@@ -1,6 +1,6 @@
 # Indicadores, objetivos e alertas
 
-Especificação conferida em **22/09/2026**: [regras demo](../monitoring/rules/demo.yml), [regras de referência](../monitoring/rules/reference.yml), [Prometheus](../monitoring/prometheus/demo.yml), [Alertmanager](../monitoring/alertmanager/demo.yml) e [métricas](../src/api_sentinel/metrics.py). Objetivos são escolhas deste laboratório; os resultados operacionais vêm do [recibo de 22/09/2026](evidence/editorial-20260922/full-run.json).
+As metas são escolhas deste laboratório, implementadas nas [regras demo](../monitoring/rules/demo.yml), [regras de referência](../monitoring/rules/reference.yml), [Prometheus](../monitoring/prometheus/demo.yml), [Alertmanager](../monitoring/alertmanager/demo.yml) e [métricas](../src/api_sentinel/metrics.py). Os resultados operacionais estão no [recibo de 22/09/2026](evidence/editorial-20260922/full-run.json).
 
 Os objetivos de referência são 99,9% de disponibilidade das requisições elegíveis observadas pela aplicação e 95% das respostas bem-sucedidas elegíveis em até 500 ms, em janela móvel de 30 dias. São hipóteses de engenharia para este laboratório; minutos de demonstração não mostram cumprimento mensal. A definição de latência considera sucessos separadamente para impedir que rejeições rápidas aparentem melhoria.
 
@@ -99,7 +99,7 @@ O dashboard provisionado tem UID `sentinel` e fontes Prometheus/Jaeger. Abra `ht
 
 ## Fontes oficiais
 
-Consulta em **22/09/2026**. As fontes explicam mecanismos de monitoramento; metas, janelas e limiares locais vêm dos arquivos de regras ligados no início.
+As fontes explicam mecanismos de monitoramento; metas, janelas e limiares locais vêm dos arquivos de regras ligados no início.
 
 - [Google SRE: alertas multiwindow/multi-burn-rate](https://sre.google/workbook/alerting-on-slos/).
 - [Prometheus: descoberta DNS](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#dns_sd_config) e [redes Compose](https://docs.docker.com/compose/how-tos/networking/).

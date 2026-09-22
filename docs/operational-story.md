@@ -1,6 +1,6 @@
 # Uma consulta conhecida, um incidente e sua recuperação
 
-Fontes primárias desta sequência: [execução de 22/09/2026, 12:49 UTC](evidence/editorial-20260922/capture-run.json), [oráculo](evidence/editorial-20260922/capture-oracle.json) e [entregas](evidence/editorial-20260922/capture-alerts.json). Conferência documental em **22/09/2026**; as medições originais não foram refeitas.
+A sequência está registrada na [execução de 22/09/2026, 12:49 UTC](evidence/editorial-20260922/capture-run.json), no [oráculo](evidence/editorial-20260922/capture-oracle.json) e nas [entregas](evidence/editorial-20260922/capture-alerts.json).
 
 **Registro histórico:** as imagens desta página pertencem às execuções identificadas abaixo e preservam seus bytes originais. Veja a [galeria da interface atual](screenshots.md) para a apresentação do código atual.
 

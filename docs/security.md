@@ -1,6 +1,6 @@
 # Segurança da demonstração local
 
-Configuração conferida em **22/09/2026**: [Compose](../compose.yml), [autorização](../src/api_sentinel/auth.py), [cliente ERP](../src/api_sentinel/erp.py) e [ACL Redis](../deploy/redis/users.acl). Scans e testes abaixo continuam vinculados às imagens, datas e bases dos recibos; não constituem garantia permanente.
+Os controles estão no [Compose](../compose.yml), na [autorização](../src/api_sentinel/auth.py), no [cliente ERP](../src/api_sentinel/erp.py) e na [ACL Redis](../deploy/redis/users.acl). Scans e testes são observações das imagens, datas e bases identificadas em cada recibo.
 
 Os serviços publicados usam `127.0.0.1`. A demonstração pressupõe controle do host e dos volumes Docker; não é uma implantação compartilhada ou exposta à Internet. Os dados comerciais e as credenciais PostgreSQL de demonstração são locais e identificados como tal no Compose.
 
@@ -14,7 +14,7 @@ Os testes com Redis real verificam rejeição de conexão anônima e impedem que
 
 ## Grafana
 
-O painel é anônimo com papel `Viewer`. A autenticação por senha está desabilitada, não é criado administrador inicial e Gravatar está desabilitado. A versão 12.4.11 tem digest fixado no [Compose](../compose.yml), conferido em **22/09/2026**. O aviso oficial **CVE-2026-76154**, publicado em **17/09/2026** e consultado em **22/09/2026**, lista 12.4.11 entre as versões corrigidas para esse problema específico; isso não comprova correção de todas as vulnerabilidades da linha. Referências: [autenticação Grafana](https://grafana.com/docs/grafana/latest/setup-grafana/configure-access/configure-authentication/grafana/) e [aviso de segurança corrigido em 12.4.11](https://grafana.com/security/security-advisories/cve-2026-76154/).
+O painel é anônimo com papel `Viewer`. A autenticação por senha está desabilitada, não é criado administrador inicial e Gravatar está desabilitado. A versão 12.4.11 tem digest fixado no [Compose](../compose.yml). O aviso oficial **CVE-2026-76154**, publicado em **17/09/2026** e consultado em **22/09/2026**, lista 12.4.11 entre as versões corrigidas para esse problema específico; isso não comprova correção de todas as vulnerabilidades da linha. Referências: [autenticação Grafana](https://grafana.com/docs/grafana/latest/setup-grafana/configure-access/configure-authentication/grafana/) e [aviso de segurança corrigido em 12.4.11](https://grafana.com/security/security-advisories/cve-2026-76154/).
 
 Os testes HTTP confirmam que o dashboard provisionado continua legível, sem permissão de edição ou administração, que a credencial inicial pública não acessa a API administrativa e que o endpoint de login por senha está desativado. Ocultar o formulário, isoladamente, não impedia esse acesso na configuração anterior.
 

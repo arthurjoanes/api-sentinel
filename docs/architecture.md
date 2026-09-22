@@ -1,6 +1,6 @@
 # Arquitetura do API Sentinel
 
-Base técnica conferida em **22/09/2026**: [serviços e imagens](../compose.yml), [admissão](../src/api_sentinel/admission.py), [pools](../src/api_sentinel/db.py), [ERP](../src/api_sentinel/erp.py) e [histórico do receiver](../alert_receiver/storage.py). Limites abaixo são configuração/contrato; medições conservam a data e a imagem dos próprios recibos.
+A arquitetura é definida pelos [serviços e imagens](../compose.yml), pela [admissão](../src/api_sentinel/admission.py), pelos [pools](../src/api_sentinel/db.py), pelo [cliente ERP](../src/api_sentinel/erp.py) e pelo [histórico do receiver](../alert_receiver/storage.py). Os limites abaixo são configurações; medições pertencem às execuções identificadas nos recibos.
 
 ## Fluxo
 
@@ -74,7 +74,7 @@ Esses mecanismos protegem invariantes diferentes. A quota não limita sozinha o 
 
 ## Dados e contratos
 
-Fonte: [gerador](../src/api_sentinel/seed.py), [autorização](../src/api_sentinel/auth.py) e [consulta](../src/api_sentinel/queries.py), conferidos em **22/09/2026**.
+O [gerador](../src/api_sentinel/seed.py) cria a massa descrita abaixo; a [autorização](../src/api_sentinel/auth.py) e a [consulta](../src/api_sentinel/queries.py) delimitam seu acesso.
 
 Duas organizações comerciais, seis lojas e quarenta produtos; um terceiro tenant técnico exclusivo do probe, sem organização comercial, usa uma sétima loja-fixture isolada. Este acréscimo atende ao isolamento exigido para o probe. Itens guardam centavos e quantidade; pedidos são contados por `(store_id, order_id)`. Seed determinística de 60 dias, versão imutável e fixture com receita manual de 12.500 centavos em dois pedidos. Datas comerciais são dias inclusivos de São Paulo convertidos para intervalo UTC semiaberto; intervalo máximo 90 dias. Ausência de cobertura retorna erro explícito. Cursor assinado vincula tenant, loja, período e versão; ordenação por instante/id únicos. A versão avançada invalida cursores e cache.
 
@@ -82,7 +82,7 @@ Credenciais aleatórias são armazenadas apenas como SHA-256 no banco; material 
 
 ## Matriz de limites
 
-Valores conferidos em **22/09/2026**: [configuração](../src/api_sentinel/config.py), [pools e SQL](../src/api_sentinel/db.py), [cache](../src/api_sentinel/cache.py), [ERP](../src/api_sentinel/erp.py), [telemetria](../src/api_sentinel/telemetry.py) e [proxy](../deploy/proxy/nginx.conf). São padrões de configuração, sujeitos aos escopos da tabela.
+Padrões definidos em [configuração](../src/api_sentinel/config.py), [pools e SQL](../src/api_sentinel/db.py), [cache](../src/api_sentinel/cache.py), [ERP](../src/api_sentinel/erp.py), [telemetria](../src/api_sentinel/telemetry.py) e [proxy](../deploy/proxy/nginx.conf). Os escopos e o comportamento ao exceder cada limite estão na tabela.
 
 | Recurso      |                                          Limite atual | Escopo e excesso                                           |
 | ------------ | ----------------------------------------------------: | ---------------------------------------------------------- |
@@ -131,7 +131,7 @@ Disponibilidade inicial de referência 99,9% e 95% das respostas bem-sucedidas e
 
 Testes: fixture independente de dinheiro/pedidos; integração com banco/Redis próprios; segurança, cursor, revogação e cancelamento; promtool saudável/pico/falha/recuperação/ausência/reset; k6 chegada constante; falhas reais de réplica, toda API, Redis, cache, ERP e traces. Os arquivos em artifacts registram resultados observados e limites do gerador. Medições em máquina local com Docker Desktop, com outras stacks ativas.
 
-Fontes oficiais consultadas em **22/09/2026** (comportamento das ferramentas, não resultado deste laboratório): [SQLAlchemy pools](https://docs.sqlalchemy.org/en/20/core/pooling.html), [FastAPI lifespan](https://fastapi.tiangolo.com/advanced/events/), [HTTPX timeout](https://www.python-httpx.org/advanced/timeouts/), [OWASP API Security](https://owasp.org/API-Security/editions/2023/en/0x11-t10/). Versões efetivas foram fixadas pelo lock e imagens e registradas na verificação.
+Referências sobre o comportamento das ferramentas: [SQLAlchemy pools](https://docs.sqlalchemy.org/en/20/core/pooling.html), [FastAPI lifespan](https://fastapi.tiangolo.com/advanced/events/), [HTTPX timeout](https://www.python-httpx.org/advanced/timeouts/), [OWASP API Security](https://owasp.org/API-Security/editions/2023/en/0x11-t10/). Versões efetivas foram fixadas pelo lock e imagens e registradas na verificação.
 
 ## Detalhes de implementação
 

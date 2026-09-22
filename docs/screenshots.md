@@ -1,6 +1,6 @@
 # Recortes da interface atual
 
-Fontes de proveniência, conferidas em **22/09/2026**: [manifesto de captura](screenshots/focused-20260922/capture.json) e [coletor](../scripts/capture_docs.cjs). A data da captura descreve o layout fotografado; não atualiza a data dos incidentes exibidos.
+O [manifesto de captura](screenshots/focused-20260922/capture.json) e o [coletor](../scripts/capture_docs.cjs) documentam a origem das imagens. A data da captura identifica o layout fotografado, sem atualizar a data dos incidentes exibidos.
 
 Capturados em **22/09/2026, 17:37 UTC**, diretamente no navegador, sem montagem ou alteração dos dados. Cada imagem isola o trecho relacionado à explicação; páginas históricas completas ficam disponíveis por links.
 

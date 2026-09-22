@@ -15,7 +15,7 @@ API de vendas com acesso por organização, controle de carga e investigação d
 
 Uma integração consulta faturamento e disponibilidade de produtos. A aplicação separa o caminho comercial do ERP e limita o trabalho em andamento. Os dados e o ERP são **sintéticos**; PostgreSQL, Redis, HTTP e observabilidade executam em containers no mesmo computador.
 
-O que implementei: autorização por loja e organização, cálculos em centavos, quota compartilhada, cache com controle de preenchimento, cliente ERP com prazo total e central com histórico de entregas. [Código e contratos](docs/problem-solution.md) · conferência documental em **22/09/2026**.
+O que implementei: autorização por loja e organização, cálculos em centavos, quota compartilhada, cache com controle de preenchimento, cliente ERP com prazo total e central com histórico de entregas. [Código e contratos](docs/problem-solution.md).
 
 <a id="na-prática"></a>
 
@@ -35,7 +35,7 @@ Recorte real de **22/09/2026, 17:37 UTC**, com registros preservados. Mostra a a
 | 102              |                1 × R$ 40,00 |      R$ 40,00 |
 | **Resultado**    |  **4 unidades / 2 pedidos** | **R$ 125,00** |
 
-O ticket médio é `125 ÷ 2 = R$ 62,50`. São valores de teste, sem relação com preços de mercado. Fonte: [fixture independente](data/fixtures/manual-sales.json), recalculada em **22/09/2026**; período comercial da entrada: **01/01/2026**.
+O ticket médio é `125 ÷ 2 = R$ 62,50`. A [fixture independente](data/fixtures/manual-sales.json) define esses valores sintéticos para o período comercial de **01/01/2026**; eles não representam preços de mercado.
 
 Com a credencial da organização técnica, consulte:
 
@@ -58,9 +58,9 @@ flowchart TB
   O[Monitoramento e central] --> A
 ```
 
-A autorização precede quota, cache e consulta. O ERP tem cliente e limite próprios; o resumo usa PostgreSQL. Prometheus observa a aplicação e entrega alertas ao receiver via Alertmanager. Grafana e Jaeger complementam a investigação no [diagrama completo](docs/architecture.md).
+No [fluxo HTTP](src/api_sentinel/app.py), a autorização precede quota, cache e consulta. O ERP tem cliente e limite próprios; o resumo usa PostgreSQL. Prometheus observa a aplicação e entrega alertas ao [receiver](alert_receiver/app.py) via Alertmanager. Grafana e Jaeger complementam a investigação no [diagrama completo](docs/architecture.md).
 
-Fontes: [Compose](compose.yml), [fluxo HTTP](src/api_sentinel/app.py) e [receiver](alert_receiver/app.py), conferidos em **22/09/2026**. As réplicas compartilham o host; o diagrama não representa alta disponibilidade entre máquinas.
+O [Compose](compose.yml) mantém as réplicas no mesmo host; o diagrama não representa alta disponibilidade entre máquinas.
 
 ## Stack e decisões
 
@@ -87,14 +87,14 @@ Fontes: [Compose](compose.yml), [fluxo HTTP](src/api_sentinel/app.py) e [receive
 <a id="o-que-eu-implementei"></a>
 <a id="escolhas-de-engenharia-e-seus-custos"></a>
 
-[Decisões, alternativas e implementação](docs/decisoes-tecnicas.md) · [versões Python fixadas](uv.lock) · [imagens configuradas](compose.yml). Conferência em **22/09/2026**; versões fixadas não são uma declaração de versão mais recente.
+[Decisões, alternativas e implementação](docs/decisoes-tecnicas.md) · [versões Python fixadas](uv.lock) · [imagens configuradas](compose.yml). Versões fixadas não são uma declaração de versão mais recente.
 
 <a id="executar-e-verificar"></a>
 <a id="executar-e-conferir"></a>
 
 ## Executar localmente
 
-Use Docker com containers Linux, Compose **2.24.4+** e Python **3.11+** no host. O Compose mínimo atende ao uso de `!override` no [perfil de revisão](compose.review.yml), conforme a [documentação Docker](https://docs.docker.com/reference/compose-file/merge/#replace-value), consultada em **22/09/2026**. Python no host executa o [runner](scripts/review.py); não há medição de memória mínima garantida.
+Use Docker com containers Linux, Compose **2.24.4+** e Python **3.11+** no host. O Compose mínimo atende ao uso de `!override` no [perfil de revisão](compose.review.yml), conforme a [documentação Docker](https://docs.docker.com/reference/compose-file/merge/#replace-value). Python no host executa o [runner](scripts/review.py); não há medição de memória mínima garantida.
 
 Para uma instalação nova e descartável, com checks, testes e falhas controladas:
 
@@ -111,7 +111,7 @@ O comando informa portas temporárias em `127.0.0.1`, grava resultados em `artif
 ./scripts/sentinel.ps1 demo
 ```
 
-O setup gera credenciais locais; `stop` preserva volumes. [Instalação Linux, credenciais e limpeza](docs/demo.md) · [implementação dos comandos](scripts/sentinel.ps1), conferidas em **22/09/2026**.
+O setup gera credenciais locais; `stop` preserva volumes. [Instalação Linux, credenciais e limpeza](docs/demo.md) · [implementação dos comandos](scripts/sentinel.ps1).
 
 ## Verificação e evidências
 
@@ -129,10 +129,10 @@ O setup gera credenciais locais; `stop` preserva volumes. [Instalação Linux, c
 
 ## Limites e segurança
 
-- Quota comercial padrão: **30 requisições/s por organização**; prazo total ERP: **900 ms**. São regras locais, não capacidade medida. Fontes: [seed](src/api_sentinel/seed.py), [ERP](src/api_sentinel/erp.py) e [matriz](docs/architecture.md#matriz-de-limites), conferidas em **22/09/2026**.
-- Dados comerciais imutáveis e duas réplicas no mesmo host. O laboratório não demonstra SLO mensal, capacidade máxima ou disponibilidade entre máquinas. [Escopo das provas](docs/verification.md#escopo), **22/09/2026**.
-- Serviços publicados em loopback; tokens e runtime ficam fora do Git. Scans dizem respeito às imagens e bases identificadas em cada execução. [Controles e limites](docs/security.md), conferidos em **22/09/2026**.
-- A central exige atualização manual. “Sem incidentes” não prova saúde; não há sessão com participantes registrada. [Contrato da interface](docs/decisoes-tecnicas.md#histórico-durável-e-uma-interface-que-não-inventa-recuperação) e [exercício ainda não realizado](docs/demo.md#exercício-com-outra-pessoa--preparado-ainda-não-realizado), conferidos em **22/09/2026**.
+- Quota comercial padrão: **30 requisições/s por organização**; prazo total ERP: **900 ms**. São regras do [seed](src/api_sentinel/seed.py) e do [cliente ERP](src/api_sentinel/erp.py), detalhadas na [matriz de limites](docs/architecture.md#matriz-de-limites); não medem capacidade.
+- Dados comerciais imutáveis e duas réplicas no mesmo host. O laboratório não demonstra SLO mensal, capacidade máxima ou disponibilidade entre máquinas. [Escopo das provas](docs/verification.md#escopo).
+- Serviços publicados em loopback; tokens e runtime ficam fora do Git. Scans dizem respeito às imagens e bases identificadas em cada execução. [Controles e limites](docs/security.md).
+- A central exige atualização manual. “Sem incidentes” não prova saúde; não há sessão com participantes registrada. [Contrato da interface](docs/decisoes-tecnicas.md#histórico-durável-e-uma-interface-que-não-inventa-recuperação) e [exercício ainda não realizado](docs/demo.md#exercício-com-outra-pessoa--preparado-ainda-não-realizado).
 
 ## Documentação
 
@@ -150,4 +150,4 @@ Para conversar sobre APIs, isolamento e observabilidade neste laboratório:
 
 <p><a href="https://www.linkedin.com/in/arthur-joanes-6a2967373/"><img src="docs/contact/linkedin.svg" alt="" width="24" height="24"> <strong>Arthur Joanes no LinkedIn</strong></a></p>
 
-[Licença MIT](LICENSE). Ícones da stack e LinkedIn: [Devicon — licença MIT](docs/stack/LICENSE.devicon). Licenças conferidas nos arquivos em **22/09/2026**.
+[Licença MIT](LICENSE). Ícones da stack e LinkedIn: [Devicon — licença MIT](docs/stack/LICENSE.devicon).

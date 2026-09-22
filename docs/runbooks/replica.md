@@ -1,6 +1,6 @@
 # Perda de réplica e redução de capacidade
 
-Procedimento conferido em **22/09/2026**: [descoberta e coleta](../../monitoring/prometheus/demo.yml), [Compose](../../compose.yml) e [regras demo](../../monitoring/rules/demo.yml). Os comandos e prazos são instruções deste ambiente; não constituem nova medição de recuperação.
+O procedimento usa [descoberta e coleta](../../monitoring/prometheus/demo.yml), o [Compose](../../compose.yml) e as [regras demo](../../monitoring/rules/demo.yml). Comandos e prazos descrevem o ambiente local; resultados de recuperação têm recibos próprios.
 
 O Prometheus descobre cada réplica diretamente por DNS do Compose, sem scrape pelo balanceador nem socket Docker. O receiver publica a quantidade desejada lida de expected-replicas. A perda real de uma réplica reduz os processos disponíveis; um target ausente também pode indicar falha de coleta. O probe pode continuar saudável nas duas situações.
 

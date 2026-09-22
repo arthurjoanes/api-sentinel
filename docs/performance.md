@@ -1,6 +1,6 @@
 # Desempenho e recuperação
 
-Fontes numéricas conferidas em **22/09/2026**: [execução das 12:12 UTC](evidence/editorial-20260922/full-run.json) e [execução das 02:19 UTC](evidence/publication.json), ambas de **22/09/2026**. Taxas, contagens e percentis pertencem a seus cenários e não são extrapolados para produção.
+Os números vêm das execuções de **22/09/2026**, às [12:12 UTC](evidence/editorial-20260922/full-run.json) e às [02:19 UTC](evidence/publication.json). Taxas, contagens e percentis descrevem seus cenários locais; não são projeções de produção.
 
 ## Execução de 22/09 às 12:12 UTC
 

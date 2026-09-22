@@ -1,6 +1,6 @@
 # Coleta e entrega de alertas
 
-Procedimento conferido em **22/09/2026**: [configuração e retenção](../../alert_receiver/config.py), [Compose](../../compose.yml) e [regras demo](../../monitoring/rules/demo.yml). Os comandos e prazos são instruções deste ambiente; não constituem nova medição de recuperação.
+O procedimento usa [configuração e retenção](../../alert_receiver/config.py), o [Compose](../../compose.yml) e as [regras demo](../../monitoring/rules/demo.yml). Comandos e prazos descrevem o ambiente local; resultados de recuperação têm recibos próprios.
 
 Verifique scrape, regras, entrega e gravação dos alertas.
 
