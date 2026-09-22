@@ -16,10 +16,6 @@
     "sha256": "3ed6b92c9e436cfe7cc84a02d51f42ee0d65f5c1724f39d8acfbd3d65a13ec87"
   },
   {
-    "path": "AGENTS.md",
-    "sha256": "e31d6da82a568180100929ca15651c5c2d14b0b9b6dc26d0a3cd95c78278953e"
-  },
-  {
     "path": "Dockerfile",
     "sha256": "c1b557d552fe9f85962167215f583e95dad057f29cd3b3ec61d29166897dc733"
   },

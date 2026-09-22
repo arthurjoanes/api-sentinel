@@ -5,5 +5,13 @@
   "mismatches": [],
   "license_bytes": "Original upstream CRLF preserved through exact -text attribute; WOFF2 binary; all other new proof text LF",
   "source_manifest_sha256": "abf3aec892cbc9ab428c76e2f4a03137e2ffd6a35c81a64a42e17ff67ede8b3c",
-  "scope": "Raw worktree bytes match the final packaged image manifest. Browser views predate metadata-only .gitattributes correction; application bytes unchanged."
+  "scope": "Raw worktree bytes match the final packaged image manifest. Browser views predate metadata-only .gitattributes correction; application bytes unchanged.",
+  "source_manifest_kind": "historical_original",
+  "published_inventory": {
+    "path": "source-files.json",
+    "sha256": "53b5c45dccfc1df0ee84f44fd1465accd997a7fe7382869c98bf70481031fe51",
+    "record_kind": "published_inventory_excerpt",
+    "inventory_scope": "application_and_documentation_files",
+    "files": 126
+  }
 }

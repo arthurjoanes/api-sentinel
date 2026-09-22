@@ -1,5 +1,15 @@
 {
   "image_id": "sha256:75bc61ec2e32e0a4c7557c782aea2ba47ab3a3ce50d33d25fe988e16f7d112fd",
+  "inventory_scope": "application_and_documentation_files",
+  "record_kind": "published_inventory_excerpt",
+  "original_manifest": {
+    "sha256": "abf3aec892cbc9ab428c76e2f4a03137e2ffd6a35c81a64a42e17ff67ede8b3c",
+    "files": 127
+  },
+  "selection": {
+    "files": 126,
+    "omitted_local_instruction_files": 1
+  },
   "files": [
     {
       "path": ".dockerignore",
@@ -16,10 +26,6 @@
     {
       "path": ".gitignore",
       "sha256": "3ed6b92c9e436cfe7cc84a02d51f42ee0d65f5c1724f39d8acfbd3d65a13ec87"
-    },
-    {
-      "path": "AGENTS.md",
-      "sha256": "e31d6da82a568180100929ca15651c5c2d14b0b9b6dc26d0a3cd95c78278953e"
     },
     {
       "path": "Dockerfile",
