@@ -1,0 +1,63 @@
+{
+  "date": "2026-10-03",
+  "scope": "api-sentinel",
+  "junit": {
+    "file": "linux-tests.xml",
+    "tests": 282,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "runtime_image": {
+    "tags": [
+      "api-sentinel-security-review:20261003"
+    ],
+    "id": "sha256:8ba5b1fbf70020b2e4b57b890b6f330cbbc28bc38d3b1ae80cdd71a5230e306c",
+    "digests": [
+      "api-sentinel-security-review@sha256:8ba5b1fbf70020b2e4b57b890b6f330cbbc28bc38d3b1ae80cdd71a5230e306c"
+    ],
+    "vulnerability_count": 0
+  },
+  "checks": {
+    "ruff": "passed",
+    "mypy": "passed",
+    "changed_python_format": "passed",
+    "git_diff_check": "passed",
+    "markdown_missing_local_links": 0,
+    "humanizer_protected_elements": {
+      "README.md": {
+        "code_blocks": 4,
+        "inline_code": 9,
+        "link_targets": 54,
+        "numeric_tokens": 98
+      },
+      "docs/security.md": {
+        "code_blocks": 0,
+        "inline_code": 7,
+        "link_targets": 11,
+        "numeric_tokens": 18
+      },
+      "docs/data-contract.md": {
+        "code_blocks": 1,
+        "inline_code": 75,
+        "link_targets": 16,
+        "numeric_tokens": 63
+      },
+      "docs/problem-solution.md": {
+        "code_blocks": 0,
+        "inline_code": 11,
+        "link_targets": 33,
+        "numeric_tokens": 60
+      }
+    }
+  },
+  "test_resources": {
+    "isolated": true,
+    "containers_networks_removed": true,
+    "existing_demo_unchanged": true
+  },
+  "limits": [
+    "runtime image only; auxiliary images excluded",
+    "scanner results are dated evidence, not a guarantee of absence of vulnerabilities"
+  ]
+}

@@ -6,6 +6,8 @@ Os serviços publicados usam `127.0.0.1`. A demonstração pressupõe controle d
 
 ## API e Redis
 
+Na revisão de 03/10/2026, a autenticação recebeu limite de 100 requisições/s por peer, com rajada de 200, antes de consultar a credencial. O webhook aceita 10/s, com rajada de 20. Excesso retorna 429 com `Retry-After`; a quota Redis por organização continua compartilhada entre réplicas. Os novos limites são por processo, e clientes atrás do mesmo proxy compartilham o orçamento de peer. A [revisão dos 18 itens](SECURITY-REVIEW-2026-10-03.md) registra correções, testes e limitações.
+
 A autorização por organização, loja e escopo ocorre antes de ler o cache. O cursor autenticado vincula organização, loja, período e versão dos dados. Limites de entrada, admissão, consulta e resposta restringem o trabalho em andamento; a integração ERP usa destino fixo e não segue redirecionamentos.
 
 O primeiro início gera credenciais Redis aleatórias em volumes próprios, fora do Git. Repetir o início preserva essas credenciais. O usuário `default` fica desabilitado; cache e quota usam usuários separados, com comandos e padrões de chave restritos. O healthcheck tem acesso a `PING`. A administração usada pelos experimentos fica em um volume montado somente no serviço operacional `tools`.
@@ -14,7 +16,7 @@ Os testes com Redis real verificam rejeição de conexão anônima e impedem que
 
 ## Grafana
 
-O painel é anônimo com papel `Viewer`. A autenticação por senha está desabilitada, não é criado administrador inicial e Gravatar está desabilitado. A versão 12.4.11 tem digest fixado no [Compose](../compose.yml). O aviso oficial **CVE-2026-76154**, publicado em **17/09/2026** e consultado em **22/09/2026**, lista 12.4.11 entre as versões corrigidas para esse problema específico; isso não comprova correção de todas as vulnerabilidades da linha. Referências: [autenticação Grafana](https://grafana.com/docs/grafana/latest/setup-grafana/configure-access/configure-authentication/grafana/) e [aviso de segurança corrigido em 12.4.11](https://grafana.com/security/security-advisories/cve-2026-76154/).
+O painel é anônimo com papel `Viewer`. A autenticação por senha está desabilitada, não é criado administrador inicial e Gravatar está desabilitado. A versão 12.4.11 tem digest fixado no [Compose](../compose.yml). O aviso oficial CVE-2026-76154, publicado em 17/09/2026 e consultado em 22/09/2026, lista 12.4.11 entre as versões corrigidas para esse problema específico; isso não comprova correção de todas as vulnerabilidades da linha. Referências: [autenticação Grafana](https://grafana.com/docs/grafana/latest/setup-grafana/configure-access/configure-authentication/grafana/) e [aviso de segurança corrigido em 12.4.11](https://grafana.com/security/security-advisories/cve-2026-76154/).
 
 Os testes HTTP confirmam que o dashboard provisionado continua legível, sem permissão de edição ou administração, que a credencial inicial pública não acessa a API administrativa e que o endpoint de login por senha está desativado. Ocultar o formulário, isoladamente, não impedia esse acesso na configuração anterior.
 

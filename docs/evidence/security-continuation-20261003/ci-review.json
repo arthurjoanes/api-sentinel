@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-03",
+  "workflow": ".github/workflows/ci.yml",
+  "purpose": "Check additional CI gates related to authentication and webhook rate limits.",
+  "http": {
+    "command": "pytest -q --tb=short tests/security tests/operations --junitxml=/artifacts/http-tests.xml",
+    "runtime_image": "api-sentinel-security-review:20261003",
+    "replicas": 2,
+    "full_observability": true,
+    "elapsed_seconds": 17.51,
+    "tests": 73,
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0
+  },
+  "monitoring": {
+    "command": "python scripts/check_monitoring.py",
+    "exit_code": 0,
+    "synthetic_cases": {
+      "delivery-health.yml": 4,
+      "demo.yml": 26,
+      "probe-freshness.yml": 4,
+      "reference.yml": 13
+    },
+    "total_cases": 47,
+    "log": "monitoring.log"
+  },
+  "test_sources_changed": false,
+  "isolated_project": "security-api-sentinel-ci-20261003",
+  "cleanup": {
+    "containers_network_volumes_removed": true,
+    "existing_demo_unchanged": true
+  },
+  "limits": [
+    "Selected CI gates were executed locally; this is not a GitHub Actions run.",
+    "Historical performance/load/recovery evidence was not replaced.",
+    "Auxiliary container vulnerability scans remain outside this application review."
+  ],
+  "documentation": {
+    "markdown_files_checked": 28,
+    "html_files_checked": 0,
+    "local_references_checked": 557,
+    "missing_local_references": [],
+    "matrix_items": 18,
+    "unexpected_publicable_temporary_files": []
+  }
+}
