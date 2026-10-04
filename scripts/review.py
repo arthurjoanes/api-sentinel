@@ -319,7 +319,7 @@ def main() -> None:
             "label=com.docker.compose.project=pf-api-sentinel",
         ]
         record["demo_containers_before"] = run("demo-before", demo_filter).splitlines()
-        run("build", local("build", "api"), timeout=600)
+        run("build", local("build", "api", "proxy"), timeout=600)
         record["image_id"] = run(
             "image-id",
             ["docker", "image", "inspect", "pf-api-sentinel-review:local", "--format", "{{.Id}}"],

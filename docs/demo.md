@@ -83,7 +83,7 @@ try {
 Este é o ambiente local de exploração. Para injetar falhas e remover volumes ao terminar, use o runner isolado descrito no início; não adapte os comandos de limpeza para esta stack.
 
 ```sh
-docker compose -f compose.yml build api
+docker compose -f compose.yml build api proxy
 docker compose -f compose.yml up -d --wait postgres redis
 docker compose -f compose.yml run --rm -e REPLICAS=2 tools python scripts/bootstrap.py
 docker compose -f compose.yml run --rm tools python -c 'import json; from pathlib import Path; p=Path("/secrets/public-urls.json"); p.write_text(json.dumps({"grafana":"http://127.0.0.1:3104","jaeger":"http://127.0.0.1:16684","prometheus":"http://127.0.0.1:9104","alertmanager":"http://127.0.0.1:9194"})); p.chmod(0o644)'

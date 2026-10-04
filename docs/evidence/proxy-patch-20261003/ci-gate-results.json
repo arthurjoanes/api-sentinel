@@ -1,0 +1,31 @@
+{
+  "scope": "Exact Python vulnerability gate extracted from the changed GitHub workflow, checked with actual dated application/proxy reports.",
+  "cases": [
+    {
+      "case": "patched",
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "report_metadata_fields": [
+        "ImageID",
+        "OS"
+      ],
+      "output": [
+        "runtime: blocking HIGH/CRITICAL findings: 0",
+        "proxy: blocking HIGH/CRITICAL findings: 0"
+      ]
+    },
+    {
+      "case": "vulnerable_baseline",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "report_metadata_fields": [
+        "ImageID",
+        "OS"
+      ],
+      "output": [
+        "runtime: blocking HIGH/CRITICAL findings: 0",
+        "proxy: blocking HIGH/CRITICAL findings: 2"
+      ]
+    }
+  ]
+}

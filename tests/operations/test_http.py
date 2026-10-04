@@ -34,11 +34,14 @@ def wait_for_ready_proxy(session: httpx.Client, credentials: RedactedCredentials
         pytest.fail("SENTINEL_EXPECTED_REPLICAS deve ser 1 ou 2.", pytrace=False)
     instances: set[str] = set()
     last_state = "nenhuma resposta"
+    ready = False
     while time.monotonic() < deadline:
         try:
-            ready = session.get("/health/ready")
-            last_state = f"health/ready HTTP {ready.status_code}"
-            if ready.status_code == 200:
+            if not ready:
+                health = session.get("/health/ready")
+                last_state = f"health/ready HTTP {health.status_code}"
+                ready = health.status_code == 200
+            if ready:
                 response = session.get(
                     "/v1/stores/7/summary",
                     params={"start": "2026-01-01", "end": "2026-01-01"},
@@ -60,7 +63,10 @@ def wait_for_ready_proxy(session: httpx.Client, credentials: RedactedCredentials
                         last_state = f"réplicas prontas {len(instances)}/{expected}"
                     else:
                         last_state = "fixture ainda não confirmou totais/identidade"
+                else:
+                    ready = False
         except (httpx.RequestError, ValueError):
+            ready = False
             last_state = "resposta de prontidão indisponível ou inválida"
         remaining = deadline - time.monotonic()
         if remaining > 0:

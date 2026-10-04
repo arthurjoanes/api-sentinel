@@ -82,6 +82,36 @@
       "conferência de fatos, comandos e links anteriores",
       "releitura da versão final"
     ],
-    "scope": "Apenas a seção de preparação para publicação e o esclarecimento histórico sobre commit e push."
+    "scope": "Apenas a seção de preparação para publicação e o esclarecimento histórico sobre commit e push.",
+    "hash_scope": "Historical document version before the proxy follow-up; original digest preserved."
+  },
+  "proxy_followup": {
+    "date": "2026-10-03",
+    "skill": "humanizer 3.1.0",
+    "mode": "embedded/file",
+    "workflow": [
+      "leitura integral dos documentos atuais",
+      "identificação de repetição e afirmações de escopo amplo",
+      "prosa baseada em scan original/final, fixtures e 70 testes",
+      "conferência de versões, datas, links e limites",
+      "releitura da versão final"
+    ],
+    "files": [
+      {
+        "path": "docs/SECURITY-REVIEW-2026-10-03.md",
+        "final_git_blob_sha256": "cc8baf510b182190ab69299f61fe6cec36b81c16ad3919cde017c69433e3aba6"
+      },
+      {
+        "path": "docs/security.md",
+        "final_git_blob_sha256": "6f36337f89dcfaa59adcb1b0ccd90afd1119b96b23ec3d3c7c256cd928c324e2"
+      },
+      {
+        "path": "docs/demo.md",
+        "final_git_blob_sha256": "a9d652e550f01a76b9a7fe8edfcfab54d37be7dc15c9862119d65143067e4369"
+      }
+    ],
+    "scope": "Matriz item 13, nova correção complementar do proxy, gate CI com proxy e comando Linux de build. Evidência histórica, comandos anteriores fora desse incremento e limites da demonstração preservados.",
+    "protected_elements": "Existing prose facts and historical references retained; only the build command was deliberately expanded to include proxy as required by the implementation.",
+    "remaining_patterns": "Technical limitations and dated evidence are explicit; no staged opener, inflated claim or redundant closer was introduced."
   }
 }

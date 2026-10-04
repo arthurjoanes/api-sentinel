@@ -30,6 +30,6 @@ Gitleaks 8.30.1 examinou os 12 commits alcançáveis e a cópia dos arquivos ras
 
 O workflow de segredos examina o histórico Git. As exceções de Gitleaks identificam fingerprints de arquivos e rótulos de credenciais sintéticas, sem excluir diretórios completos. Tokens, senhas e arquivos de execução permanecem fora do repositório.
 
-O scan Trivy do CI cobre a imagem Python da aplicação, incluindo seus pacotes de sistema e bibliotecas. Ele bloqueia achados `HIGH` e `CRITICAL`, mesmo quando ainda não há correção disponível. Esse resultado não representa uma varredura de todas as imagens PostgreSQL, Redis, proxy, observabilidade e geração de carga. As versões e o escopo dos ensaios constam em [verificação](verification.md).
+O scan Trivy do CI cobre a imagem Python da aplicação e a imagem construída do proxy. Ele bloqueia achados `HIGH` e `CRITICAL`, mesmo quando ainda não há correção disponível. O [incremento do proxy de 03/10/2026](SECURITY-REVIEW-2026-10-03.md#correção-complementar-do-proxy) atualizou quatro bibliotecas, preservando a base Nginx e a configuração de rotas; o scan completo da imagem corrigida ficou sem achados. PostgreSQL, Redis, observabilidade e geração de carga têm escopo separado. As versões e o escopo dos ensaios constam em [verificação](verification.md).
 
 O runtime inclui as ferramentas necessárias aos testes e relatórios locais. Antes de uma implantação de produção, a imagem de serviço e as ferramentas operacionais precisam de ciclos de entrega separados; a demonstração não oferece essa implantação.

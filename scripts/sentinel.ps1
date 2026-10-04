@@ -29,7 +29,7 @@ function Wait-Endpoint([string]$Url) {
 New-Item -ItemType Directory -Force -Path (Join-Path $Project 'artifacts'),(Join-Path $Project '.runtime') | Out-Null
 switch ($Action) {
     'setup' {
-        Invoke-Compose build api
+        Invoke-Compose build api proxy
         Invoke-Compose up -d --wait postgres redis
         Invoke-Compose run --rm -e "REPLICAS=$Replicas" tools python scripts/bootstrap.py
         & $PSCommandPath start -Replicas $Replicas

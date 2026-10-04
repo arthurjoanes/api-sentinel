@@ -1,0 +1,8 @@
+{
+  "alternating_probe_distinct_replicas": 1,
+  "consecutive_authenticated_distinct_replicas": 2,
+  "summary_statuses": [
+    200
+  ],
+  "fixture_correct": true
+}
