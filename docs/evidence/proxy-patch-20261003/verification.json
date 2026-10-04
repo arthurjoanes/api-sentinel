@@ -1,0 +1,216 @@
+{
+  "date": "2026-10-03",
+  "recorded_at_utc": "2026-10-04T01:06:05.190036+00:00",
+  "base_revision_before_followup": "d7e76b01a536d6aea8f8abf7073ea52aa1fea024",
+  "scope": "Minimal Nginx package repair, reproducible Compose build and CI proxy gate, plus replica-readiness fixture cadence correction. Application source and application image recipe/lock were unchanged.",
+  "scanner": {
+    "image": "aquasec/trivy:0.74.0@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969",
+    "scanners": [
+      "vuln"
+    ],
+    "ignorefile": "/dev/null",
+    "severity_filter": null,
+    "all_packages": true,
+    "db_metadata_at_receipt": {
+      "Version": 2,
+      "NextUpdate": "2026-10-04T19:02:38.737369504Z",
+      "UpdatedAt": "2026-10-03T19:02:38.737369755Z",
+      "DownloadedAt": "2026-10-03T22:33:41.370315008Z"
+    },
+    "warnings": [
+      "This OS version is not on the EOL list: alpine 3.24.2; this scanner warning does not certify lifecycle support."
+    ]
+  },
+  "proxy": {
+    "base": "nginx:1.30.5-alpine3.24@sha256:a5f2157a0302eb0c5e300415effb63a9e70ed1eb9c107283819bf6d149ab607c",
+    "final_image_id": "sha256:b2d1511df8fbe62a4df0d9e8426e67a64ca2c8db23208370654a06556c4d9c11",
+    "nginx_version_unchanged": "1.30.5-r1",
+    "packages_examined": 71,
+    "only_package_changes": [
+      {
+        "package": "libexpat",
+        "before": "2.8.4-r0",
+        "after": "2.8.5-r0"
+      },
+      {
+        "package": "libpng",
+        "before": "1.6.58-r1",
+        "after": "1.6.59-r0"
+      },
+      {
+        "package": "nghttp2-libs",
+        "before": "1.69.0-r0",
+        "after": "1.70.0-r0"
+      },
+      {
+        "package": "pcre2",
+        "before": "10.48-r0",
+        "after": "10.49-r0"
+      }
+    ],
+    "findings_by_iteration": {
+      "original-proxy": [
+        {
+          "id": "CVE-2026-93990",
+          "package": "libexpat",
+          "severity": "HIGH"
+        },
+        {
+          "id": "CVE-2026-46675",
+          "package": "libpng",
+          "severity": "UNKNOWN"
+        },
+        {
+          "id": "CVE-2026-58055",
+          "package": "nghttp2-libs",
+          "severity": "MEDIUM"
+        },
+        {
+          "id": "CVE-2026-103111",
+          "package": "pcre2",
+          "severity": "HIGH"
+        }
+      ],
+      "two-high-patches": [
+        {
+          "id": "CVE-2026-46675",
+          "package": "libpng",
+          "severity": "UNKNOWN"
+        },
+        {
+          "id": "CVE-2026-58055",
+          "package": "nghttp2-libs",
+          "severity": "MEDIUM"
+        }
+      ],
+      "final-proxy": []
+    },
+    "configuration_unchanged": true,
+    "nginx_config_test": "passed"
+  },
+  "official_sources": [
+    "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/APKINDEX.tar.gz",
+    "https://secdb.alpinelinux.org/v3.24/main.json",
+    "https://github.com/libexpat/libexpat/blob/R_2_8_5/expat/Changes",
+    "https://github.com/PCRE2Project/pcre2/security/advisories/GHSA-r9hj-j2rw-4q3m",
+    "https://github.com/pnggroup/libpng/security/advisories/GHSA-qvg3-h654-xq3j",
+    "https://github.com/nghttp2/nghttp2/commit/ab28105c4a0197da24f8bfc414bc116055249e1e"
+  ],
+  "http_validation": {
+    "application_image": "api-sentinel-security-review:20261003",
+    "application_image_id": "sha256:8ba5b1fbf70020b2e4b57b890b6f330cbbc28bc38d3b1ae80cdd71a5230e306c",
+    "changed_tests_mounted_read_only": true,
+    "replicas": 2,
+    "first_attempt": {
+      "tests": 70,
+      "failures": 0,
+      "errors": 57,
+      "skipped": 0
+    },
+    "cadence_probe": {
+      "alternating_probe_distinct_replicas": 1,
+      "consecutive_authenticated_distinct_replicas": 2,
+      "summary_statuses": [
+        200
+      ],
+      "fixture_correct": true
+    },
+    "final_attempt": {
+      "tests": 70,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "junit_hostname_removed": true,
+    "source_test_contracts": "Same 70 tests, credential redaction, exact fixture totals, replica IDs and 90-second readiness deadline. Health is rechecked if unavailable; summaries are consecutive while ready."
+  },
+  "checks": {
+    "compose_build": "passed",
+    "nginx_config": "passed",
+    "changed_python_ruff": "passed",
+    "changed_python_format": "passed",
+    "workflow_python_gate": "passed on corrected report and rejected vulnerable baseline by two HIGH"
+  },
+  "cleanup": {
+    "project": "pf-api-sentinel-review-proxy-fix-20261003",
+    "temporary_containers_network_volumes_removed": true,
+    "existing_primary_demo_container_ids_unchanged": true,
+    "default_docker_pools_not_modified": true
+  },
+  "published_metadata": {
+    "image_config_env_and_build_history_removed": true,
+    "all_package_and_vulnerability_results_preserved": true,
+    "raw_logs_and_reports_location": "Private operator storage outside the repository; not published."
+  },
+  "source_inputs": [
+    {
+      "path": "deploy/proxy/Dockerfile",
+      "sha256": "dd6ca83ff8a050d0358c28979b9c65802233a905c3a674862e44b96e9a1c9677"
+    },
+    {
+      "path": "deploy/proxy/nginx.conf",
+      "sha256": "cb74b3dc8fac379d5184c23f78b35f90be2e24f2f9c329c7f639cf3c0e4b7e4a"
+    },
+    {
+      "path": "compose.yml",
+      "sha256": "d913245baf3e8a3074a3c3347a27f55fef98579875badcaf5fd7852af24740e4"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "6e5ffa6bf1876eb7d5847acdac19535bcae61584eda898908f05e1aecc18de7f"
+    },
+    {
+      "path": "scripts/sentinel.ps1",
+      "sha256": "555c2b1c93c75ec33e27500e151106428a8215c07200718410b2429149657bbe"
+    },
+    {
+      "path": "scripts/review.py",
+      "sha256": "83d49f4d0f5894b29755f154d4133386e50e54685e3ce73b9337e922628a1175"
+    },
+    {
+      "path": "tests/security/test_http.py",
+      "sha256": "f648be0774019a4591c7629113c5f9949cb5a775851b7ca1817b3ea390a4d7b1"
+    },
+    {
+      "path": "tests/operations/test_http.py",
+      "sha256": "f5d02b19e2683dab9590ad6d03c5cac52f9c1e5061dc12623c1e3ddd51232eca"
+    }
+  ],
+  "artifact_inputs": [
+    {
+      "path": "cadence-probe.json",
+      "sha256": "452e1000f55fccb3227f487c9f4f5191dbd7eb1a1a782b5d06b3ad9b2cb1f7c9"
+    },
+    {
+      "path": "ci-gate-results.json",
+      "sha256": "a982dd46fead95d20a35109071a7f36b2d2a7288411a61e3482c215b4e9d3cd8"
+    },
+    {
+      "path": "final-proxy-vulnerabilities.json",
+      "sha256": "c9abe1aca6813eb118d1f4b43445f63ed9b52967640f251c5798f95b4f416af6"
+    },
+    {
+      "path": "first-proxy-http-tests.xml",
+      "sha256": "4ea3c35adfadb32f784feb5dfcc7f609f0c3cb304a64599a6ad1053a445c0e25"
+    },
+    {
+      "path": "original-proxy-vulnerabilities.json",
+      "sha256": "a2b5f3a7b6033912f2c9a43f073fd724dd2dacf3a7b5bbf61c6a210141743175"
+    },
+    {
+      "path": "proxy-http-tests.xml",
+      "sha256": "9fa7d35f0dfa13d08396c8e3be7b673905f57797ecb96c8c9bb3c7dd5d2ecd18"
+    },
+    {
+      "path": "two-high-patches-vulnerabilities.json",
+      "sha256": "d0d3a85b81ca48ffe42d57ce23aa8b037ba312863bdc188e7e746482bb9afe96"
+    }
+  ],
+  "limits": [
+    "Local Linux x86_64 containers on Docker Desktop; no ARM/macOS execution was repeated.",
+    "Pins depend on the current Alpine package index; no immutable APK mirror snapshot is provided.",
+    "Only the proxy image was rebuilt and rescanned in this increment; earlier application scans/tests retain their dates.",
+    "No performance, full observability or broad backend suite was repeated locally; push triggers the full GitHub workflow.",
+    "Other auxiliary images remain outside this incremental scan scope."
+  ]
+}
