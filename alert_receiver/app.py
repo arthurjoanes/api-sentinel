@@ -24,6 +24,7 @@ from alert_receiver.contracts import Webhook
 from alert_receiver.diagnostics import tool_url
 from alert_receiver.probe import ProbeState, ReceiverMetrics, probe_loop
 from alert_receiver.storage import AlertStore
+from api_sentinel.rate_limit import RateLimit
 
 logger = logging.getLogger("sentinel.receiver")
 RUNBOOKS = frozenset(ui.RUNBOOKS)
@@ -100,6 +101,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.state.metrics = metrics
     application.state.probe = probe
     application.state.active_requests = 0
+    webhook_rate = RateLimit(rate=10, burst=20)
 
     @application.exception_handler(RequestValidationError)
     async def invalid_parameters(request: Request, exc: RequestValidationError) -> Response:
@@ -164,6 +166,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @application.post("/webhook")
     async def webhook(request: Request) -> Response:
+        peer = request.client.host if request.client else "unknown"
+        retry = webhook_rate.consume(peer)
+        if retry:
+            response = problem(429, "webhook_rate_exceeded", "Limite de entregas excedido.")
+            response.headers["Retry-After"] = str(retry)
+            return response
         authorization = request.headers.get("authorization", "")
         scheme, _, supplied_token = authorization.partition(" ")
         if (

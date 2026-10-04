@@ -89,6 +89,20 @@ def test_interface_assets_are_local_and_restricted(client: TestClient) -> None:
     assert "unsafe-inline" not in policy
 
 
+def test_webhook_rate_rejects_guesses_and_spoofed_forwarded_ips(client, monkeypatch):
+    from types import SimpleNamespace
+
+    monkeypatch.setattr("api_sentinel.rate_limit.time", SimpleNamespace(monotonic=lambda: 100.0))
+    for index in range(20):
+        response = client.post("/webhook", headers={"X-Forwarded-For": f"192.0.2.{index}"})
+        assert response.status_code == 401
+    response = client.post("/webhook", headers={"X-Forwarded-For": "different-peer"})
+    assert response.status_code == 429
+    assert response.headers["Retry-After"] == "1"
+    assert client.get("/health/live").status_code == 200
+    assert client.app.state.store.list_incidents() == []
+
+
 @pytest.mark.parametrize("status", ["all", "firing", "resolved"])
 def test_detail_and_runbook_preserve_filter_and_incident_context(client: TestClient, status: str):
     assert (

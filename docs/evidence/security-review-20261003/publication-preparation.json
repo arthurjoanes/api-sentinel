@@ -1,0 +1,38 @@
+{
+  "date": "2026-10-03",
+  "scope": "api-sentinel",
+  "runtime_report": "runtime-image-vulnerabilities.json",
+  "original_report_sha256": "5ba054a4175fe2dc882884ccb901c79361b69a255b6b0effb7742d618038256b",
+  "public_report_sha256": "7c4fb46fb5530db7a9c3c245ad4cd726e94a725d53c2892aeb19ed11136ee81b",
+  "preserved_image_id": "sha256:8ba5b1fbf70020b2e4b57b890b6f330cbbc28bc38d3b1ae80cdd71a5230e306c",
+  "removed_metadata_keys": [
+    "DiffIDs",
+    "ImageConfig",
+    "Layers",
+    "Reference",
+    "RepoDigests",
+    "RepoTags",
+    "Size"
+  ],
+  "results_preserved_exactly": true,
+  "results_canonical_sha256": "16579733ecf3b8b9e57b5938cc7b683907b5209d32758472c012cda2275385bc",
+  "packages": 616,
+  "vulnerabilities": 0,
+  "runtime_or_tests_changed": false,
+  "historical_junit_preparation": {
+    "file": "linux-first-tests.xml",
+    "original_sha256": "5f792e4073174a0005fcc948d8ede43c95dbcc00833acb4699aef6dc8fcc30e7",
+    "public_sha256": "0f1f57e47419912c557476be606c8a50572fe702e51bde843d08ce10b51807c5",
+    "change": "Only trailing whitespace removed from the recorded traceback; test results, failure, timing and XML attributes preserved.",
+    "original_archived_outside_git": true
+  },
+  "initial_junit_privacy": {
+    "file": "unit-tests.xml",
+    "original_git_blob_sha256": "2203521e91d19af758699a91f04fcdcc7013cf9fdfba41cdf982dbbcfbf08418",
+    "public_git_blob_sha256": "aabf26b659274f695c53d777f5035c5a92310ca9ef902d0b9996f2afbc1c7158",
+    "user_profile_prefixes_redacted": 6,
+    "exact_only_profile_replacement_verified": true,
+    "test_results_and_failures_preserved": true,
+    "original_archived_outside_git": true
+  }
+}

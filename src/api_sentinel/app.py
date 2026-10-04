@@ -24,6 +24,7 @@ from api_sentinel.contracts import BUSINESS_ERRORS, SalesPage, StoreList, StoreS
 from api_sentinel.db import Database
 from api_sentinel.erp import ERP, Availability
 from api_sentinel.errors import Problem
+from api_sentinel.rate_limit import RateLimit
 from api_sentinel.telemetry import (
     RequestMiddleware,
     configure_traces,
@@ -41,6 +42,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     app.state.cursor_secret = settings.cursor_secret()
     app.state.entry = Admission(settings.entry_limit, "entry")
     app.state.authentication = Admission(settings.authentication_limit, "auth")
+    app.state.authentication_rate = RateLimit(rate=100, burst=200)
     app.state.business = Admission(settings.business_limit, "tenant", settings.tenant_limit)
     app.state.quota = Redis.from_url(
         settings.redis_url,
@@ -126,6 +128,12 @@ async def principal(
     request: Request,
     credential: Annotated[HTTPAuthorizationCredentials | None, Depends(bearer_auth)],
 ) -> auth.Principal:
+    peer = request.client.host if request.client else "unknown"
+    retry = request.app.state.authentication_rate.consume(peer)
+    if retry:
+        raise Problem(
+            429, "authentication_rate_exceeded", "Limite de autenticação excedido.", retry
+        )
     header = request.headers.get("authorization", "")
     if len(header) > 256 or credential is None:
         raise Problem(401, "invalid_credential", "Credencial Bearer obrigatória.")

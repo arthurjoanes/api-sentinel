@@ -27,7 +27,10 @@ async def test_auth_reads_without_idle_transaction_and_reconnects_after_terminat
                 assert state == "idle", "A consulta de autenticação não deve reter transação."
 
             # O pre_ping precisa detectar uma conexão morta e repor o mesmo pool limitado.
-            assert await observer.scalar(text("SELECT pg_terminate_backend(:pid)"), {"pid": pid})
+            # Um timeout positivo aguarda a saída real; zero só confirma envio do sinal.
+            assert await observer.scalar(
+                text("SELECT pg_terminate_backend(:pid, 1000)"), {"pid": pid}
+            )
             async with db.connection("auth") as connection:
                 assert await connection.scalar(text("SELECT 42")) == 42
                 assert await connection.scalar(text("SELECT pg_backend_pid()")) != pid

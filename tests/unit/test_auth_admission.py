@@ -9,11 +9,13 @@ from api_sentinel.admission import Admission
 from api_sentinel.app import principal
 from api_sentinel.config import Settings
 from api_sentinel.errors import Problem
+from api_sentinel.rate_limit import RateLimit
 
 
 async def test_authentication_burst_is_bounded_and_releases_on_cancellation(monkeypatch) -> None:
     application = FastAPI()
     application.state.authentication = Admission(Settings().authentication_limit, "auth")
+    application.state.authentication_rate = RateLimit(rate=100, burst=200)
     application.state.db = object()
     release, entered = asyncio.Event(), asyncio.Event()
     calls = 0

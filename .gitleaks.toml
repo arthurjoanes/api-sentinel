@@ -65,3 +65,10 @@ condition = "AND"
 regexTarget = "match"
 paths = ['''^docs/evidence/editorial-20260922/full-run\.json$''']
 regexes = ['''credential_name"\s*:\s*"verification-1790079526"''']
+
+[[rules.allowlists]]
+description = "Public Python signing key fingerprint in the identified Trivy image metadata"
+condition = "AND"
+regexTarget = "secret"
+paths = ['''^docs/evidence/security-review-20261003/runtime-image-vulnerabilities\.json$''']
+regexes = ['''^7169605F62C751356D054A26A821E680E5FA6305$''']
