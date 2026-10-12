@@ -5,7 +5,9 @@ from urllib.parse import parse_qsl, urlencode, urlsplit
 
 from alert_receiver.code_format import code_block
 from alert_receiver.contracts import Incident, IncidentEvent, IncidentPage
+from alert_receiver.incident_visual import period_graphic
 from alert_receiver.probe import ProbeState
+from alert_receiver.visual_summary import overview_charts
 
 SEVERITY_LABELS = {"critical": "Crítico", "warning": "Atenção", "info": "Informativo"}
 RUNBOOKS = {
@@ -34,6 +36,12 @@ def timestamp(value: datetime | None) -> str:
     return value.astimezone(UTC).strftime("%d/%m/%Y · %H:%M:%S UTC")
 
 
+def compact_timestamp(value: datetime | None) -> str:
+    if value is None or value.tzinfo is None:
+        return timestamp(value)
+    return value.astimezone(UTC).strftime("%d/%m/%Y · %H:%M UTC")
+
+
 def central_url(status: str, incident_id: int | None = None) -> str:
     status = status if status in {"all", "firing", "resolved"} else "all"
     target = f"/?status={status}"
@@ -59,11 +67,14 @@ def incident_lookup(status: str, *, error: str | None = None, value: str = "") -
     return f'''<form id="buscar-incidente" class="incident-lookup"
 action="/incident-lookup" method="get">
 <input type="hidden" name="status" value="{escape_html(status)}">
-<div class="lookup-fields"><label for="incident-id">Abrir incidente por ID</label>
+<div class="lookup-fields"><label class="visually-hidden" for="incident-id">
+Abrir incidente por ID</label>
 <input id="incident-id" name="incident_id" type="text" inputmode="numeric" pattern="[0-9]{{1,19}}"
-maxlength="19" autocomplete="off" spellcheck="false" required value="{escape_html(value)}"{invalid}>
-<button class="button secondary" type="submit">Abrir incidente</button></div>{error_markup}
-<p>Use o ID registrado nas evidências para acessar ocorrências fora dos 100 itens da lista.</p>
+maxlength="19" autocomplete="off" spellcheck="false" required placeholder="ID do incidente"
+value="{escape_html(value)}"{invalid}>
+<button class="button secondary" type="submit" aria-label="Abrir incidente">Abrir →</button>
+</div>{error_markup}
+<p>Fora da lista? Use o ID da ocorrência.</p>
 </form>'''
 
 
@@ -150,18 +161,21 @@ def incident_row(incident: Incident, status: str = "all") -> str:
 <div class="row-description">
 <h3><span class="row-reference"><span class="visually-hidden">Incidente </span>#{incident.id}</span>
 {escape_html(incident.annotations["summary"])}</h3>
-<p>{escape_html(incident.annotations.get("impact", "Impacto não informado."))}</p>
 <details class="row-metadata"><summary>Identificação e entregas</summary>
+<p class="row-impact">
+{escape_html(incident.annotations.get("impact", "Impacto não informado."))}</p>
 <dl class="row-facts"><div><dt>Referência</dt><dd>Incidente #{incident.id}</dd></div>
 <div><dt>Serviço</dt><dd>{escape_html(incident.labels.get("service", "api-sentinel"))}</dd></div>
 <div><dt>Entregas recebidas</dt>
 <dd>{incident.deliveries} entrega{"s" if incident.deliveries != 1 else ""}</dd>
 </div></dl></details></div>
 <div class="row-recent"><p class="row-start"><span>Início</span>
-<time datetime="{escape_html(incident.starts_at.isoformat())}">
-{escape_html(timestamp(incident.starts_at))}</time></p>
+<time datetime="{escape_html(incident.starts_at.isoformat())}"
+title="{escape_html(timestamp(incident.starts_at))}">
+{escape_html(compact_timestamp(incident.starts_at))}</time></p>
 <p><span>{resolution_label(incident)}</span>
-<time>{escape_html(timestamp(observed))}</time></p></div>
+<time title="{escape_html(timestamp(observed))}">
+{escape_html(compact_timestamp(observed))}</time></p></div>
 <a class="incident-action" href="{escape_html(detail_url)}"
 aria-label="Investigar ocorrência {incident.id}">Investigar</a></li>"""
 
@@ -299,29 +313,32 @@ def home(
     }[status]
     columns = (
         '<div class="queue-columns" aria-hidden="true"><span>Estado</span>'
-        "<span>Ocorrência e impacto</span><span>Último registro</span><span>Ação</span></div>"
+        "<span>Ocorrência</span><span>Período registrado</span><span>Ação</span></div>"
         if entries
         else ""
     )
-    content = f"""<div class="page-heading"><div><h1>Incidentes</h1>
+    content = f"""<div class="incident-central"><div class="page-heading"><div><h1>Incidentes</h1>
 <p class="reading-meta snapshot-meta">Leitura de {escape_html(timestamp(page.generated_at))}
 · Atualização manual</p></div>
 <a class="button secondary" href="/?status={escape_html(status)}">Atualizar leitura</a></div>
+{overview_charts(page, status)}
 <div class="triage-workspace">
 <section class="observation-workspace" aria-label="Observação e escopo">
 {probe_observation(probe, datetime.now(UTC))}
-{observation_details(page, probe)}</section>
+<details class="observation-disclosure"><summary>Escopo da leitura</summary>
+{observation_details(page, probe)}</details></section>
 <section class="inbox" aria-label="Incidentes">
+<div class="queue-heading"><h2>Investigar ocorrências</h2>
+{incident_lookup(status, error=lookup_error, value=lookup_value)}</div>
 <div class="queue-controls">
 <nav class="filters" aria-label="Filtrar incidentes">{incident_filters(counts, status)}</nav>
 <div class="list-scope"><h2 class="visually-hidden">{list_title}</h2><span class="list-count">
 {len(page.records)} de {filtered_total} incidentes · limite de {page.limit}</span>
 <a href="#observacao">Ver probe</a>
-<a class="lookup-shortcut" href="#buscar-incidente">Abrir por ID</a></div>
-</div>{columns}{inbox}
+</div></div>{columns}{inbox}
 <p class="retention">
 Finalizados: últimos {page.retention_days} dias · Em andamento: sem expiração · Atualização manual
-</p>{incident_lookup(status, error=lookup_error, value=lookup_value)}</section></div>"""
+</p></section></div></div>"""
     return layout("Incidentes", content, snapshot=True)
 
 
@@ -395,11 +412,12 @@ def incident_card(incident: Incident, status: str = "all") -> str:
 Traces são amostrados; a ausência de resultados não comprova ausência de chamadas.</p>'''
     rules = tool_context("/tools/prometheus/alerts", status, incident.id)
     return f'''<section class="incident-context" aria-label="Condição e investigação">
-<div class="context-block"><h2>Condição do alerta</h2>
+<div class="context-block"><details><summary>Condição do alerta</summary>
+<div class="disclosure-content">
 <p>{escape_html(annotations.get("condition", "Veja a regra no Prometheus."))}</p>
 <p class="muted">Janela: {escape_html(annotations.get("window", "Veja a configuração ativa."))}</p>
-</div>
-<div class="context-block investigation"><h2>Evidências do período registrado</h2>
+</div></details></div>
+<div class="context-block investigation"><h2>Evidências do período</h2>
 {evidence}
 <a href="{escape_html(rules)}">Regras atuais no Prometheus ↗</a>
 <p class="evidence-scope">Regras atuais podem diferir das condições desta ocorrência.</p>
@@ -427,7 +445,9 @@ def event_item(event: IncidentEvent) -> str:
     return f"""<li class="timeline-event {tone}">
 <div class="event-heading"><time>{escape_html(timestamp(event.received_at))}</time>
 <h3>{escape_html(title)}</h3></div>
-<p>{escape_html(description)}</p><span class="event-source">{escape_html(source)}</span></li>"""
+<details class="event-detail"><summary>Origem e interpretação</summary>
+<p>{escape_html(description)}</p><span class="event-source">{escape_html(source)}</span>
+</details></li>"""
 
 
 def incident_detail(
@@ -492,19 +512,18 @@ def incident_detail(
 <p class="state-description">{state_description}</p>
 <div class="detail-period"><p class="snapshot-meta">Leitura de {escape_html(snapshot_time)}
 · Atualização manual</p>
-<p>Início: {escape_html(timestamp(incident.starts_at))} · {resolution_label(incident)}:
-{escape_html(timestamp(observed))}</p>
 <a class="text-link" href="/incidents/{incident.id}?status={escape_html(status)}">
 Atualizar ocorrência</a></div>
+{period_graphic(incident)}
 <div class="decision-strip"><div><h2>{"Impacto" if active else "Impacto registrado"}</h2>
 <p>{escape_html(incident.annotations.get("impact", "Impacto não informado. Veja o runbook."))}</p>
-</div><div><h2>Próximo passo</h2>
-<p>{escape_html(next_step)}</p>
+</div><div><h2>Investigar</h2>
 <div class="decision-actions">
 {observation_link}
 <a class="{"button" if active else "text-link"}"
 href="{escape_html(incident_runbook(incident, status))}">Abrir runbook</a>
-</div></div></div>
+</div><details class="decision-explanation"><summary>Ver orientação</summary>
+<p>{escape_html(next_step)}</p></details></div></div>
 <details class="incident-metadata"><summary>Datas e entregas</summary>
 <dl class="incident-times"><div><dt>Início do alerta</dt>
 <dd>{escape_html(timestamp(incident.starts_at))}</dd></div>
@@ -516,7 +535,7 @@ href="{escape_html(incident_runbook(incident, status))}">Abrir runbook</a>
 <section class="history" id="historico" tabindex="-1"><div class="section-heading">
 <div><h2>Histórico do incidente</h2></div>
 <span>{len(events)} evento{"s" if len(events) != 1 else ""}</span></div>
-<p class="history-scope">Até 100 eventos recentes, do mais novo para o mais antigo.</p>
+<p class="history-scope">Até 100 eventos · mais recentes primeiro · horários do receiver.</p>
 <ol class="timeline">{history}</ol>
 <details><summary>Identidade da ocorrência</summary><div class="disclosure-content">
 <p>Fingerprint: <code>{escape_html(incident.fingerprint)}</code></p>
