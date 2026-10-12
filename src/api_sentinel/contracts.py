@@ -78,11 +78,28 @@ BUSINESS_ERRORS: dict[int | str, dict[str, object]] = {
         "content": {"application/problem+json": {"schema": ProblemDocument.model_json_schema()}},
     }
     for status, description in (
+        (400, "Cabeçalhos ou mensagem HTTP inválidos; Authorization deve ser único."),
         (401, "Credencial ausente, inválida, expirada ou revogada."),
         (403, "Loja ou operação não permitida à credencial."),
         (404, "Loja ou dados indisponíveis."),
+        (405, "Método indisponível; consultas comerciais aceitam GET."),
+        (413, "Corpo excede o limite permitido de 16 KiB."),
+        (414, "Endereço ou parâmetros excedem o limite permitido."),
         (422, "Parâmetro, período, cobertura ou cursor inválido."),
         (429, "Quota contratada excedida; respeite Retry-After."),
+        (431, "Cabeçalhos excedem o limite permitido."),
+        (500, "Falha interna privada; não representa resultado comercial válido."),
         (503, "Capacidade ou dependência indisponível; respeite Retry-After quando presente."),
+    )
+}
+
+ERP_ERRORS: dict[int | str, dict[str, object]] = {
+    status: {
+        "description": description,
+        "content": {"application/problem+json": {"schema": ProblemDocument.model_json_schema()}},
+    }
+    for status, description in (
+        (502, "O ERP retornou contrato ou status inválido."),
+        (504, "O ERP excedeu o prazo total de 900 ms."),
     )
 }
