@@ -1,7 +1,7 @@
 import re
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from html import escape
-from urllib.parse import urlsplit
+from urllib.parse import parse_qsl, urlencode, urlsplit
 
 from alert_receiver.code_format import code_block
 from alert_receiver.contracts import Incident, IncidentEvent, IncidentPage
@@ -32,6 +32,39 @@ def timestamp(value: datetime | None) -> str:
     if value.tzinfo is None:
         return "Horário sem fuso"
     return value.astimezone(UTC).strftime("%d/%m/%Y · %H:%M:%S UTC")
+
+
+def central_url(status: str, incident_id: int | None = None) -> str:
+    status = status if status in {"all", "firing", "resolved"} else "all"
+    target = f"/?status={status}"
+    if incident_id is not None and 1 <= incident_id <= 2**63 - 1:
+        target += f"#incidente-{incident_id}"
+    return target
+
+
+def tool_context(value: str, status: str, incident_id: int) -> str:
+    target = urlsplit(value)
+    query = dict(parse_qsl(target.query))
+    query.update(sentinel_status=status, sentinel_incident=str(incident_id))
+    return target.path + "?" + urlencode(query)
+
+
+def incident_lookup(status: str, *, error: str | None = None, value: str = "") -> str:
+    error_markup = (
+        f'<p class="field-error" id="incident-id-error" role="alert">{escape_html(error)}</p>'
+        if error
+        else ""
+    )
+    invalid = ' aria-invalid="true" aria-describedby="incident-id-error"' if error else ""
+    return f'''<form id="buscar-incidente" class="incident-lookup"
+action="/incident-lookup" method="get">
+<input type="hidden" name="status" value="{escape_html(status)}">
+<div class="lookup-fields"><label for="incident-id">Abrir incidente por ID</label>
+<input id="incident-id" name="incident_id" type="text" inputmode="numeric" pattern="[0-9]{{1,19}}"
+maxlength="19" autocomplete="off" spellcheck="false" required value="{escape_html(value)}"{invalid}>
+<button class="button secondary" type="submit">Abrir incidente</button></div>{error_markup}
+<p>Use o ID registrado nas evidências para acessar ocorrências fora dos 100 itens da lista.</p>
+</form>'''
 
 
 def local_link(value: str, fallback: str) -> str:
@@ -65,7 +98,7 @@ def layout(title: str, content: str, *, snapshot: bool = False, section: str = "
 <html lang="pt-BR"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
-<meta name="theme-color" content="#142438">
+<meta name="theme-color" content="#14334b">
 <title>{escape_html(title)} · API Sentinel</title>
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/styles.css">{script}</head><body>
@@ -115,7 +148,8 @@ def incident_row(incident: Incident, status: str = "all") -> str:
 <div class="row-state"><span class="badge {tone}">{state}</span>
 <span class="row-severity">{escape_html(severity)}</span></div>
 <div class="row-description">
-<h3>{escape_html(incident.annotations["summary"])}</h3>
+<h3><span class="row-reference"><span class="visually-hidden">Incidente </span>#{incident.id}</span>
+{escape_html(incident.annotations["summary"])}</h3>
 <p>{escape_html(incident.annotations.get("impact", "Impacto não informado."))}</p>
 <details class="row-metadata"><summary>Identificação e entregas</summary>
 <dl class="row-facts"><div><dt>Referência</dt><dd>Incidente #{incident.id}</dd></div>
@@ -123,8 +157,11 @@ def incident_row(incident: Incident, status: str = "all") -> str:
 <div><dt>Entregas recebidas</dt>
 <dd>{incident.deliveries} entrega{"s" if incident.deliveries != 1 else ""}</dd>
 </div></dl></details></div>
-<p class="row-recent"><span>{resolution_label(incident)}</span>
-<time>{escape_html(timestamp(observed))}</time></p>
+<div class="row-recent"><p class="row-start"><span>Início</span>
+<time datetime="{escape_html(incident.starts_at.isoformat())}">
+{escape_html(timestamp(incident.starts_at))}</time></p>
+<p><span>{resolution_label(incident)}</span>
+<time>{escape_html(timestamp(observed))}</time></p></div>
 <a class="incident-action" href="{escape_html(detail_url)}"
 aria-label="Investigar ocorrência {incident.id}">Investigar</a></li>"""
 
@@ -150,7 +187,12 @@ def probe_observation(probe: ProbeState, observed_at: datetime) -> str:
         )
         assert probe.checked_at is not None
         remaining = probe.stale_after_seconds - (observed_at - probe.checked_at).total_seconds()
-        expires = f' data-expires-in-ms="{max(0, int(remaining * 1000))}"'
+        deadline = probe.checked_at + timedelta(seconds=probe.stale_after_seconds)
+        expires = (
+            f' data-expires-in-ms="{max(0, int(remaining * 1000))}"'
+            f' data-observed-at-ms="{int(observed_at.timestamp() * 1000)}"'
+            f' data-expires-at-ms="{int(deadline.timestamp() * 1000)}"'
+        )
     else:
         title, description = unavailable[observation]
         tone = "neutral" if observation in {"pending", "disabled"} else "warn"
@@ -160,7 +202,7 @@ def probe_observation(probe: ProbeState, observed_at: datetime) -> str:
 <p data-observation-description>{description}</p></div>
 <div class="observation-time"><span>Última consulta</span>
 <time>{escape_html(timestamp(probe.checked_at))}</time>
-<a href="#observacao">Detalhes da observação</a></div></section>'''
+</div></section>'''
 
 
 def incident_filters(counts: dict[str, int], status: str) -> str:
@@ -234,7 +276,14 @@ no histórico.</p>
 </div></details></section>"""
 
 
-def home(page: IncidentPage, probe: ProbeState, status: str) -> str:
+def home(
+    page: IncidentPage,
+    probe: ProbeState,
+    status: str,
+    *,
+    lookup_error: str | None = None,
+    lookup_value: str = "",
+) -> str:
     counts = page.counts
     entries = "".join(incident_row(incident, status) for incident in page.records)
     inbox = (
@@ -254,22 +303,25 @@ def home(page: IncidentPage, probe: ProbeState, status: str) -> str:
         if entries
         else ""
     )
-    content = f"""<div class="triage-workspace"><section class="inbox" aria-label="Incidentes">
-<div class="page-heading"><div><h1>Incidentes</h1>
-<p class="reading-meta">Entregas recebidas do Alertmanager</p></div>
+    content = f"""<div class="page-heading"><div><h1>Incidentes</h1>
+<p class="reading-meta snapshot-meta">Leitura de {escape_html(timestamp(page.generated_at))}
+· Atualização manual</p></div>
 <a class="button secondary" href="/?status={escape_html(status)}">Atualizar leitura</a></div>
+<div class="triage-workspace">
+<section class="observation-workspace" aria-label="Observação e escopo">
+{probe_observation(probe, datetime.now(UTC))}
+{observation_details(page, probe)}</section>
+<section class="inbox" aria-label="Incidentes">
 <div class="queue-controls">
 <nav class="filters" aria-label="Filtrar incidentes">{incident_filters(counts, status)}</nav>
 <div class="list-scope"><h2 class="visually-hidden">{list_title}</h2><span class="list-count">
 {len(page.records)} de {filtered_total} incidentes · limite de {page.limit}</span>
-<a href="#observacao">Ver probe</a></div>
+<a href="#observacao">Ver probe</a>
+<a class="lookup-shortcut" href="#buscar-incidente">Abrir por ID</a></div>
 </div>{columns}{inbox}
 <p class="retention">
 Finalizados: últimos {page.retention_days} dias · Em andamento: sem expiração · Atualização manual
-</p></section>
-<aside class="observation-workspace" aria-label="Observação e escopo">
-{probe_observation(probe, datetime.now(UTC))}
-{observation_details(page, probe)}</aside></div>"""
+</p>{incident_lookup(status, error=lookup_error, value=lookup_value)}</section></div>"""
     return layout("Incidentes", content, snapshot=True)
 
 
@@ -285,21 +337,73 @@ def incident_runbook(incident: Incident, status: str) -> str:
     return f"/runbooks/{slug}?incident_id={incident.id}&status={status}"
 
 
-def incident_card(incident: Incident) -> str:
+def evidence_period(incident: Incident) -> tuple[datetime, datetime] | None:
+    """Bound historical links to saved UTC evidence; never infer a current observation."""
+    start = incident.starts_at
+    end = incident.ends_at if incident.status == "resolved" else incident.last_received_at
+    if end is None or start.tzinfo is None or end.tzinfo is None or end < start:
+        return None
+    start, end = start.astimezone(UTC), end.astimezone(UTC)
+    if start.timestamp() < 0 or end.timestamp() < 0:
+        return None
+    return max(start, end - timedelta(hours=24)), end + timedelta(seconds=end == start)
+
+
+def incident_card(incident: Incident, status: str = "all") -> str:
     annotations = incident.annotations
     dashboard = local_link(
         annotations.get("dashboard_url", annotations.get("dashboard", "")),
         "/tools/grafana/d/sentinel/api-sentinel",
     )
+    if not dashboard.startswith("/tools/grafana/"):
+        dashboard = "/tools/grafana/d/sentinel/api-sentinel"
+    period = evidence_period(incident)
+    if period is None:
+        evidence = '<p class="evidence-scope">Período da evidência indisponível.</p>'
+    else:
+        start, end = period
+        dashboard_target = urlsplit(dashboard)
+        parameters = dict(parse_qsl(dashboard_target.query))
+        parameters.update(
+            from_=str(int(start.timestamp() * 1000)), to=str(int(end.timestamp() * 1000))
+        )
+        parameters["from"] = parameters.pop("from_")
+        metrics = tool_context(
+            dashboard_target.path + "?" + urlencode(parameters), status, incident.id
+        )
+        traces = tool_context(
+            "/tools/jaeger/search?"
+            + urlencode(
+                {
+                    "service": "api-sentinel",
+                    "start": int(start.timestamp() * 1_000_000),
+                    "end": int(end.timestamp() * 1_000_000),
+                    "lookback": "custom",
+                    "limit": 20,
+                }
+            ),
+            status,
+            incident.id,
+        )
+        recut = (
+            "Recorte de até 24 horas, até o último registro. " if start > incident.starts_at else ""
+        )
+        evidence = f'''<div class="evidence-links">
+<a href="{escape_html(metrics)}">Métricas do período no Grafana ↗</a>
+<a href="{escape_html(traces)}">Traces do período no Jaeger ↗</a></div>
+<p class="evidence-scope">{recut}{escape_html(timestamp(start))} até {escape_html(timestamp(end))}.
+Traces são amostrados; a ausência de resultados não comprova ausência de chamadas.</p>'''
+    rules = tool_context("/tools/prometheus/alerts", status, incident.id)
     return f'''<section class="incident-context" aria-label="Condição e investigação">
 <div class="context-block"><h2>Condição do alerta</h2>
 <p>{escape_html(annotations.get("condition", "Veja a regra no Prometheus."))}</p>
 <p class="muted">Janela: {escape_html(annotations.get("window", "Veja a configuração ativa."))}</p>
 </div>
-<div class="context-block investigation"><h2>Investigar</h2>
-<a href="{escape_html(dashboard)}">Métricas no Grafana ↗</a>
-<a href="/tools/jaeger/">Traces no Jaeger ↗</a>
-<a href="/tools/prometheus/alerts">Regras no Prometheus ↗</a></div></section>'''
+<div class="context-block investigation"><h2>Evidências do período registrado</h2>
+{evidence}
+<a href="{escape_html(rules)}">Regras atuais no Prometheus ↗</a>
+<p class="evidence-scope">Regras atuais podem diferir das condições desta ocorrência.</p>
+</div></section>'''
 
 
 def event_item(event: IncidentEvent) -> str:
@@ -326,7 +430,13 @@ def event_item(event: IncidentEvent) -> str:
 <p>{escape_html(description)}</p><span class="event-source">{escape_html(source)}</span></li>"""
 
 
-def incident_detail(incident: Incident, events: list[IncidentEvent], status: str = "all") -> str:
+def incident_detail(
+    incident: Incident,
+    events: list[IncidentEvent],
+    status: str = "all",
+    *,
+    generated_at: datetime | None = None,
+) -> str:
     state, tone = incident_state(incident)
     severity = SEVERITY_LABELS.get(incident.labels.get("severity", ""), "Atenção")
     reconciliation = incident.annotations.get("reconciliation")
@@ -367,6 +477,9 @@ def incident_detail(incident: Incident, events: list[IncidentEvent], status: str
         history = (
             '<li class="timeline-empty">Nenhum evento disponível nesta janela de retenção.</li>'
         )
+    snapshot_time = (
+        timestamp(generated_at) if generated_at is not None else "Instante não registrado"
+    )
     return layout(
         f"Incidente #{incident.id}",
         f"""<a class="back" href="/?status={escape_html(status)}#incidente-{incident.id}">
@@ -377,6 +490,12 @@ def incident_detail(incident: Incident, events: list[IncidentEvent], status: str
 <span>{escape_html(incident.labels.get("service", "api-sentinel"))}</span></div>
 <h1>{escape_html(incident.annotations["summary"])}</h1>
 <p class="state-description">{state_description}</p>
+<div class="detail-period"><p class="snapshot-meta">Leitura de {escape_html(snapshot_time)}
+· Atualização manual</p>
+<p>Início: {escape_html(timestamp(incident.starts_at))} · {resolution_label(incident)}:
+{escape_html(timestamp(observed))}</p>
+<a class="text-link" href="/incidents/{incident.id}?status={escape_html(status)}">
+Atualizar ocorrência</a></div>
 <div class="decision-strip"><div><h2>{"Impacto" if active else "Impacto registrado"}</h2>
 <p>{escape_html(incident.annotations.get("impact", "Impacto não informado. Veja o runbook."))}</p>
 </div><div><h2>Próximo passo</h2>
@@ -403,7 +522,7 @@ href="{escape_html(incident_runbook(incident, status))}">Abrir runbook</a>
 <p>Fingerprint: <code>{escape_html(incident.fingerprint)}</code></p>
 <p>Início: {escape_html(timestamp(incident.starts_at))}</p>
 <a class="text-link" href="/api/incidents/{incident.id}">Abrir registro JSON →</a></div></details>
-</section>{incident_card(incident)}</div>""",
+</section>{incident_card(incident, status)}</div>""",
     )
 
 
@@ -502,10 +621,31 @@ def runbook_page(
     )
 
 
-def problem_page(status: int, title: str, detail: str) -> str:
+def problem_page(
+    status: int,
+    title: str,
+    detail: str,
+    *,
+    incident_filter: str = "all",
+    incident_id: int | None = None,
+    retry_url: str | None = None,
+) -> str:
+    back = central_url(incident_filter, incident_id)
+    if incident_filter == "all" and incident_id is None:
+        back = "/"
+    retry = ""
+    if (
+        retry_url
+        and retry_url.startswith("/")
+        and not retry_url.startswith("//")
+        and "\\" not in retry_url
+    ):
+        retry = f'<a class="button" href="{escape_html(retry_url)}">Tentar novamente</a>'
     return layout(
         title,
         f'<section class="error-page"><p class="eyebrow">HTTP {status}</p>'
         f"<h1>{escape_html(title)}</h1><p>{escape_html(detail)}</p>"
-        '<a class="button" href="/">Voltar à central</a></section>',
+        f'<div class="problem-actions">{retry}'
+        f'<a class="button secondary" href="{escape_html(back)}">Voltar à central</a>'
+        "</div></section>",
     )

@@ -210,6 +210,38 @@ class AlertStore:
             ).fetchall()
         return [IncidentEvent.model_validate(dict(row)) for row in rows]
 
+    def incident_snapshot(
+        self, incident_id: int, *, now: datetime | None = None
+    ) -> tuple[Incident | None, list[IncidentEvent], datetime]:
+        """Read the occurrence and its retained events from one SQLite snapshot."""
+        observed_at = now or datetime.now(UTC)
+        if observed_at.tzinfo is None or not 1 <= incident_id <= 2**63 - 1:
+            raise ValueError("A ocorrência e o instante da leitura devem ser válidos.")
+        observed_at = observed_at.astimezone(UTC)
+        cutoff = (observed_at - timedelta(days=self.retention_days)).isoformat(
+            timespec="microseconds"
+        )
+        with self.connection() as connection:
+            connection.execute("BEGIN")
+            row = connection.execute(
+                "SELECT * FROM incidents WHERE id=? AND (status='firing' OR last_activity_at>=?)",
+                (incident_id, cutoff),
+            ).fetchone()
+            events = (
+                connection.execute(
+                    "SELECT received_at, delivered_status, transition FROM delivery_events "
+                    "WHERE incident_id=? AND received_at>=? ORDER BY id DESC LIMIT 100",
+                    (incident_id, cutoff),
+                ).fetchall()
+                if row is not None
+                else []
+            )
+        return (
+            self._incident(row) if row is not None else None,
+            [IncidentEvent.model_validate(dict(event)) for event in events],
+            observed_at,
+        )
+
     def counts(self) -> dict[str, int]:
         return self.page(limit=1).counts
 
