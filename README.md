@@ -1,6 +1,6 @@
 # API Sentinel
 
-API de vendas com acesso por organização, controle de carga e investigação de falhas de um ERP sintético. Desenvolvi o laboratório para conferir a consulta comercial, acompanhar o incidente e verificar sua recuperação no mesmo ambiente local.
+API de vendas por organização, com quota compartilhada e central de incidentes. Consulta comercial e ERP sintético executam no mesmo laboratório local.
 
 <!-- Navegação do README -->
 <p>
@@ -11,7 +11,18 @@ API de vendas com acesso por organização, controle de carga e investigação d
   <a href="https://www.linkedin.com/in/arthur-joanes-6a2967373/"><img src="docs/readme/badges/linkedin.svg" alt="Arthur Joanes no LinkedIn" width="108" height="28"></a>
 </p>
 
-## Visão geral
+<a id="na-prática"></a>
+
+## Demonstração
+
+![Central do API Sentinel com situação dos incidentes, inícios por dia, consulta de referência e fila de investigação](docs/readme/incidents.png)
+
+Dados sintéticos da central, com probe desativado nesta prévia. Referência dos dados: 12/10/2026, 06:00 UTC. [Guia de uso](docs/incident-console.md) · [detalhe da ocorrência](docs/readme/incident-detail.png) · [galeria](docs/screenshots.md).
+
+Filtrar → localizar o ID → investigar o período → conferir as entregas. Recuperação recebida e encerramento administrativo têm registros distintos.
+
+<details>
+<summary>Escopo e contratos do laboratório</summary>
 
 Uma integração consulta faturamento e disponibilidade de produtos. A aplicação separa o caminho comercial do ERP e limita o trabalho em andamento. Os dados e o ERP são sintéticos; PostgreSQL, Redis, HTTP e observabilidade executam em containers no mesmo computador.
 
@@ -19,19 +30,20 @@ O que implementei: autorização por loja e organização, cálculos em centavos
 
 A quota permite escolher janela fixa ou GCRA, com taxa por organização e capacidade de rajada explícita. A janela fixa continua como padrão. O verificador HTTP gera casos a partir do OpenAPI, executa pelo proxy descartável e registra cobertura, falhas e reprodução sem credenciais. [Políticas de quota](docs/architecture.md#políticas-de-quota) · [contratos HTTP](docs/data-contract.md#contrato-http-executável).
 
-<a id="na-prática"></a>
+A central apresenta o instante da leitura e a validade da consulta antes da fila. Investigar abre o detalhe com período e contexto; busca por ID localiza uma ocorrência retida fora das 100 linhas iniciais. Filtros e retorno preservam a posição. A captura de apresentação não executou nova falha ou recuperação do serviço.
 
-## Demonstração
-
-![Interface do API Sentinel: consulta e instante da leitura antes da fila, IDs e investigação por período](docs/screenshots/ui-ux-20261012/candidate-central-1440.png)
-
-Revisão de UI de 12/10/2026, com fixture explícita de apresentação e probe desativado. O horário do cenário é distinto da data de captura; a imagem não executou nova falha ou recuperação do serviço. [Manifesto da captura](docs/evidence/ui-ux-20261012/manifest.json) · [jornadas, antes/depois e limites](docs/ui-ux-20261012.md) · [capturas históricas preservadas](docs/screenshots.md).
-
-A central apresenta o instante da leitura e a validade da consulta antes da fila. Investigar abre o detalhe com período e contexto; busca por ID localiza uma ocorrência retida fora das 100 linhas iniciais. Filtros e retorno preservam a posição. Recuperação recebida e encerramento administrativo continuam estados distintos.
+</details>
 
 <a id="uma-conta-pequena-antes-de-falar-em-desempenho"></a>
 
-### Uma conta verificável
+### Conta de referência
+
+![Comparação dos pedidos da fixture: 8.500 e 4.000 centavos somam R$ 125,00, em quatro unidades e dois pedidos; ticket médio R$ 62,50](docs/readme/commercial-fixture.svg)
+
+Loja 7, período comercial de 01/01/2026. Valores sintéticos da [fixture independente](data/fixtures/manual-sales.json).
+
+<details>
+<summary>Ver a conta e repetir a consulta autenticada</summary>
 
 | Pedido sintético |          Quantidade × preço |         Total |
 | ---------------- | --------------------------: | ------------: |
@@ -49,24 +61,18 @@ GET /v1/stores/7/summary?start=2026-01-01&end=2026-01-01
 
 Esperado: `revenue_cents: 12500`, `order_count: 2` e `average_ticket_cents: 6250`. O [roteiro](docs/demo.md) explica a credencial e a execução; a [sequência histórica de 22/09/2026, 12:49 UTC](docs/operational-story.md) liga consulta, falha controlada e recuperação recebida à mesma ocorrência.
 
-### Paleta de marca
-
-![Paleta do API Sentinel: azul sentinela, azul de ação, petróleo, gelo e tons de texto](docs/readme/palette.svg)
-
-| Cor | Código | Função |
-| --- | --- | --- |
-| Azul sentinela | `#14334B` | Estrutura, cabeçalho e marca |
-| Azul de ação | `#155BA6` | Links e ações |
-| Petróleo | `#087F8C` | Acento do contexto de leitura |
-| Gelo | `#F0F5F8` | Superfícies de apoio |
-| Texto | `#1B2E40` | Conteúdo principal |
-| Texto secundário | `#4C6374` | Metadados e orientação |
-
-A paleta identifica a marca e a navegação. Estados de incidente mantêm verde, vermelho e âmbar acompanhados de texto; o acento petróleo não indica saúde do serviço. Os vetores da marca e os quatro selos de navegação tiveram cores alinhadas, preservando desenho e fontes. O selo do LinkedIn conserva a cor da plataforma.
+</details>
 
 <a id="implementação"></a>
 
 ## Arquitetura
+
+![Cliente com Bearer passa por NGINX e API; PostgreSQL guarda identidade e vendas, Redis coordena quota e cache, ERP fornece estoque; Prometheus e Jaeger acompanham o mesmo host](docs/readme/architecture.svg)
+
+O resumo comercial usa PostgreSQL e Redis; estoque consulta o ERP. Uma falha do ERP pode coexistir com vendas. [Sequências e limites](docs/architecture.md).
+
+<details>
+<summary>Diagrama completo, portas e responsabilidades</summary>
 
 ```mermaid
 flowchart TB
@@ -103,7 +109,10 @@ As setas contínuas representam chamadas e acesso a dados; as pontilhadas, colet
 
 A consulta de resumo segue Bearer → autorização → quota → admissão → versão do dataset no PostgreSQL → cache; em miss, SQL e preenchimento protegido por token. O alerta segue probe/métricas → Prometheus → Alertmanager → webhook autenticado → SQLite → central HTML. [Sequências, persistência e falhas](docs/architecture.md) detalham esses dois caminhos e suas fronteiras.
 
-## Stack e decisões
+</details>
+
+<details>
+<summary>Stack e decisões</summary>
 
 <a id="stack"></a>
 
@@ -130,14 +139,32 @@ A consulta de resumo segue Bearer → autorização → quota → admissão → 
 
 [Decisões, alternativas e implementação](docs/decisoes-tecnicas.md) · [versões Python fixadas](uv.lock) · [imagens configuradas](compose.yml). Versões fixadas não são uma declaração de versão mais recente.
 
+</details>
+
+<details>
+<summary>Paleta de marca</summary>
+
+![Paleta do API Sentinel: azul sentinela, azul de ação, petróleo, gelo e tons de texto](docs/readme/palette.svg)
+
+| Cor | Código | Função |
+| --- | --- | --- |
+| Azul sentinela | `#14334B` | Estrutura, cabeçalho e marca |
+| Azul de ação | `#155BA6` | Links e ações |
+| Petróleo | `#087F8C` | Acento do contexto de leitura |
+| Gelo | `#F0F5F8` | Superfícies de apoio |
+| Texto | `#1B2E40` | Conteúdo principal |
+| Texto secundário | `#4C6374` | Metadados e orientação |
+
+A paleta identifica a marca e a navegação. Estados de incidente mantêm verde, vermelho e âmbar acompanhados de texto; o acento petróleo não indica saúde do serviço. Os vetores da marca e os quatro selos de navegação tiveram cores alinhadas, preservando desenho e fontes. O selo do LinkedIn conserva a cor da plataforma.
+
+</details>
+
 <a id="executar-e-verificar"></a>
 <a id="executar-e-conferir"></a>
 
 ## Executar localmente
 
-Use Docker com containers Linux, Compose 2.24.4+ e Python 3.11+ no host. O Compose mínimo atende ao uso de `!override` no [perfil de revisão](compose.review.yml), conforme a [documentação Docker](https://docs.docker.com/reference/compose-file/merge/#replace-value). Python no host executa o [runner](scripts/review.py); não há medição de memória mínima garantida.
-
-Para uma instalação nova e descartável, com checks, testes e falhas controladas:
+Docker com containers Linux, Compose 2.24.4+ e Python 3.11+ no host. Instalação descartável, com checks, testes e falhas controladas:
 
 ```sh
 python scripts/review.py
@@ -145,7 +172,17 @@ python scripts/review.py
 
 O comando informa portas temporárias em `127.0.0.1`, grava resultados em `artifacts/problem-review/<UTC>/` e remove os recursos exclusivos da tentativa.
 
+<details>
+<summary>Requisitos e isolamento da revisão</summary>
+
+O Compose mínimo atende ao uso de `!override` no [perfil de revisão](compose.review.yml), conforme a [documentação Docker](https://docs.docker.com/reference/compose-file/merge/#replace-value). Python no host executa o [runner](scripts/review.py); não há medição de memória mínima garantida.
+
 A revisão identifica projetos e imagens de API, proxy e ferramentas por tentativa. O gate de contratos usa uma imagem própria com o grupo opcional `contracts`; Schemathesis não é instalado no runtime da API. [Comando dedicado, relatórios e critérios](docs/verification.md#verificar-a-versão-atual).
+
+</details>
+
+<details>
+<summary>Demonstração persistente no Windows</summary>
 
 Para explorar a demonstração persistente no Windows, com PowerShell 7:
 
@@ -158,7 +195,18 @@ Para explorar a demonstração persistente no Windows, com PowerShell 7:
 
 O setup gera credenciais locais; `stop` preserva volumes. [Instalação Linux, credenciais e limpeza](docs/demo.md) · [implementação dos comandos](scripts/sentinel.ps1).
 
+</details>
+
 ## Verificação e evidências
+
+[Guia da central](docs/incident-console.md) · [contratos HTTP e quota](docs/verification.md) · [consulta → falha → recuperação em 22/09/2026](docs/operational-story.md).
+
+<details>
+<summary>Sequência operacional real de 22/09/2026</summary>
+
+![Histórico da ocorrência 2 com abertura recebida às 12:53:33 UTC e recuperação recebida às 12:53:53 UTC](docs/screenshots/editorial-20260922/03-mesma-ocorrencia-recuperada-detalhe.png)
+
+Captura histórica às 12:53:54 UTC: duas entregas da mesma ocorrência no ambiente local, com ERP e vendas sintéticos. [Execução e demais capturas](docs/operational-story.md) · [registro das entregas](docs/evidence/editorial-20260922/capture-alerts.json).
 
 | Pergunta                              | Fonte e data da execução                                                                                                                                  | Limite                                                                                                                                                |
 | ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -168,20 +216,26 @@ O setup gera credenciais locais; `stop` preserva volumes. [Instalação Linux, c
 
 [Índice de verificações](docs/verification.md) · [fontes e afirmações](docs/fontes-e-afirmacoes.md). Capturas, testes, benchmark e scanner têm escopos próprios; suas contagens não são somadas.
 
+</details>
+
 <a id="limites-e-manutenção"></a>
 <a id="limites-do-laboratório"></a>
 <a id="quando-acesso-capacidade-ou-dependências-falham"></a>
 
-## Limites e segurança
+<details>
+<summary>Limites e segurança</summary>
 
 - Quota comercial padrão: 30 requisições/s por organização; prazo total ERP: 900 ms. São regras do [seed](src/api_sentinel/seed.py) e do [cliente ERP](src/api_sentinel/erp.py), detalhadas na [matriz de limites](docs/architecture.md#matriz-de-limites); não medem capacidade.
 - `QUOTA_ALGORITHM=fixed-window` preserva a janela de um segundo e sua rajada na fronteira. `gcra` usa capacidade total `QUOTA_BURST_CAPACITY`, padrão 10; todas as réplicas precisam usar a mesma política. [Semântica e transição do ensaio](docs/architecture.md#políticas-de-quota).
 - Dados comerciais imutáveis e duas réplicas no mesmo host. O laboratório não demonstra SLO mensal, capacidade máxima ou disponibilidade entre máquinas. [Escopo das provas](docs/verification.md#escopo).
 - Serviços publicados em loopback; tokens e runtime ficam fora do Git. Scans dizem respeito às imagens e bases identificadas em cada execução. [Controles e limites](docs/security.md).
 - A [revisão de segurança de 03/10/2026](docs/SECURITY-REVIEW-2026-10-03.md) cobre os 18 itens recebidos, as correções de rate limit e os testes com PostgreSQL e Redis descartáveis.
-- A central exige atualização manual. “Sem incidentes” não prova saúde; não há sessão com participantes registrada. [Contrato da interface](docs/decisoes-tecnicas.md#histórico-durável-e-uma-interface-que-não-inventa-recuperação) e [exercício ainda não realizado](docs/demo.md#exercício-com-outra-pessoa--preparado-ainda-não-realizado).
+- A central exige atualização manual. “Sem incidentes” não prova saúde. [Leitura dos registros e do probe](docs/incident-console.md) · [contrato da interface](docs/decisoes-tecnicas.md#histórico-durável-e-uma-interface-que-não-inventa-recuperação).
 
-## Documentação
+</details>
+
+<details>
+<summary>Documentação</summary>
 
 | Para entender                    | Guia                                                                                                                            |
 | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
@@ -189,7 +243,9 @@ O setup gera credenciais locais; `stop` preserva volumes. [Instalação Linux, c
 | Consultas, dinheiro e isolamento | [Contrato de dados](docs/data-contract.md)                                                                                      |
 | Executar e investigar            | [Demonstração](docs/demo.md) · [indicadores e procedimentos](docs/slo.md)                                                       |
 | Conferir resultados e fontes     | [Verificação](docs/verification.md) · [desempenho](docs/performance.md) · [fontes e datas](docs/fontes-e-afirmacoes.md)         |
-| Interface e manutenção           | [Revisão de UI e jornadas](docs/ui-ux-20261012.md) · [capturas](docs/screenshots.md) · [qualidade](docs/frontend-quality.md) · [padrão documental](docs/padrao-documentacao.md) |
+| Interface e manutenção           | [Central de incidentes](docs/incident-console.md) · [galeria](docs/screenshots.md) · [documentação do projeto](docs/padrao-documentacao.md) |
+
+</details>
 
 ## Autor e licença
 

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="376" viewBox="0 0 800 376" role="img" aria-labelledby="title desc">
+  <title id="title">Fixture comercial: 8.500 mais 4.000 centavos, total de R$ 125,00</title>
+  <desc id="desc">Loja 7, período comercial de primeiro de janeiro de 2026. O pedido 101 tem duas unidades de 2.500 centavos e uma de 3.500: 8.500 centavos. O pedido 102 tem uma unidade de 4.000 centavos. Total de quatro unidades em dois pedidos: 12.500 centavos, ou 125 reais. Ticket médio: 6.250 centavos, ou 62 reais e 50 centavos. Barras com origem zero e mesma escala em centavos. Dados sintéticos da fixture manual-sales.json; não são preços de mercado ou benchmark.</desc>
+  <rect width="800" height="376" fill="#FFFFFF"/>
+  <rect width="800" height="62" fill="#14334B"/>
+  <g font-family="'IBM Plex Sans', 'Segoe UI', Arial, sans-serif">
+    <text x="28" y="39" fill="#FFFFFF" font-size="24" font-weight="600">Uma consulta conhecida</text>
+    <text x="772" y="38" fill="#FFFFFF" font-size="18" text-anchor="end">Loja 7 · 01/01/2026</text>
+    <text x="28" y="108" fill="#1B2E40" font-size="22" font-weight="600">Valor por pedido</text>
+    <text x="772" y="107" fill="#4C6374" font-size="18" text-anchor="end">Escala em CENTAVOS</text>
+    <g stroke="#D2DEE7" stroke-width="1">
+      <path d="M190 125V248M320 125V248M450 125V248M580 125V248M710 125V248"/>
+    </g>
+    <g fill="#1B2E40" font-size="21">
+      <text x="28" y="165">Pedido 101</text>
+      <text x="28" y="225">Pedido 102</text>
+    </g>
+    <rect x="190" y="136" width="442" height="42" fill="#155BA6"/>
+    <rect x="190" y="196" width="208" height="42" fill="#087F8C"/>
+    <g fill="#FFFFFF" font-size="22" font-weight="600">
+      <text x="206" y="165">8.500</text>
+      <text x="206" y="225">4.000</text>
+    </g>
+    <g fill="#4C6374" font-size="17" text-anchor="middle">
+      <text x="190" y="270">0</text>
+      <text x="320" y="270">2.500</text>
+      <text x="450" y="270">5.000</text>
+      <text x="580" y="270">7.500</text>
+      <text x="710" y="270">10.000</text>
+    </g>
+    <path d="M28 291H772" stroke="#D2DEE7"/>
+    <text x="28" y="332" fill="#1B2E40" font-size="28" font-weight="600">12.500 centavos = R$ 125,00</text>
+    <text x="772" y="322" fill="#1B2E40" font-size="19" text-anchor="end">4 unidades · 2 pedidos</text>
+    <text x="772" y="349" fill="#4C6374" font-size="19" text-anchor="end">Ticket médio: R$ 62,50</text>
+    <text x="28" y="358" fill="#4C6374" font-size="15">Dados sintéticos · fixture independente</text>
+  </g>
+</svg>

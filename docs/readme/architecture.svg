@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="460" viewBox="0 0 880 460" role="img" aria-labelledby="title desc">
+  <title id="title">Arquitetura do API Sentinel em um host local</title>
+  <desc id="desc">Cliente com Bearer chega ao NGINX e à API FastAPI. A API autoriza no PostgreSQL e usa Redis para quota compartilhada e cache; consulta o ERP sintético para estoque. O caminho comercial e o ERP são separados. No perfil opcional de observabilidade, Prometheus coleta métricas e Jaeger recebe traces amostrados. As réplicas e todos os serviços executam no mesmo host. Linhas contínuas indicam chamadas e dados; pontilhadas indicam telemetria. O Mermaid do README conserva portas, pools e limites.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#155BA6"/></marker>
+    <marker id="telemetry" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#087F8C"/></marker>
+  </defs>
+  <rect width="880" height="460" fill="#FFFFFF"/>
+  <rect width="880" height="62" fill="#14334B"/>
+  <g font-family="'IBM Plex Sans', 'Segoe UI', Arial, sans-serif">
+    <text x="28" y="39" fill="#FFFFFF" font-size="24" font-weight="600">Consulta comercial e dependência ERP</text>
+    <text x="852" y="39" fill="#FFFFFF" font-size="18" text-anchor="end">Um host local</text>
+    <g fill="none" stroke="#155BA6" stroke-width="2.5" marker-end="url(#arrow)">
+      <path d="M174 147H220"/>
+      <path d="M358 147H404"/>
+      <path d="M632 147H688"/>
+      <path d="M464 190V248"/>
+      <path d="M572 190V221H670V248"/>
+    </g>
+    <g fill="#F0F5F8" stroke="#AFC3D1" stroke-width="1.5">
+      <rect x="28" y="104" width="146" height="86"/>
+      <rect x="220" y="104" width="138" height="86"/>
+      <rect x="688" y="104" width="164" height="86"/>
+      <rect x="370" y="248" width="188" height="78"/>
+      <rect x="588" y="248" width="188" height="78"/>
+    </g>
+    <rect x="404" y="104" width="228" height="86" fill="#14334B"/>
+    <g fill="#1B2E40" text-anchor="middle" font-size="22" font-weight="600">
+      <text x="101" y="140">Cliente</text>
+      <text x="289" y="140">NGINX</text>
+      <text x="770" y="140">ERP sintético</text>
+      <text x="464" y="282">PostgreSQL</text>
+      <text x="682" y="282">Redis</text>
+    </g>
+    <g fill="#4C6374" text-anchor="middle" font-size="18">
+      <text x="101" y="169">Bearer</text>
+      <text x="289" y="169">Entrada comum</text>
+      <text x="770" y="169">Estoque e falhas</text>
+      <text x="464" y="308">Identidade · vendas</text>
+      <text x="682" y="308">Quota · cache</text>
+    </g>
+    <g fill="#FFFFFF" text-anchor="middle">
+      <text x="518" y="138" font-size="23" font-weight="600">API FastAPI</text>
+      <text x="518" y="167" font-size="17">Autorização · consultas</text>
+    </g>
+    <rect x="28" y="356" width="824" height="76" fill="#F0F5F8"/>
+    <g fill="none" stroke="#087F8C" stroke-width="2.5" stroke-dasharray="5 5" marker-end="url(#telemetry)">
+      <path d="M500 356V341H350V208H426V190"/>
+      <path d="M610 190V208H832V341H728V356"/>
+    </g>
+    <text x="50" y="385" fill="#087F8C" font-size="18" font-weight="600">OBSERVABILIDADE OPCIONAL</text>
+    <text x="50" y="411" fill="#4C6374" font-size="17">Métricas e traces · mesmo host</text>
+    <text x="440" y="400" fill="#1B2E40" font-size="21" font-weight="600">Prometheus</text>
+    <text x="690" y="400" fill="#1B2E40" font-size="21" font-weight="600">Jaeger</text>
+  </g>
+</svg>
