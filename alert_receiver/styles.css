@@ -329,6 +329,99 @@ footer a { padding-block:4px; }
   .tools-nav a { font-size:12px; }
   .lookup-fields input { width:156px; }
 }
+/* Graphs use HTML labels so text stays readable as the shapes reflow. */
+.visual-summary { display:grid; grid-template-columns:1fr 1.15fr; gap:32px; border-block:1px solid var(--line); padding:16px 0; margin-bottom:16px; }
+.summary-chart { margin:0; min-width:0; }
+.summary-chart h2 { font-size:16px; margin-bottom:6px; }
+.summary-chart-svg { width:100%; height:62px; display:block; }
+.chart-track { fill:var(--context); }
+.chart-bar-active { fill:var(--bad); }
+.chart-bar-finished { fill:var(--brand-selected); }
+.chart-bar-activity { fill:var(--accent); }
+.chart-caption,.chart-note,.chart-empty { font-size:12px; line-height:1.5; color:var(--muted); margin-top:6px; }
+.chart-legend { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:0 0 10px; }
+.chart-legend dt { font-size:12px; color:var(--muted); }
+.chart-legend dd { margin:0; font-size:30px; font-weight:600; line-height:1.15; color:var(--ink); }
+.chart-legend-item { min-width:0; }
+.chart-legend-item .chart-state-label { display:block; color:var(--muted); font-size:12px; }
+.chart-legend-item .chart-value { display:block; font-size:30px; line-height:1.15; }
+.chart-key-active { color:var(--bad); }
+.chart-key-finished { color:var(--brand-selected); }
+.chart-key { display:inline-block; width:8px; height:8px; background:currentColor; margin-right:6px; }
+.chart-activity-labels { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:4px; list-style:none; padding:0; margin:6px 0 0; text-align:center; font-size:12px; }
+.chart-activity-labels strong,.chart-activity-labels time { display:block; font-size:inherit; }
+.chart-data summary { font-weight:400; font-size:12px; padding:5px 0; color:var(--accent); }
+.chart-data table { border-collapse:collapse; width:100%; font-size:13px; margin:10px 0; }
+.chart-data th,.chart-data td { padding:6px 10px; border-bottom:1px solid var(--line); text-align:left; }
+.incident-central .triage-workspace { gap:16px; }
+.incident-central .observation-workspace { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:start; padding-inline:12px; }
+.incident-central .observation { padding:10px 0; grid-template-columns:8px minmax(0,1fr) auto; }
+.incident-central .observation-disclosure { min-width:150px; margin-left:20px; }
+.incident-central .observation-disclosure > summary { padding:13px 0; }
+.incident-central .observation-disclosure[open] { grid-column:1 / -1; margin-left:0; }
+.incident-central .observation-disclosure[open] .diagnostics { padding-top:6px; }
+.incident-central .queue-heading { display:flex; justify-content:space-between; align-items:center; gap:14px; margin-bottom:12px; }
+.incident-central .queue-heading h2 { font-size:19px; }
+.incident-central .incident-lookup { padding:0; margin:0; border:0; }
+.incident-central .lookup-fields { flex-wrap:nowrap; }
+.incident-central .lookup-fields input { width:150px; }
+.incident-central .incident-lookup p { margin-top:3px; }
+.incident-central .row-description h3 { font-size:16px; }
+.incident-central .row-metadata summary { padding:5px 0; }
+.incident-central .row-recent { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.incident-central .row-start { margin:0; }
+.incident-central .queue-columns,.incident-central .incident-row { grid-template-columns:150px minmax(0,1fr) 290px 96px; }
+.incident-period { margin:18px 0; padding:14px 18px; border:1px solid var(--line); background:var(--context); min-width:0; }
+.incident-period h2 { font-size:14px; }
+.period-svg { display:block; width:100%; height:40px; }
+.period-endpoints { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:0; }
+.period-endpoints > div:last-child { text-align:right; }
+.period-endpoints dt { font-size:12px; color:var(--muted); }
+.period-endpoints dd { margin:3px 0 0; font-size:14px; }
+.period-endpoints time { font-size:inherit; }
+.incident-period figcaption { font-size:12px; color:var(--muted); margin-top:8px; }
+.period-caption { display:flex; flex-wrap:wrap; justify-content:space-between; gap:6px 20px; }
+.incident-period .period-caption { margin:0; }
+.period-active .period-svg { color:var(--bad); }
+.period-recovered .period-svg { color:var(--good); }
+.period-administrative .period-svg { color:var(--brand-selected); }
+.event-detail { margin-left:182px; }
+.event-detail summary { padding:5px 0; font-size:12px; font-weight:400; color:var(--accent); }
+.event-detail p,.event-detail .event-source { margin-left:0; }
+.timeline-event::after { content:""; position:absolute; width:1px; background:var(--line); left:167px; top:20px; bottom:0; }
+.timeline-event:last-child::after { display:none; }
+.decision-explanation summary { color:var(--accent); font-size:12px; font-weight:400; padding-block:8px; }
+@media (max-width:1150px) {
+  .incident-central .queue-columns,.incident-central .incident-row { grid-template-columns:135px minmax(0,1fr) 230px 90px; }
+  .incident-central .row-recent { grid-template-columns:1fr; gap:4px; }
+}
+@media (max-width:800px) {
+  .incident-central .incident-row { grid-template-columns:135px minmax(0,1fr) 90px; }
+  .incident-central .row-recent { grid-template-columns:1fr 1fr; }
+  .incident-central .observation-workspace { grid-template-columns:1fr; }
+  .incident-central .observation-disclosure { margin-left:0; }
+  .incident-central .observation-disclosure > summary { padding:6px 0; }
+}
+@media (max-width:600px) {
+  .visual-summary { grid-template-columns:1fr; gap:16px; padding-block:12px; }
+  .summary-chart + .summary-chart { border-top:1px solid var(--line); padding-top:12px; }
+  .summary-chart-svg { height:45px; }
+  .chart-legend { margin-bottom:6px; }
+  .chart-legend dd { font-size:26px; }
+  .incident-central .observation { grid-template-columns:8px minmax(0,1fr); padding:8px 0; }
+  .incident-central .queue-heading { align-items:flex-start; flex-wrap:wrap; }
+  .incident-central .incident-lookup { width:100%; }
+  .incident-central .lookup-fields input { flex:1; width:auto; }
+  .incident-central .queue-heading h2 { font-size:17px; }
+  .incident-central .incident-row { grid-template-columns:minmax(0,1fr) auto; }
+  .incident-central .row-recent { grid-template-columns:1fr 1fr; }
+  .incident-central .observation-time { grid-column:2; }
+  .incident-period { padding:12px; }
+  .period-endpoints { gap:12px; }
+  .period-endpoints dd { font-size:13px; }
+  .event-detail { margin-left:18px; }
+  .timeline-event::after { left:3px; }
+}
 @media print {
   .runbook .code-block { background:#fff; color:#202630; border:1px solid #c6ceda; break-inside:avoid; }
   .runbook .code-language { color:#59636e; border-color:#c6ceda; }

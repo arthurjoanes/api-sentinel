@@ -154,7 +154,10 @@ def test_current_next_step_respects_state_and_preserves_original_instruction(sta
         },
     )
     document = ui.incident_detail(incident, [], "resolved")
-    decision = document.split('<div class="decision-strip">', 1)[1].split('<details class="', 1)[0]
+    decision = document.split('<div class="decision-strip">', 1)[1].split(
+        '<details class="incident-metadata"', 1
+    )[0]
+    assert '<details class="decision-explanation">' in decision
     assert "Restaure &lt;o serviço&gt; e valide a consulta." in document
     if status == "firing":
         assert "Restaure &lt;o serviço&gt;" in decision
@@ -229,7 +232,7 @@ def test_empty_active_filter_offers_actual_resolved_history() -> None:
     assert 'href="/?status=resolved">Ver 21 incidentes finalizados' in document
     assert "Em andamento</span><strong>0</strong>" in document
     disclosures = [attrs for tag, attrs in Elements(document).tags if tag == "details"]
-    assert len(disclosures) == 2
+    assert any(attrs.get("id") == "observacao" for attrs in disclosures)
     assert all("open" not in attrs for attrs in disclosures)
 
 
@@ -317,7 +320,8 @@ def test_snapshot_heading_and_probe_precede_queue_and_lookup_has_visible_entry()
     assert document.index('class="page-heading"') < document.index('class="triage-workspace"')
     assert document.index('class="observation-workspace"') < document.index('class="inbox"')
     assert "Leitura de" in document and "Atualização manual" in document
-    assert 'href="#buscar-incidente">Abrir por ID' in document
+    assert 'placeholder="ID do incidente"' in document
+    assert document.index('id="buscar-incidente"') < document.index('class="queue-controls"')
     assert (
         'id="buscar-incidente"' in document and 'action="/incident-lookup" method="get"' in document
     )

@@ -33,6 +33,9 @@ function revealLocation() {
   if (window.location.hash === "#observacao") {
     const target = document.getElementById("observacao");
     if (!target) return;
+    for (let ancestor = target.parentElement; ancestor; ancestor = ancestor.parentElement) {
+      if (ancestor.tagName === "DETAILS") ancestor.open = true;
+    }
     target.open = true;
     target.querySelector("summary").focus();
   } else if (window.location.hash === "#buscar-incidente") {
