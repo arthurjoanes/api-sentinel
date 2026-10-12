@@ -17,6 +17,8 @@ Uma integração consulta faturamento e disponibilidade de produtos. A aplicaç�
 
 O que implementei: autorização por loja e organização, cálculos em centavos, quota compartilhada, cache com controle de preenchimento, cliente ERP com prazo total e central com histórico de entregas. [Código e contratos](docs/problem-solution.md).
 
+A quota permite escolher janela fixa ou GCRA, com taxa por organização e capacidade de rajada explícita. A janela fixa continua como padrão. O verificador HTTP gera casos a partir do OpenAPI, executa pelo proxy descartável e registra cobertura, falhas e reprodução sem credenciais. [Políticas de quota](docs/architecture.md#políticas-de-quota) · [contratos HTTP](docs/data-contract.md#contrato-http-executável).
+
 <a id="na-prática"></a>
 
 ## Demonstração
@@ -124,7 +126,11 @@ Para uma instalação nova e descartável, com checks, testes e falhas controlad
 python scripts/review.py
 ```
 
-O comando informa portas temporárias em `127.0.0.1`, grava resultados em `artifacts/problem-review/<UTC>/` e remove os recursos exclusivos da tentativa. Para explorar a demonstração persistente no Windows, com PowerShell 7:
+O comando informa portas temporárias em `127.0.0.1`, grava resultados em `artifacts/problem-review/<UTC>/` e remove os recursos exclusivos da tentativa.
+
+A revisão identifica projetos e imagens de API, proxy e ferramentas por tentativa. O gate de contratos usa uma imagem própria com o grupo opcional `contracts`; Schemathesis não é instalado no runtime da API. [Comando dedicado, relatórios e critérios](docs/verification.md#verificar-a-versão-atual).
+
+Para explorar a demonstração persistente no Windows, com PowerShell 7:
 
 ```powershell
 ./scripts/sentinel.ps1 setup -Replicas 2
@@ -152,6 +158,7 @@ O setup gera credenciais locais; `stop` preserva volumes. [Instalação Linux, c
 ## Limites e segurança
 
 - Quota comercial padrão: 30 requisições/s por organização; prazo total ERP: 900 ms. São regras do [seed](src/api_sentinel/seed.py) e do [cliente ERP](src/api_sentinel/erp.py), detalhadas na [matriz de limites](docs/architecture.md#matriz-de-limites); não medem capacidade.
+- `QUOTA_ALGORITHM=fixed-window` preserva a janela de um segundo e sua rajada na fronteira. `gcra` usa capacidade total `QUOTA_BURST_CAPACITY`, padrão 10; todas as réplicas precisam usar a mesma política. [Semântica e transição do ensaio](docs/architecture.md#políticas-de-quota).
 - Dados comerciais imutáveis e duas réplicas no mesmo host. O laboratório não demonstra SLO mensal, capacidade máxima ou disponibilidade entre máquinas. [Escopo das provas](docs/verification.md#escopo).
 - Serviços publicados em loopback; tokens e runtime ficam fora do Git. Scans dizem respeito às imagens e bases identificadas em cada execução. [Controles e limites](docs/security.md).
 - A [revisão de segurança de 03/10/2026](docs/SECURITY-REVIEW-2026-10-03.md) cobre os 18 itens recebidos, as correções de rate limit e os testes com PostgreSQL e Redis descartáveis.

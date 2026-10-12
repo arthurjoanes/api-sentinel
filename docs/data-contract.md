@@ -33,6 +33,30 @@ Os [schemas](../src/api_sentinel/contracts.py) validam a entrada das [rotas](../
 
 `GET /v1/stores/{id}/sales` pagina itens de venda, não pedidos inteiros: um pedido pode ocupar duas páginas. Cada item contém `id`, `order_id`, `sold_at`, `sku`, `quantity`, `unit_price_cents` e `line_total_cents`. Há no máximo 100 itens, `next_cursor` e metadados de cobertura/versão. O banco lê somente `limit+1`; nenhuma paginação em memória sobre a tabela completa.
 
+`GET /v1/stores/{id}/availability/{sku}` recebe SKU no formato `^SKU-[0-9]{3}$`, com sete caracteres, declarado também no OpenAPI. O formato não garante que o produto exista na massa. SKU inválido conserva HTTP 422 e `invalid_sku`; a consulta elegível usa produto e loja conhecidos do ERP sintético.
+
+## Contrato HTTP executável
+
+O OpenAPI de `/openapi.json` declara as quatro operações comerciais, Bearer, parâmetros e modelos de sucesso/problema. Erros globais do middleware também fazem parte das respostas declaradas, incluindo HTTP 400 para `Authorization` duplicado. Problemas usam `application/problem+json` com `type`, `title`, `status`, `code` e `request_id`; detalhes privados e credenciais ficam fora da resposta.
+
+[verify_contracts.py](../scripts/verify_contracts.py) usa Schemathesis para gerar entradas pelo schema e enviá-las ao proxy descartável. Confronta cada resposta com status declarado, content-type e schema, conforme os [checks de resposta](https://schemathesis.readthedocs.io/en/stable/reference/checks/); o cenário saudável também recusa 500 inesperado. Os [testes OpenAPI](../tests/unit/test_openapi.py) e as [mutações do oráculo](../load/contract-check.js) permanecem como verificações complementares.
+
+A prova exige pelo menos um HTTP 200 validado em cada operação, com IDs, datas e credenciais elegíveis. Respostas 401, 403, 404 e 429 são categorias de erro e não preenchem essa cobertura positiva. Autenticação ausente/inválida e tentativa de A consultar loja de B são casos próprios.
+
+| Regra que depende do domínio | Caso explícito e resultado esperado |
+| --- | --- |
+| Período ordenado e com até 90 dias | Período invertido retorna 422 `invalid_period`. |
+| Cobertura conhecida da loja | Período fora da cobertura retorna 422 `data_outside_coverage`. |
+| Loja autorizada à identidade atual | Credencial de A consultando loja válida de B retorna 403. |
+| Cursor vinculado aos filtros e à versão | Cursor de outra versão retorna 422 `invalid_cursor`. |
+| Formato do SKU | SKU fora de `SKU-[0-9]{3}` retorna 422 `invalid_sku`. |
+
+O schema descreve estrutura e limites locais; ele não exprime o relacionamento entre tenant e loja, a cobertura disponível, a ordem entre datas ou a versão vinculada ao cursor. Por isso, a geração saudável usa fixture elegível e os negativos acima têm resultado esperado explícito. Uma entrada aceita pelo schema ainda pode ser recusada por uma regra de domínio.
+
+A preparação do gate cria somente no banco descartável um tenant técnico de contrato, tenant 4/loja 8, com cópia da fixture de 01/01/2026 e quota 30/s. Um tenant 5/loja 9, quota 1/s, atende ao cenário separado de 429. Eles não alteram as duas organizações comerciais nem tenant 3/loja 7 do probe. A referência original continua sendo 12.500 centavos, dois pedidos e ticket de 6.250; a ferramenta a confere antes/depois. A quota permanece ativa, com orçamento e rajada planejados para o cenário saudável.
+
+Seed, limites, casos positivos/negativos, política de quota e falhas ficam no JSON da execução. [Verificação](verification.md#verificar-a-versão-atual) define o comando e distingue aprovação, falha e execução incompleta; [segurança](security.md#ferramenta-de-contratos-e-isolamento) define destinos e sanitização.
+
 ## Cursor e versão
 
 A implementação separa o [cursor](../src/api_sentinel/cursor.py), a [CLI de versão](../src/api_sentinel/cli.py) e o [modelo com seus índices](../src/api_sentinel/models.py).

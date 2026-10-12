@@ -14,6 +14,16 @@ O primeiro início gera credenciais Redis aleatórias em volumes próprios, fora
 
 Os testes com Redis real verificam rejeição de conexão anônima e impedem que os usuários da aplicação executem administração ou acessem as chaves do outro usuário. A suíte também verifica quota compartilhada e prevenção de cálculos simultâneos da mesma chave. Os experimentos de indisponibilidade usam o acesso administrativo sem colocar senhas nos argumentos dos processos ou nos relatórios.
 
+A [quota selecionável](architecture.md#políticas-de-quota) preserva 429 por excesso e 503 por falha de Redis ou estado inválido. GCRA usa relógio Redis, operação Lua atômica e namespace próprio. A ACL de quota admite somente os comandos e prefixos necessários às duas políticas; continua sem administração e acesso ao cache. Configuração divergente entre réplicas impede a comparação, pois dois namespaces não formam um limite global combinado.
+
+## Ferramenta de contratos e isolamento
+
+Schemathesis pertence ao grupo não padrão `contracts`, fixado no lock, e à imagem de ferramenta derivada da imagem da tentativa. O inventário de dependências antes/depois confere que API, ERP e receiver conservam o runtime normal. O gate dedicado falha quando a ferramenta ou sua dependência estiver ausente; a suíte normal pode executar sem esse grupo.
+
+O verificador aceita somente o proxy do projeto descartável ou loopback associado à tentativa. Recusa URL externa arbitrária, userinfo e destino que não corresponda ao contexto autorizado. A credencial vem de arquivo privado, sem token em flags. Relatórios e comandos de reprodução preservam operação, seed, parâmetros e papel da credencial; removem Authorization, cookies e URLs que possam carregar segredo. A reprodução recompõe a autenticação pelo arquivo privado.
+
+Cada tentativa usa `-p` próprio em todas as chamadas Compose, tags exclusivas para API/proxy/ferramentas e volumes de dados/credenciais próprios. O registro identifica IDs e labels dos recursos e compara inventários anterior/posterior. A limpeza usa somente os arquivos Compose e o projeto registrados; `down --volumes` fica restrito a essa identidade. CPU, RAM, cache de build e daemon Docker continuam compartilhados com outros projetos, conforme o [escopo da medição](performance.md#limites-da-medição).
+
 ## Grafana
 
 O painel é anônimo com papel `Viewer`. A autenticação por senha está desabilitada, não é criado administrador inicial e Gravatar está desabilitado. A versão 12.4.11 tem digest fixado no [Compose](../compose.yml). O aviso oficial CVE-2026-76154, publicado em 17/09/2026 e consultado em 22/09/2026, lista 12.4.11 entre as versões corrigidas para esse problema específico; isso não comprova correção de todas as vulnerabilidades da linha. Referências: [autenticação Grafana](https://grafana.com/docs/grafana/latest/setup-grafana/configure-access/configure-authentication/grafana/) e [aviso de segurança corrigido em 12.4.11](https://grafana.com/security/security-advisories/cve-2026-76154/).
@@ -32,4 +42,4 @@ O workflow de segredos examina o histórico Git. As exceções de Gitleaks ident
 
 O scan Trivy do CI cobre a imagem Python da aplicação e a imagem construída do proxy. Ele bloqueia achados `HIGH` e `CRITICAL`, mesmo quando ainda não há correção disponível. O [incremento do proxy de 03/10/2026](SECURITY-REVIEW-2026-10-03.md#correção-complementar-do-proxy) atualizou quatro bibliotecas, preservando a base Nginx e a configuração de rotas; o scan completo da imagem corrigida ficou sem achados. PostgreSQL, Redis, observabilidade e geração de carga têm escopo separado. As versões e o escopo dos ensaios constam em [verificação](verification.md).
 
-O runtime inclui as ferramentas necessárias aos testes e relatórios locais. Antes de uma implantação de produção, a imagem de serviço e as ferramentas operacionais precisam de ciclos de entrega separados; a demonstração não oferece essa implantação.
+O runtime conserva as ferramentas existentes de testes e relatórios locais. O novo gate de contratos tem imagem e dependências separadas. Uma implantação de produção ainda precisaria de ciclos de entrega próprios para serviços e demais ferramentas; a demonstração permanece local.

@@ -1,20 +1,26 @@
 # Applied only by scripts/review.py with a unique disposable Compose project.
 services:
   redis-init:
-    image: pf-api-sentinel-review:local
+    image: ${SENTINEL_REVIEW_IMAGE:?Attempt image required}
   api:
-    image: pf-api-sentinel-review:local
-    environment: {SENTINEL_ENV: test}
+    image: ${SENTINEL_REVIEW_IMAGE:?Attempt image required}
+    environment:
+      SENTINEL_ENV: test
+      QUOTA_ALGORITHM: ${QUOTA_ALGORITHM:-fixed-window}
+      QUOTA_BURST_CAPACITY: ${QUOTA_BURST_CAPACITY:-10}
   erp:
-    image: pf-api-sentinel-review:local
+    image: ${SENTINEL_REVIEW_IMAGE:?Attempt image required}
   tools:
-    image: pf-api-sentinel-review:local
-    environment: {SENTINEL_ENV: test}
-    volumes: ['${SENTINEL_RUN_DIR:?Run directory required}:/artifacts']
+    image: ${SENTINEL_REVIEW_IMAGE:?Attempt image required}
+    environment:
+      SENTINEL_ENV: test
+      SENTINEL_LAB_PROJECT: ${SENTINEL_LAB_PROJECT:?Attempt required}
+    volumes: ['${SENTINEL_RUN_DIR:?Run directory required}:/artifacts', 'redis-credentials:/redis-credentials:ro']
   receiver:
-    image: pf-api-sentinel-review:local
+    image: ${SENTINEL_REVIEW_IMAGE:?Attempt image required}
     ports: !override ['127.0.0.1::9184']
   proxy:
+    image: ${SENTINEL_PROXY_IMAGE:?Attempt proxy image required}
     ports: !override ['127.0.0.1::80']
   prometheus:
     ports: !override ['127.0.0.1::9090']
@@ -27,3 +33,20 @@ services:
   k6:
     environment: {SENTINEL_LAB: '1'}
     volumes: ['${SENTINEL_RUN_DIR:?Run directory required}:/artifacts']
+  contracts:
+    image: ${SENTINEL_CONTRACTS_IMAGE:?Attempt contracts image required}
+    profiles: [tools]
+    user: root
+    init: true
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    environment:
+      PYTHONDONTWRITEBYTECODE: '1'
+      HYPOTHESIS_STORAGE_DIRECTORY: /tmp/hypothesis
+      SENTINEL_LAB_PROJECT: ${SENTINEL_LAB_PROJECT:?Attempt required}
+    volumes: ['secrets:/secrets:ro', '${SENTINEL_RUN_DIR:?Run directory required}:/artifacts']
+    mem_limit: 384m
+    cpus: 0.75
+    command: [python, scripts/verify_contracts.py]

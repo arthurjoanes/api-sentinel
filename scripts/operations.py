@@ -39,6 +39,9 @@ COMPOSE = [
     str(PROJECT / "compose.yml"),
 ]
 if IS_DISPOSABLE:
+    os.environ.setdefault("SENTINEL_REVIEW_IMAGE", COMPOSE_PROJECT + ":local")
+    os.environ.setdefault("SENTINEL_PROXY_IMAGE", COMPOSE_PROJECT + "-proxy:local")
+    os.environ.setdefault("SENTINEL_CONTRACTS_IMAGE", COMPOSE_PROJECT + "-contracts:local")
     COMPOSE.extend(["-f", str(PROJECT / "compose.review.yml")])
 sys.stdout.reconfigure(encoding="utf-8")
 

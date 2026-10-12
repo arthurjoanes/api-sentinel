@@ -17,9 +17,13 @@ python scripts/review.py
 if ($LASTEXITCODE -ne 0) { throw 'A revisão falhou; veja o diretório indicado.' }
 ```
 
-O comando constrói a imagem, executa checks/testes e cria `pf-api-sentinel-review-<UTC>` com rede, banco, tokens e volumes próprios. As portas são temporárias e publicadas somente em loopback. Nenhuma falha é injetada na stack persistente `pf-api-sentinel`. Reserve a janela exclusivamente para este teste; não execute outra carga ao mesmo tempo.
+O comando constrói imagens de API, proxy e contratos com tags da tentativa, executa checks/testes e cria `pf-api-sentinel-review-<UTC>` com rede, banco, tokens e volumes próprios. A suíte Compose também recebe seu `-p` exclusivo. As portas são temporárias e publicadas somente em loopback. Nenhuma falha é injetada na stack persistente `pf-api-sentinel`. Reserve a janela exclusivamente para este teste; não execute outra carga ao mesmo tempo.
 
 Cada execução grava `artifacts/problem-review/<UTC>/run.json`, logs, conferência por linhas brutas (`oracle.json`) e resultados separados. Falhas preservam seus artefatos e encerram os recursos descartáveis. Um resultado aprovado inclui restauração e comparação dos IDs dos containers da demonstração antes/depois. O tempo de preparação depende do download/build; não faz parte do roteiro de apresentação abaixo.
+
+O gate HTTP de [contratos](verification.md#gate-de-contratos-http) gera entradas do OpenAPI pelo proxy e salva o relatório com seed, cobertura 200 por operação, negativos, política de quota e reprodução segura. Confira `passed`, `failed` ou `incomplete`; orçamento esgotado não é aprovação. Ele usa a imagem `contracts`, separada da API, e credenciais de seu banco descartável.
+
+Em `--scenario all`, a [comparação de quota](performance.md#comparar-janela-fixa-e-gcra) inclui uma e duas réplicas. A [arquitetura](architecture.md#políticas-de-quota) define `QUOTA_ALGORITHM` e `QUOTA_BURST_CAPACITY`. Para trocar de política, o runner interrompe o gerador, atualiza ambas as réplicas e espera o TTL anterior antes de retomar. Confira políticas iguais nas réplicas; configuração mista invalida o limite compartilhado. Essa etapa registra comportamento e custo observado, sem demonstrar capacidade máxima ou migração sem interrupção.
 
 Para inspecionar o painel ao vivo depois dos ciclos de alerta:
 
@@ -66,17 +70,51 @@ $SentinelRunFile = (Resolve-Path -LiteralPath 'artifacts/problem-review/<UTC>/ru
 $SentinelRun = Get-Content -LiteralPath $SentinelRunFile -Raw | ConvertFrom-Json
 $SentinelCleanup = @($SentinelRun.cleanup_command)
 if ($SentinelCleanup.Count -lt 2 -or $SentinelCleanup[0] -ne 'docker') { throw 'Comando de limpeza ausente.' }
-$SentinelPreviousRunDir = [Environment]::GetEnvironmentVariable('SENTINEL_RUN_DIR', 'Process')
+$SentinelProjectIndex = [Array]::IndexOf($SentinelCleanup, '-p')
+if ($SentinelRun.project -notmatch '^pf-api-sentinel-review-[a-z0-9-]+$' -or
+    $SentinelProjectIndex -lt 0 -or $SentinelCleanup[$SentinelProjectIndex + 1] -ne $SentinelRun.project) {
+    throw 'O projeto de limpeza não corresponde ao registro.'
+}
+$SentinelRegisteredFiles = @($SentinelRun.compose_files.PSObject.Properties[$SentinelRun.project].Value)
+$SentinelCleanupFiles = @(
+    for ($SentinelIndex = 0; $SentinelIndex -lt $SentinelCleanup.Count - 1; $SentinelIndex++) {
+        if ($SentinelCleanup[$SentinelIndex] -eq '-f') { $SentinelCleanup[$SentinelIndex + 1] }
+    }
+)
+if ($SentinelRegisteredFiles.Count -eq 0 -or
+    ($SentinelRegisteredFiles -join "`n") -ne ($SentinelCleanupFiles -join "`n")) {
+    throw 'Os arquivos Compose de limpeza não correspondem ao registro.'
+}
+$SentinelCleanupEnvironment = [ordered]@{
+    SENTINEL_RUN_DIR = Split-Path -Parent $SentinelRunFile
+    SENTINEL_REVIEW_IMAGE = $SentinelRun.images.runtime
+    SENTINEL_PROXY_IMAGE = $SentinelRun.images.proxy
+    SENTINEL_CONTRACTS_IMAGE = $SentinelRun.images.contracts
+    SENTINEL_LAB_PROJECT = $SentinelRun.project
+}
+$SentinelPreviousEnvironment = @{}
+foreach ($SentinelName in $SentinelCleanupEnvironment.Keys) {
+    if (-not $SentinelCleanupEnvironment[$SentinelName]) { throw "Configuração ausente: $SentinelName" }
+    $SentinelPreviousEnvironment[$SentinelName] = [Environment]::GetEnvironmentVariable($SentinelName, 'Process')
+}
 try {
-    $env:SENTINEL_RUN_DIR = Split-Path -Parent $SentinelRunFile
+    foreach ($SentinelName in $SentinelCleanupEnvironment.Keys) {
+        [Environment]::SetEnvironmentVariable($SentinelName, $SentinelCleanupEnvironment[$SentinelName], 'Process')
+    }
     & docker @($SentinelCleanup[1..($SentinelCleanup.Count - 1)])
     if ($LASTEXITCODE -ne 0) { throw 'A limpeza falhou.' }
 } finally {
-    [Environment]::SetEnvironmentVariable('SENTINEL_RUN_DIR', $SentinelPreviousRunDir, 'Process')
+    foreach ($SentinelName in $SentinelCleanupEnvironment.Keys) {
+        if ($null -eq $SentinelPreviousEnvironment[$SentinelName]) {
+            Remove-Item -LiteralPath "Env:\$SentinelName" -ErrorAction SilentlyContinue
+        } else {
+            [Environment]::SetEnvironmentVariable($SentinelName, $SentinelPreviousEnvironment[$SentinelName], 'Process')
+        }
+    }
 }
 ```
 
-`SENTINEL_RUN_DIR` é obrigatório para o Compose interpretar os mounts do ensaio, inclusive ao encerrar; o exemplo restaura seu valor anterior ao terminar. Mantenha disponíveis os arquivos Compose identificados pelo comando gerado. Isso remove os volumes descartáveis daquela execução; os artefatos no projeto permanecem. Não execute comandos genéricos de prune. A demonstração persistente pode ser iniciada por `scripts/sentinel.ps1 start -Replicas 2` e encerrada por `stop`, que preserva os volumes dela.
+O Compose exige diretório, três tags de imagem e identidade do projeto também ao encerrar. O exemplo obtém esses valores de `run.json` e restaura todo o ambiente anterior no `finally`, inclusive valores que estavam ausentes. Confere os arquivos Compose e o `-p` contra o registro da tentativa. Antes de executar, confira também os IDs e labels dos containers, redes e volumes com o inventário registrado; a limpeza automática do runner valida essa propriedade antes de remover os recursos. Mantenha disponíveis os arquivos Compose identificados pelo comando gerado. Isso remove os volumes descartáveis daquela execução; os artefatos no projeto permanecem. Não execute comandos genéricos de prune. A demonstração persistente pode ser iniciada por `scripts/sentinel.ps1 start -Replicas 2` e encerrada por `stop`, que preserva os volumes dela.
 
 ## Instalação persistente no Linux
 

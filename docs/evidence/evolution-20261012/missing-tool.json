@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "attempt": "pf-api-sentinel-review-missing",
+  "started_at": "2026-10-12T04:27:08.963604+00:00",
+  "status": "failed",
+  "seed": 20261012,
+  "budget": {
+    "examples_per_operation": 30,
+    "max_cases": 180,
+    "rate_per_second": 5,
+    "deadline_seconds": 90
+  },
+  "checks": [
+    "not_a_server_error",
+    "status_code_conformance",
+    "content_type_conformance",
+    "response_schema_conformance",
+    "response_headers_conformance"
+  ],
+  "results": [],
+  "failures": [],
+  "reason": "The dedicated contracts dependency is missing.",
+  "finished_at": "2026-10-12T04:27:08.964604+00:00",
+  "summary": {
+    "/v1/stores": {
+      "cases": 0,
+      "validated_200": 0
+    },
+    "/v1/stores/{store_id}/summary": {
+      "cases": 0,
+      "validated_200": 0
+    },
+    "/v1/stores/{store_id}/sales": {
+      "cases": 0,
+      "validated_200": 0
+    },
+    "/v1/stores/{store_id}/availability/{sku}": {
+      "cases": 0,
+      "validated_200": 0
+    }
+  }
+}
