@@ -1,0 +1,74 @@
+{
+  "id": "20261012t050444034546z",
+  "project": "pf-api-sentinel-review-20261012t050444034546z",
+  "started_at": "2026-10-12T05:04:44.034724+00:00",
+  "finished_at": "2026-10-12T05:10:36.958970+00:00",
+  "status": "failed",
+  "git_revision": "062a08b35e7b9ee94a6016f6cfddb0feece5dbde",
+  "git_revision_after": "062a08b35e7b9ee94a6016f6cfddb0feece5dbde",
+  "image_id": "sha256:fb46e8d4216dcea2edf5ead2525cf5418c651e04a79ac637c3df935d5231b9ba",
+  "proxy_image_id": "sha256:5a72a2acfdbad5d3bd276c35fa9a53d2f2bd559b4a92364d5e0c062c45171db1",
+  "source_unchanged": true,
+  "owned_resources_after": {
+    "containers": [],
+    "volumes": [],
+    "networks": []
+  },
+  "branch_snapshot": "e79190b7a78e9d2ebd3f62eff163fd7bc358f5ab",
+  "source_kind": "GitHub pull-request merge snapshot",
+  "run_url": "https://github.com/arthurjoanes/api-sentinel/actions/runs/38206127094",
+  "failed_command": "load-warmup-one",
+  "load_summary": {
+    "categories": {
+      "tenant_a_erp_failure": 0,
+      "tenant_b_capacity": 0,
+      "tenant_b_erp_failure": 0,
+      "tenant_b_invalid": 0,
+      "tenant_a_valid": 24,
+      "tenant_a_quota": 0,
+      "tenant_a_invalid": 0,
+      "tenant_a_other": 1,
+      "tenant_b_valid": 24,
+      "tenant_b_quota": 0,
+      "tenant_b_other": 1,
+      "tenant_a_capacity": 0
+    },
+    "oracle_sha256": "3f9cb7ff3eff723d3f2ae377c06bb9661a9da0e840c145b8958eafa481cc3a32",
+    "seconds": 5,
+    "nominal_offered": 50,
+    "started": 50,
+    "scenario": "warmup-one",
+    "mode": "mixed",
+    "offered_per_second": 10,
+    "completed": 50,
+    "dropped": 0
+  },
+  "failed_checks": {
+    "unexpected_results": {
+      "count==0": {
+        "ok": false
+      }
+    },
+    "business_failures": {
+      "count==0": {
+        "ok": false
+      }
+    }
+  },
+  "unexpected_responses": [
+    {
+      "status": 503,
+      "code": "proxy_unavailable",
+      "tenant": "tenant_a",
+      "route": "summary"
+    },
+    {
+      "status": 503,
+      "code": "proxy_unavailable",
+      "tenant": "tenant_b",
+      "route": "sales"
+    }
+  ],
+  "diagnosis": "Proxy preparation after reducing replicas returned too early; stale upstream selection inferred from immediate proxy503 and normal successful-response latencies.",
+  "corrective_scope": "Preparation waits for DNS and a continuous success window over exactly the configured replicas; load rates/durations/thresholds unchanged."
+}

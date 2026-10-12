@@ -69,8 +69,8 @@
     {
       "path": "docs/verification.md",
       "base_git_blob_sha1": "579f7587c1fe8412b8ac48fa072ab2e3eef4681c",
-      "canonical_git_content_sha256": "5e5c5dfc0ba305865092ee47c549563c26de5735d48c38d31994cf601b872024",
-      "git_blob_sha1": "ef6f9fa03fe58ec315dabdcf8da7b730bcda299a",
+      "canonical_git_content_sha256": "8d11c772e2db15a2c3b523a4d363ddc4097c404dd4b4cdf91dcdc013f7ffab78",
+      "git_blob_sha1": "caa3b0a43254403d76e521ef48289706f130f481",
       "scope": "Current prose and operational instructions; historical execution records remain unchanged."
     }
   ],
@@ -111,5 +111,22 @@
       "releitura e hashes atualizados dos sete documentos"
     ],
     "measurement_limit": "74 inputs per phase; p95 includes 200 and 429; API cgroup CPU cost is observed and does not isolate Lua or show maximum capacity."
+  },
+  "scale_preparation_followup": {
+    "files": [
+      "docs/verification.md"
+    ],
+    "failed_source_commit": "062a08b35e7b9ee94a6016f6cfddb0feece5dbde",
+    "branch_snapshot": "e79190b7a78e9d2ebd3f62eff163fd7bc358f5ab",
+    "run_url": "https://github.com/arthurjoanes/api-sentinel/actions/runs/38206127094",
+    "receipt": "docs/evidence/evolution-20261012/failed-scale-preparation.json",
+    "workflow": [
+      "leitura do recibo de falha e do código de preparação atualizado",
+      "conferência de denominadores, identidade da execução e limpeza",
+      "distinção entre erro observado e inferência sobre seleção de peer/DNS",
+      "preservação da aprovação bf71318 e critério de recibo próprio para a correção",
+      "releitura da prosa e atualização dos sete hashes editoriais"
+    ],
+    "result": "Failed warmup preserved; approval of the corrected preparation depends on its own receipt identifying source commit and CI artifacts."
   }
 }

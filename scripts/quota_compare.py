@@ -15,6 +15,81 @@ from collections.abc import Callable
 from datetime import UTC, datetime
 
 
+def inspected_instances(containers: list[dict], project: str, ids: list[str]) -> list[str]:
+    """Bind proxy preparation to these exact, owned API container identities."""
+    if len(ids) not in (1, 2) or len(set(ids)) != len(ids) or len(containers) != len(ids):
+        raise RuntimeError("Proxy preparation requires one or two distinct API containers.")
+    if {container.get("Id") for container in containers} != set(ids):
+        raise RuntimeError("Inspected API container IDs differ from the scaled deployment.")
+    instances = []
+    for container in containers:
+        config = container["Config"]
+        labels = config.get("Labels", {})
+        if (
+            labels.get("com.docker.compose.project") != project
+            or labels.get("com.docker.compose.service") != "api"
+        ):
+            raise RuntimeError("Proxy preparation refused a foreign API container.")
+        instances.append(config.get("Hostname", ""))
+    if len(set(instances)) != len(ids) or not all(instances):
+        raise RuntimeError("API containers require distinct inspected hostnames.")
+    return sorted(instances)
+
+
+def wait_for_proxy_instances(
+    expected_instances: list[str], probe: Callable[[], dict], *, timeout: float = 30
+) -> dict:
+    """Wait for DNS turnover and a continuous healthy window across current peers."""
+    expected = set(expected_instances)
+    if len(expected) not in (1, 2) or len(expected) != len(expected_instances) or not all(expected):
+        raise ValueError("Proxy preparation requires distinct expected instance IDs.")
+    # nginx resolves service addresses every three seconds. One successful
+    # reply cannot prove that its removed peer has left the upstream pool.
+    time.sleep(3.25)
+    deadline = time.monotonic() + timeout
+    seen: set[str] = set()
+    consecutive_ready = 0
+    attempts = 0
+    stable_since: float | None = None
+    while True:
+        try:
+            replies = []
+            for _ in expected_instances:
+                attempts += 1
+                replies.append(probe())
+            if all(
+                reply["status"] == 200 and reply.get("instance") in expected for reply in replies
+            ):
+                if stable_since is None:
+                    stable_since = time.monotonic()
+                seen.update(reply["instance"] for reply in replies)
+                consecutive_ready += 1
+            else:
+                seen.clear()
+                consecutive_ready = 0
+                stable_since = None
+        except (urllib.error.URLError, TimeoutError, ConnectionError):
+            seen.clear()
+            consecutive_ready = 0
+            stable_since = None
+        if (
+            consecutive_ready >= 3
+            and seen == expected
+            and stable_since is not None
+            and time.monotonic() - stable_since >= 3
+        ):
+            break
+        if time.monotonic() >= deadline:
+            raise TimeoutError("The proxy did not stabilize across the inspected API replicas.")
+        time.sleep(0.25)
+    return {
+        "expected_instances": sorted(expected),
+        "consecutive_rounds": consecutive_ready,
+        "business_probes": attempts,
+        "stable_seconds": round(time.monotonic() - stable_since, 3),
+    }
+
+
 def uniform_policy(
     containers: list[dict], project: str, image_id: str, expected_replicas: int
 ) -> dict:
@@ -79,7 +154,7 @@ def _local_base_url(base_url: str) -> str:
     return base_url.rstrip("/")
 
 
-def _one_request(base_url: str, token: str) -> dict:
+def _one_request(base_url: str, token: str, *, preparing: bool = False) -> dict:
     started = time.monotonic()
     request = urllib.request.Request(
         base_url + "/v1/stores", headers={"Authorization": "Bearer " + token}
@@ -100,7 +175,7 @@ def _one_request(base_url: str, token: str) -> dict:
                 raise RuntimeError("Quota comparison received an unexpected 429 contract.")
             if int(retry) < 1:
                 raise RuntimeError("Quota Retry-After must be positive.")
-        else:
+        elif not (preparing and status == 503):
             raise RuntimeError(f"Quota comparison received unexpected HTTP status {status}.")
         return {
             "status": status,
@@ -217,34 +292,10 @@ def quota_comparison(
         policy = uniform_policy(inspected, project, image_id, replicas)
         if policy != {"algorithm": algorithm, "burst_capacity": 10}:
             raise RuntimeError("API replicas did not apply the requested quota policy.")
-        expected_instances = sorted(container["Config"]["Hostname"] for container in inspected)
-        if len(set(expected_instances)) != replicas or not all(expected_instances):
-            raise RuntimeError("API replicas need distinct inspected hostnames.")
-        # nginx resolves the service every three seconds. A first successful
-        # reply can still coexist with a cached address for a removed replica.
-        time.sleep(3.25)
-        deadline = time.monotonic() + 30
-        seen: set[str] = set()
-        consecutive_ready = 0
-        while consecutive_ready < 3 or seen != set(expected_instances):
-            try:
-                with urllib.request.urlopen(base_url + "/health/ready", timeout=3) as response:
-                    if response.status != 200:
-                        raise RuntimeError("API replica is not ready.")
-                positives = [_one_request(base_url, token) for _ in range(replicas)]
-                if all(
-                    positive["status"] == 200 and positive["instance"] in expected_instances
-                    for positive in positives
-                ):
-                    seen.update(positive["instance"] for positive in positives)
-                    consecutive_ready += 1
-                else:
-                    consecutive_ready = 0
-            except (urllib.error.URLError, TimeoutError, RuntimeError):
-                consecutive_ready = 0
-            if time.monotonic() >= deadline:
-                raise TimeoutError("Quota comparison did not reach all inspected API replicas.")
-            time.sleep(0.25)
+        expected_instances = inspected_instances(inspected, project, ids)
+        wait_for_proxy_instances(
+            expected_instances, lambda: _one_request(base_url, token, preparing=True)
+        )
         return ids, policy, expected_instances
 
     try:
