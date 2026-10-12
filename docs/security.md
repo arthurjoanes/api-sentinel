@@ -34,6 +34,14 @@ Atualizar a configuração não apaga usuários, sessões ou dashboards de um vo
 
 ## Verificação e limites
 
+### Scan de 12/10/2026
+
+A [primeira execução Linux](https://github.com/arthurjoanes/api-sentinel/actions/runs/38203934751), no snapshot `7c2e829`, bloqueou o proxy por `CVE-2026-4775`, HIGH, em `tiff 4.7.1-r0`. O [Dockerfile do proxy](../deploy/proxy/Dockerfile) passou a fixar `tiff=4.7.2-r0` no commit `6383a6d`, versão indicada para essa correção na [base oficial Alpine 3.24](https://secdb.alpinelinux.org/v3.24/main.json). Base Nginx, rotas e os quatro pins da revisão de 03/10 foram preservados. A falha inicial permanece no [resumo desta entrega](evidence/evolution-20261012/summary.json).
+
+Na rodada completa do snapshot `bf71318`, Trivy 0.74.0 reportou zero HIGH/CRITICAL na [aplicação](evidence/evolution-20261012/runtime-vulnerabilities.json) e no [proxy corrigido](evidence/evolution-20261012/proxy-vulnerabilities.json), sem exclusões. A aplicação apresentou três MEDIUM, em zlib, Mako e uv; os achados permanecem no relatório. O proxy não apresentou achados. As imagens `sha256:45d249e9…` e `sha256:7129ec54…` têm IDs completos ligados à [prova operacional](evidence/evolution-20261012/operational-run.json).
+
+O scan da aplicação inclui sistema, Python e o binário uv; o proxy inclui pacotes do sistema. Serviços auxiliares têm escopo separado. A publicação conserva o gate HIGH/CRITICAL e aprova somente as imagens examinadas. As observações históricas abaixo mantêm suas datas e imagens.
+
 Na revisão de 22/09/2026, o [scan da execução completa](evidence/editorial-20260922/full-vulnerabilities.json) e o [scan da imagem final das capturas](evidence/editorial-20260922/capture-vulnerabilities.json) reportaram zero vulnerabilidades no escopo da aplicação. Trivy 0.74.0 examinou sistema, Python e binário Rust, sem exclusões ou filtro de severidade. As imagens são diferentes e estão identificadas em cada registro; nenhuma delas representa um scan dos serviços auxiliares. O aviso de ausência da data de fim de suporte do Alpine 3.24 na lista interna do scanner permanece registrado.
 
 Gitleaks 8.30.1 examinou os 12 commits alcançáveis e a cópia dos arquivos rastreados/novos publicáveis. A primeira leitura da nova evidência encontrou 12 checksums de fontes e um nome de fixture sintética. Recalculei os quatro SHA-256 e conferi o rótulo, sem confundi-los com valores de credenciais. A política passou a reconhecer apenas esses valores literais nos três caminhos exatos dos relatórios, e o nome exato em um deles. O scan seguinte passou; um token fictício no mesmo caminho continuou sendo detectado no controle positivo. [Escopo, triagem e controle](evidence/editorial-20260922/secret-review.json).

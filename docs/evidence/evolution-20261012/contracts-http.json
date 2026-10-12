@@ -1,0 +1,2948 @@
+{
+  "schema_version": 1,
+  "attempt": "pf-api-sentinel-review-20261012t043755793312z",
+  "started_at": "2026-10-12T04:41:01.896629+00:00",
+  "status": "passed",
+  "seed": 20261012,
+  "budget": {
+    "examples_per_operation": 30,
+    "max_cases": 180,
+    "rate_per_second": 5,
+    "deadline_seconds": 90
+  },
+  "checks": [
+    "not_a_server_error",
+    "status_code_conformance",
+    "content_type_conformance",
+    "response_schema_conformance",
+    "response_headers_conformance"
+  ],
+  "results": [
+    {
+      "request": {
+        "label": "stores-positive",
+        "operation": "/v1/stores",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "positive"
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.008665371999995841
+    },
+    {
+      "request": {
+        "label": "summary-positive",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "positive",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.20092055399999253
+    },
+    {
+      "request": {
+        "label": "sales-positive",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "positive",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "limit": 1
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19934058699999468
+    },
+    {
+      "request": {
+        "label": "availability-positive",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "positive",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-001"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.21577649099998553
+    },
+    {
+      "request": {
+        "label": "sales-valid-cursor",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "positive",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "cursor": "eyJkYXRhc2V0IjoidjEtOWEyMmU5NjQzODgwNGQ1NCIsImVuZCI6IjIwMjYtMDEtMDEiLCJpZCI6ODAwMDAwMDAwMDAwMywic29sZF9hdCI6IjIwMjYtMDEtMDJUMDI6NTk6NTkrMDA6MDAiLCJzdGFydCI6IjIwMjYtMDEtMDEiLCJzdG9yZSI6OCwidGVuYW50Ijo0LCJ2IjoxfQ.qcwdNjogiRLcY-vz_pGSWYH_id90UrXJe9hMKy1jXSQ"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.18018847900000878
+    },
+    {
+      "request": {
+        "label": "stores-positive-auth-missing",
+        "operation": "/v1/stores",
+        "credential": "missing",
+        "expected_status": 401,
+        "expected_code": "invalid_credential",
+        "category": "authentication"
+      },
+      "status": "passed",
+      "http_status": 401,
+      "elapsed_seconds": 0.1914619339999888
+    },
+    {
+      "request": {
+        "label": "stores-positive-auth-invalid",
+        "operation": "/v1/stores",
+        "credential": "invalid",
+        "expected_status": 401,
+        "expected_code": "invalid_credential",
+        "category": "authentication"
+      },
+      "status": "passed",
+      "http_status": 401,
+      "elapsed_seconds": 0.1987731819999965
+    },
+    {
+      "request": {
+        "label": "summary-positive-auth-missing",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "missing",
+        "expected_status": 401,
+        "expected_code": "invalid_credential",
+        "category": "authentication",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 401,
+      "elapsed_seconds": 0.1983085709999841
+    },
+    {
+      "request": {
+        "label": "summary-positive-auth-invalid",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "invalid",
+        "expected_status": 401,
+        "expected_code": "invalid_credential",
+        "category": "authentication",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 401,
+      "elapsed_seconds": 0.1993444310000143
+    },
+    {
+      "request": {
+        "label": "sales-positive-auth-missing",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "missing",
+        "expected_status": 401,
+        "expected_code": "invalid_credential",
+        "category": "authentication",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "limit": 1
+        }
+      },
+      "status": "passed",
+      "http_status": 401,
+      "elapsed_seconds": 0.1992884439999898
+    },
+    {
+      "request": {
+        "label": "sales-positive-auth-invalid",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "invalid",
+        "expected_status": 401,
+        "expected_code": "invalid_credential",
+        "category": "authentication",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "limit": 1
+        }
+      },
+      "status": "passed",
+      "http_status": 401,
+      "elapsed_seconds": 0.19835372900001857
+    },
+    {
+      "request": {
+        "label": "availability-positive-auth-missing",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "missing",
+        "expected_status": 401,
+        "expected_code": "invalid_credential",
+        "category": "authentication",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-001"
+        }
+      },
+      "status": "passed",
+      "http_status": 401,
+      "elapsed_seconds": 0.1987999719999891
+    },
+    {
+      "request": {
+        "label": "availability-positive-auth-invalid",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "invalid",
+        "expected_status": 401,
+        "expected_code": "invalid_credential",
+        "category": "authentication",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-001"
+        }
+      },
+      "status": "passed",
+      "http_status": 401,
+      "elapsed_seconds": 0.19955048799999986
+    },
+    {
+      "request": {
+        "label": "duplicate-authorization",
+        "operation": "/v1/stores",
+        "credential": "duplicate",
+        "expected_status": 400,
+        "expected_code": null,
+        "category": "authentication",
+        "expected_codes": [
+          "ambiguous_credential",
+          "proxy_request"
+        ]
+      },
+      "status": "passed",
+      "http_status": 400,
+      "elapsed_seconds": 0.19667714499999533
+    },
+    {
+      "request": {
+        "label": "inverted-period",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "contract",
+        "expected_status": 422,
+        "expected_code": "invalid_period",
+        "category": "domain",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-02",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 422,
+      "elapsed_seconds": 0.20511521599999583
+    },
+    {
+      "request": {
+        "label": "outside-coverage",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "contract",
+        "expected_status": 422,
+        "expected_code": "data_outside_coverage",
+        "category": "domain",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2025-12-31",
+          "end": "2025-12-31"
+        }
+      },
+      "status": "passed",
+      "http_status": 422,
+      "elapsed_seconds": 0.20204316900000663
+    },
+    {
+      "request": {
+        "label": "inverted-period",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 422,
+        "expected_code": "invalid_period",
+        "category": "domain",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-02",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 422,
+      "elapsed_seconds": 0.19395136200000707
+    },
+    {
+      "request": {
+        "label": "outside-coverage",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 422,
+        "expected_code": "data_outside_coverage",
+        "category": "domain",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2025-12-31",
+          "end": "2025-12-31"
+        }
+      },
+      "status": "passed",
+      "http_status": 422,
+      "elapsed_seconds": 0.2008106629999986
+    },
+    {
+      "request": {
+        "label": "malformed-cursor",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 422,
+        "expected_code": "invalid_cursor",
+        "category": "domain",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "cursor": "malformed"
+        }
+      },
+      "status": "passed",
+      "http_status": 422,
+      "elapsed_seconds": 0.19977818500001376
+    },
+    {
+      "request": {
+        "label": "previous-version-cursor",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 422,
+        "expected_code": "invalid_cursor",
+        "category": "domain",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "cursor": "eyJkYXRhc2V0IjoicHJldmlvdXMtdmVyc2lvbiIsImVuZCI6IjIwMjYtMDEtMDEiLCJpZCI6ODAwMDAwMDAwMDAwMSwic29sZF9hdCI6IjIwMjYtMDEtMDFUMDM6MDA6MDArMDA6MDAiLCJzdGFydCI6IjIwMjYtMDEtMDEiLCJzdG9yZSI6OCwidGVuYW50Ijo0LCJ2IjoxfQ.mdx_-tBxiAhoUon5d-D_bJsfhwOJVxf9fUxEFTRxmiU"
+        }
+      },
+      "status": "passed",
+      "http_status": 422,
+      "elapsed_seconds": 0.19909218000000806
+    },
+    {
+      "request": {
+        "label": "oversize-cursor",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 422,
+        "expected_code": "invalid_request",
+        "category": "domain",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "cursor": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        }
+      },
+      "status": "passed",
+      "http_status": 422,
+      "elapsed_seconds": 0.19638639699999771
+    },
+    {
+      "request": {
+        "label": "invalid-sku",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "contract",
+        "expected_status": 422,
+        "expected_code": "invalid_sku",
+        "category": "domain",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-ABC"
+        }
+      },
+      "status": "passed",
+      "http_status": 422,
+      "elapsed_seconds": 0.19795806199999788
+    },
+    {
+      "request": {
+        "label": "tenant-isolation-contract",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "contract",
+        "expected_status": 403,
+        "expected_code": "store_forbidden",
+        "category": "isolation",
+        "path_parameters": {
+          "store_id": 4,
+          "sku": "SKU-001"
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 403,
+      "elapsed_seconds": 0.19890314599999215
+    },
+    {
+      "request": {
+        "label": "tenant-isolation-contract",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 403,
+        "expected_code": "store_forbidden",
+        "category": "isolation",
+        "path_parameters": {
+          "store_id": 4,
+          "sku": "SKU-001"
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 403,
+      "elapsed_seconds": 0.20012188300000844
+    },
+    {
+      "request": {
+        "label": "tenant-isolation-contract",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "contract",
+        "expected_status": 403,
+        "expected_code": "store_forbidden",
+        "category": "isolation",
+        "path_parameters": {
+          "store_id": 4,
+          "sku": "SKU-001"
+        }
+      },
+      "status": "passed",
+      "http_status": 403,
+      "elapsed_seconds": 0.19840064599998186
+    },
+    {
+      "request": {
+        "label": "tenant-isolation-tenant_b",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "tenant_b",
+        "expected_status": 403,
+        "expected_code": "store_forbidden",
+        "category": "isolation",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-001"
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 403,
+      "elapsed_seconds": 0.19856606900000884
+    },
+    {
+      "request": {
+        "label": "tenant-isolation-tenant_b",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "tenant_b",
+        "expected_status": 403,
+        "expected_code": "store_forbidden",
+        "category": "isolation",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-001"
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 403,
+      "elapsed_seconds": 0.19896401999997693
+    },
+    {
+      "request": {
+        "label": "tenant-isolation-tenant_b",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "tenant_b",
+        "expected_status": 403,
+        "expected_code": "store_forbidden",
+        "category": "isolation",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-001"
+        }
+      },
+      "status": "passed",
+      "http_status": 403,
+      "elapsed_seconds": 0.1990877929999897
+    },
+    {
+      "request": {
+        "label": "tenant-isolation-tenant_a",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "tenant_a",
+        "expected_status": 403,
+        "expected_code": "store_forbidden",
+        "category": "isolation",
+        "path_parameters": {
+          "store_id": 4,
+          "sku": "SKU-001"
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 403,
+      "elapsed_seconds": 0.19772428300001366
+    },
+    {
+      "request": {
+        "label": "tenant-isolation-tenant_a",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "tenant_a",
+        "expected_status": 403,
+        "expected_code": "store_forbidden",
+        "category": "isolation",
+        "path_parameters": {
+          "store_id": 4,
+          "sku": "SKU-001"
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 403,
+      "elapsed_seconds": 0.1995805280000127
+    },
+    {
+      "request": {
+        "label": "tenant-isolation-tenant_a",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "tenant_a",
+        "expected_status": 403,
+        "expected_code": "store_forbidden",
+        "category": "isolation",
+        "path_parameters": {
+          "store_id": 4,
+          "sku": "SKU-001"
+        }
+      },
+      "status": "passed",
+      "http_status": 403,
+      "elapsed_seconds": 0.19895232700000065
+    },
+    {
+      "request": {
+        "label": "technical-fixture",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "probe",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "positive",
+        "path_parameters": {
+          "store_id": 7
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        },
+        "expected_revenue": 12500
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.20119345500000918
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {},
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.00811649800002101
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {},
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.1960407639999744
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {},
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19679424900002118
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {},
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.1971877050000046
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {},
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19643918399998483
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {},
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19789364300001466
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {},
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.197461608999987
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {},
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.197206513999987
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {},
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19913111599998956
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {},
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.1339550139999801
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {},
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.1967079940000076
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {},
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.1969718209999769
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {},
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.1980156559999955
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {},
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19635077099999876
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {},
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19764947600000937
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {},
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.1972701389999827
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {},
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19678977200001668
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {},
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19786784500001886
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {},
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19728374100000678
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {},
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19683137499998793
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {},
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.1961587949999739
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {},
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.198602999000002
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {},
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19678542799999832
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {},
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19859509799999842
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {},
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19569147499998962
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {},
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.1969204819999959
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {},
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.1972193910000044
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {},
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19623359799999207
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {},
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19722168799998485
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {},
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.1967379630000039
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19467994699999736
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19608901399999468
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19705393099999924
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19657805700001063
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19729619599999637
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19908832400000165
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.1948381139999924
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19666090699999472
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19740757799999642
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19689649499997586
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19822373799999582
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.1954309349999903
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.1964608670000132
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19697931299998572
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.20001735499999995
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19422641899998894
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.1949929159999897
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19658181300002298
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.1954630580000014
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.1977157160000047
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19633627700000034
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19585082599999737
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19762391300000104
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19726065199998288
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19695755799997983
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19775629900001945
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.1954799499999922
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19623497099999554
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19854188799999406
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19589054399997963
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "cursor": "eyJkYXRhc2V0IjoidjEtOWEyMmU5NjQzODgwNGQ1NCIsImVuZCI6IjIwMjYtMDEtMDEiLCJpZCI6ODAwMDAwMDAwMDAwMywic29sZF9hdCI6IjIwMjYtMDEtMDJUMDI6NTk6NTkrMDA6MDAiLCJzdGFydCI6IjIwMjYtMDEtMDEiLCJzdG9yZSI6OCwidGVuYW50Ijo0LCJ2IjoxfQ.qcwdNjogiRLcY-vz_pGSWYH_id90UrXJe9hMKy1jXSQ"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19700614899997504
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "cursor": "eyJkYXRhc2V0IjoidjEtOWEyMmU5NjQzODgwNGQ1NCIsImVuZCI6IjIwMjYtMDEtMDEiLCJpZCI6ODAwMDAwMDAwMDAwMywic29sZF9hdCI6IjIwMjYtMDEtMDJUMDI6NTk6NTkrMDA6MDAiLCJzdGFydCI6IjIwMjYtMDEtMDEiLCJzdG9yZSI6OCwidGVuYW50Ijo0LCJ2IjoxfQ.qcwdNjogiRLcY-vz_pGSWYH_id90UrXJe9hMKy1jXSQ"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.1907580179999968
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "cursor": "eyJkYXRhc2V0IjoidjEtOWEyMmU5NjQzODgwNGQ1NCIsImVuZCI6IjIwMjYtMDEtMDEiLCJpZCI6ODAwMDAwMDAwMDAwMywic29sZF9hdCI6IjIwMjYtMDEtMDJUMDI6NTk6NTkrMDA6MDAiLCJzdGFydCI6IjIwMjYtMDEtMDEiLCJzdG9yZSI6OCwidGVuYW50Ijo0LCJ2IjoxfQ.qcwdNjogiRLcY-vz_pGSWYH_id90UrXJe9hMKy1jXSQ",
+          "limit": 6
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19672686800001316
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "cursor": "eyJkYXRhc2V0IjoidjEtOWEyMmU5NjQzODgwNGQ1NCIsImVuZCI6IjIwMjYtMDEtMDEiLCJpZCI6ODAwMDAwMDAwMDAwMywic29sZF9hdCI6IjIwMjYtMDEtMDJUMDI6NTk6NTkrMDA6MDAiLCJzdGFydCI6IjIwMjYtMDEtMDEiLCJzdG9yZSI6OCwidGVuYW50Ijo0LCJ2IjoxfQ.qcwdNjogiRLcY-vz_pGSWYH_id90UrXJe9hMKy1jXSQ"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.1962183340000081
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "cursor": "eyJkYXRhc2V0IjoidjEtOWEyMmU5NjQzODgwNGQ1NCIsImVuZCI6IjIwMjYtMDEtMDEiLCJpZCI6ODAwMDAwMDAwMDAwMywic29sZF9hdCI6IjIwMjYtMDEtMDJUMDI6NTk6NTkrMDA6MDAiLCJzdGFydCI6IjIwMjYtMDEtMDEiLCJzdG9yZSI6OCwidGVuYW50Ijo0LCJ2IjoxfQ.qcwdNjogiRLcY-vz_pGSWYH_id90UrXJe9hMKy1jXSQ",
+          "limit": 82
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19815161500000045
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "cursor": "eyJkYXRhc2V0IjoidjEtOWEyMmU5NjQzODgwNGQ1NCIsImVuZCI6IjIwMjYtMDEtMDEiLCJpZCI6ODAwMDAwMDAwMDAwMywic29sZF9hdCI6IjIwMjYtMDEtMDJUMDI6NTk6NTkrMDA6MDAiLCJzdGFydCI6IjIwMjYtMDEtMDEiLCJzdG9yZSI6OCwidGVuYW50Ijo0LCJ2IjoxfQ.qcwdNjogiRLcY-vz_pGSWYH_id90UrXJe9hMKy1jXSQ",
+          "limit": 1
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.1950114820000124
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "cursor": "eyJkYXRhc2V0IjoidjEtOWEyMmU5NjQzODgwNGQ1NCIsImVuZCI6IjIwMjYtMDEtMDEiLCJpZCI6ODAwMDAwMDAwMDAwMywic29sZF9hdCI6IjIwMjYtMDEtMDJUMDI6NTk6NTkrMDA6MDAiLCJzdGFydCI6IjIwMjYtMDEtMDEiLCJzdG9yZSI6OCwidGVuYW50Ijo0LCJ2IjoxfQ.qcwdNjogiRLcY-vz_pGSWYH_id90UrXJe9hMKy1jXSQ",
+          "limit": 80
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.1972847540000089
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "cursor": "eyJkYXRhc2V0IjoidjEtOWEyMmU5NjQzODgwNGQ1NCIsImVuZCI6IjIwMjYtMDEtMDEiLCJpZCI6ODAwMDAwMDAwMDAwMywic29sZF9hdCI6IjIwMjYtMDEtMDJUMDI6NTk6NTkrMDA6MDAiLCJzdGFydCI6IjIwMjYtMDEtMDEiLCJzdG9yZSI6OCwidGVuYW50Ijo0LCJ2IjoxfQ.qcwdNjogiRLcY-vz_pGSWYH_id90UrXJe9hMKy1jXSQ"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19808644300002243
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "cursor": "eyJkYXRhc2V0IjoidjEtOWEyMmU5NjQzODgwNGQ1NCIsImVuZCI6IjIwMjYtMDEtMDEiLCJpZCI6ODAwMDAwMDAwMDAwMywic29sZF9hdCI6IjIwMjYtMDEtMDJUMDI6NTk6NTkrMDA6MDAiLCJzdGFydCI6IjIwMjYtMDEtMDEiLCJzdG9yZSI6OCwidGVuYW50Ijo0LCJ2IjoxfQ.qcwdNjogiRLcY-vz_pGSWYH_id90UrXJe9hMKy1jXSQ"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.1966050750000079
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "cursor": "eyJkYXRhc2V0IjoidjEtOWEyMmU5NjQzODgwNGQ1NCIsImVuZCI6IjIwMjYtMDEtMDEiLCJpZCI6ODAwMDAwMDAwMDAwMywic29sZF9hdCI6IjIwMjYtMDEtMDJUMDI6NTk6NTkrMDA6MDAiLCJzdGFydCI6IjIwMjYtMDEtMDEiLCJzdG9yZSI6OCwidGVuYW50Ijo0LCJ2IjoxfQ.qcwdNjogiRLcY-vz_pGSWYH_id90UrXJe9hMKy1jXSQ"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19537609400001088
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "cursor": "eyJkYXRhc2V0IjoidjEtOWEyMmU5NjQzODgwNGQ1NCIsImVuZCI6IjIwMjYtMDEtMDEiLCJpZCI6ODAwMDAwMDAwMDAwMywic29sZF9hdCI6IjIwMjYtMDEtMDJUMDI6NTk6NTkrMDA6MDAiLCJzdGFydCI6IjIwMjYtMDEtMDEiLCJzdG9yZSI6OCwidGVuYW50Ijo0LCJ2IjoxfQ.qcwdNjogiRLcY-vz_pGSWYH_id90UrXJe9hMKy1jXSQ",
+          "limit": 24
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19794441199999824
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "cursor": "eyJkYXRhc2V0IjoidjEtOWEyMmU5NjQzODgwNGQ1NCIsImVuZCI6IjIwMjYtMDEtMDEiLCJpZCI6ODAwMDAwMDAwMDAwMywic29sZF9hdCI6IjIwMjYtMDEtMDJUMDI6NTk6NTkrMDA6MDAiLCJzdGFydCI6IjIwMjYtMDEtMDEiLCJzdG9yZSI6OCwidGVuYW50Ijo0LCJ2IjoxfQ.qcwdNjogiRLcY-vz_pGSWYH_id90UrXJe9hMKy1jXSQ",
+          "limit": 38
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.1948496660000103
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "cursor": "eyJkYXRhc2V0IjoidjEtOWEyMmU5NjQzODgwNGQ1NCIsImVuZCI6IjIwMjYtMDEtMDEiLCJpZCI6ODAwMDAwMDAwMDAwMywic29sZF9hdCI6IjIwMjYtMDEtMDJUMDI6NTk6NTkrMDA6MDAiLCJzdGFydCI6IjIwMjYtMDEtMDEiLCJzdG9yZSI6OCwidGVuYW50Ijo0LCJ2IjoxfQ.qcwdNjogiRLcY-vz_pGSWYH_id90UrXJe9hMKy1jXSQ"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19660627300001465
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "cursor": "eyJkYXRhc2V0IjoidjEtOWEyMmU5NjQzODgwNGQ1NCIsImVuZCI6IjIwMjYtMDEtMDEiLCJpZCI6ODAwMDAwMDAwMDAwMywic29sZF9hdCI6IjIwMjYtMDEtMDJUMDI6NTk6NTkrMDA6MDAiLCJzdGFydCI6IjIwMjYtMDEtMDEiLCJzdG9yZSI6OCwidGVuYW50Ijo0LCJ2IjoxfQ.qcwdNjogiRLcY-vz_pGSWYH_id90UrXJe9hMKy1jXSQ",
+          "limit": 46
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.1953905420000126
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "cursor": "eyJkYXRhc2V0IjoidjEtOWEyMmU5NjQzODgwNGQ1NCIsImVuZCI6IjIwMjYtMDEtMDEiLCJpZCI6ODAwMDAwMDAwMDAwMywic29sZF9hdCI6IjIwMjYtMDEtMDJUMDI6NTk6NTkrMDA6MDAiLCJzdGFydCI6IjIwMjYtMDEtMDEiLCJzdG9yZSI6OCwidGVuYW50Ijo0LCJ2IjoxfQ.qcwdNjogiRLcY-vz_pGSWYH_id90UrXJe9hMKy1jXSQ"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19941536900000756
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "cursor": "eyJkYXRhc2V0IjoidjEtOWEyMmU5NjQzODgwNGQ1NCIsImVuZCI6IjIwMjYtMDEtMDEiLCJpZCI6ODAwMDAwMDAwMDAwMywic29sZF9hdCI6IjIwMjYtMDEtMDJUMDI6NTk6NTkrMDA6MDAiLCJzdGFydCI6IjIwMjYtMDEtMDEiLCJzdG9yZSI6OCwidGVuYW50Ijo0LCJ2IjoxfQ.qcwdNjogiRLcY-vz_pGSWYH_id90UrXJe9hMKy1jXSQ",
+          "limit": 12
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19136629700000185
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "cursor": "eyJkYXRhc2V0IjoidjEtOWEyMmU5NjQzODgwNGQ1NCIsImVuZCI6IjIwMjYtMDEtMDEiLCJpZCI6ODAwMDAwMDAwMDAwMywic29sZF9hdCI6IjIwMjYtMDEtMDJUMDI6NTk6NTkrMDA6MDAiLCJzdGFydCI6IjIwMjYtMDEtMDEiLCJzdG9yZSI6OCwidGVuYW50Ijo0LCJ2IjoxfQ.qcwdNjogiRLcY-vz_pGSWYH_id90UrXJe9hMKy1jXSQ",
+          "limit": 1
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19650114200001667
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "cursor": "eyJkYXRhc2V0IjoidjEtOWEyMmU5NjQzODgwNGQ1NCIsImVuZCI6IjIwMjYtMDEtMDEiLCJpZCI6ODAwMDAwMDAwMDAwMywic29sZF9hdCI6IjIwMjYtMDEtMDJUMDI6NTk6NTkrMDA6MDAiLCJzdGFydCI6IjIwMjYtMDEtMDEiLCJzdG9yZSI6OCwidGVuYW50Ijo0LCJ2IjoxfQ.qcwdNjogiRLcY-vz_pGSWYH_id90UrXJe9hMKy1jXSQ",
+          "limit": 64
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19586080499999525
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "cursor": "eyJkYXRhc2V0IjoidjEtOWEyMmU5NjQzODgwNGQ1NCIsImVuZCI6IjIwMjYtMDEtMDEiLCJpZCI6ODAwMDAwMDAwMDAwMywic29sZF9hdCI6IjIwMjYtMDEtMDJUMDI6NTk6NTkrMDA6MDAiLCJzdGFydCI6IjIwMjYtMDEtMDEiLCJzdG9yZSI6OCwidGVuYW50Ijo0LCJ2IjoxfQ.qcwdNjogiRLcY-vz_pGSWYH_id90UrXJe9hMKy1jXSQ",
+          "limit": 1
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19555436400000303
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "cursor": "eyJkYXRhc2V0IjoidjEtOWEyMmU5NjQzODgwNGQ1NCIsImVuZCI6IjIwMjYtMDEtMDEiLCJpZCI6ODAwMDAwMDAwMDAwMywic29sZF9hdCI6IjIwMjYtMDEtMDJUMDI6NTk6NTkrMDA6MDAiLCJzdGFydCI6IjIwMjYtMDEtMDEiLCJzdG9yZSI6OCwidGVuYW50Ijo0LCJ2IjoxfQ.qcwdNjogiRLcY-vz_pGSWYH_id90UrXJe9hMKy1jXSQ"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.1968276929999888
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "cursor": "eyJkYXRhc2V0IjoidjEtOWEyMmU5NjQzODgwNGQ1NCIsImVuZCI6IjIwMjYtMDEtMDEiLCJpZCI6ODAwMDAwMDAwMDAwMywic29sZF9hdCI6IjIwMjYtMDEtMDJUMDI6NTk6NTkrMDA6MDAiLCJzdGFydCI6IjIwMjYtMDEtMDEiLCJzdG9yZSI6OCwidGVuYW50Ijo0LCJ2IjoxfQ.qcwdNjogiRLcY-vz_pGSWYH_id90UrXJe9hMKy1jXSQ",
+          "limit": 78
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19571376700000087
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "cursor": "eyJkYXRhc2V0IjoidjEtOWEyMmU5NjQzODgwNGQ1NCIsImVuZCI6IjIwMjYtMDEtMDEiLCJpZCI6ODAwMDAwMDAwMDAwMywic29sZF9hdCI6IjIwMjYtMDEtMDJUMDI6NTk6NTkrMDA6MDAiLCJzdGFydCI6IjIwMjYtMDEtMDEiLCJzdG9yZSI6OCwidGVuYW50Ijo0LCJ2IjoxfQ.qcwdNjogiRLcY-vz_pGSWYH_id90UrXJe9hMKy1jXSQ",
+          "limit": 10
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19605548800001316
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "cursor": "eyJkYXRhc2V0IjoidjEtOWEyMmU5NjQzODgwNGQ1NCIsImVuZCI6IjIwMjYtMDEtMDEiLCJpZCI6ODAwMDAwMDAwMDAwMywic29sZF9hdCI6IjIwMjYtMDEtMDJUMDI6NTk6NTkrMDA6MDAiLCJzdGFydCI6IjIwMjYtMDEtMDEiLCJzdG9yZSI6OCwidGVuYW50Ijo0LCJ2IjoxfQ.qcwdNjogiRLcY-vz_pGSWYH_id90UrXJe9hMKy1jXSQ",
+          "limit": 1
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19600825699998836
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "cursor": "eyJkYXRhc2V0IjoidjEtOWEyMmU5NjQzODgwNGQ1NCIsImVuZCI6IjIwMjYtMDEtMDEiLCJpZCI6ODAwMDAwMDAwMDAwMywic29sZF9hdCI6IjIwMjYtMDEtMDJUMDI6NTk6NTkrMDA6MDAiLCJzdGFydCI6IjIwMjYtMDEtMDEiLCJzdG9yZSI6OCwidGVuYW50Ijo0LCJ2IjoxfQ.qcwdNjogiRLcY-vz_pGSWYH_id90UrXJe9hMKy1jXSQ"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19705397800001379
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "cursor": "eyJkYXRhc2V0IjoidjEtOWEyMmU5NjQzODgwNGQ1NCIsImVuZCI6IjIwMjYtMDEtMDEiLCJpZCI6ODAwMDAwMDAwMDAwMywic29sZF9hdCI6IjIwMjYtMDEtMDJUMDI6NTk6NTkrMDA6MDAiLCJzdGFydCI6IjIwMjYtMDEtMDEiLCJzdG9yZSI6OCwidGVuYW50Ijo0LCJ2IjoxfQ.qcwdNjogiRLcY-vz_pGSWYH_id90UrXJe9hMKy1jXSQ"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19868600600000264
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "cursor": "eyJkYXRhc2V0IjoidjEtOWEyMmU5NjQzODgwNGQ1NCIsImVuZCI6IjIwMjYtMDEtMDEiLCJpZCI6ODAwMDAwMDAwMDAwMywic29sZF9hdCI6IjIwMjYtMDEtMDJUMDI6NTk6NTkrMDA6MDAiLCJzdGFydCI6IjIwMjYtMDEtMDEiLCJzdG9yZSI6OCwidGVuYW50Ijo0LCJ2IjoxfQ.qcwdNjogiRLcY-vz_pGSWYH_id90UrXJe9hMKy1jXSQ"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19181321100001014
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "cursor": "eyJkYXRhc2V0IjoidjEtOWEyMmU5NjQzODgwNGQ1NCIsImVuZCI6IjIwMjYtMDEtMDEiLCJpZCI6ODAwMDAwMDAwMDAwMywic29sZF9hdCI6IjIwMjYtMDEtMDJUMDI6NTk6NTkrMDA6MDAiLCJzdGFydCI6IjIwMjYtMDEtMDEiLCJzdG9yZSI6OCwidGVuYW50Ijo0LCJ2IjoxfQ.qcwdNjogiRLcY-vz_pGSWYH_id90UrXJe9hMKy1jXSQ"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19806007300002193
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "cursor": "eyJkYXRhc2V0IjoidjEtOWEyMmU5NjQzODgwNGQ1NCIsImVuZCI6IjIwMjYtMDEtMDEiLCJpZCI6ODAwMDAwMDAwMDAwMywic29sZF9hdCI6IjIwMjYtMDEtMDJUMDI6NTk6NTkrMDA6MDAiLCJzdGFydCI6IjIwMjYtMDEtMDEiLCJzdG9yZSI6OCwidGVuYW50Ijo0LCJ2IjoxfQ.qcwdNjogiRLcY-vz_pGSWYH_id90UrXJe9hMKy1jXSQ"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19553394600001184
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "cursor": "eyJkYXRhc2V0IjoidjEtOWEyMmU5NjQzODgwNGQ1NCIsImVuZCI6IjIwMjYtMDEtMDEiLCJpZCI6ODAwMDAwMDAwMDAwMywic29sZF9hdCI6IjIwMjYtMDEtMDJUMDI6NTk6NTkrMDA6MDAiLCJzdGFydCI6IjIwMjYtMDEtMDEiLCJzdG9yZSI6OCwidGVuYW50Ijo0LCJ2IjoxfQ.qcwdNjogiRLcY-vz_pGSWYH_id90UrXJe9hMKy1jXSQ",
+          "limit": 31
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19529947499998457
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/sales",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01",
+          "cursor": "eyJkYXRhc2V0IjoidjEtOWEyMmU5NjQzODgwNGQ1NCIsImVuZCI6IjIwMjYtMDEtMDEiLCJpZCI6ODAwMDAwMDAwMDAwMywic29sZF9hdCI6IjIwMjYtMDEtMDJUMDI6NTk6NTkrMDA6MDAiLCJzdGFydCI6IjIwMjYtMDEtMDEiLCJzdG9yZSI6OCwidGVuYW50Ijo0LCJ2IjoxfQ.qcwdNjogiRLcY-vz_pGSWYH_id90UrXJe9hMKy1jXSQ"
+        }
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19698297099998285
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-000"
+        },
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.008998735000005809
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-300"
+        },
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.1949120730000118
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-600"
+        },
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.21295758100001194
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-436"
+        },
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.17729607300000794
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-370"
+        },
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.1934336250000115
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-350"
+        },
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19586224300002186
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-575"
+        },
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19600756200000546
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-956"
+        },
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.1948381870000162
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-800"
+        },
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19559748300000024
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-813"
+        },
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19526470400001017
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-210"
+        },
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19644307999999455
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-368"
+        },
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19316127100000813
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-368"
+        },
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19574617500001068
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-363"
+        },
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19666612599999667
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-366"
+        },
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19502742800000306
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-666"
+        },
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19589690699999096
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-666"
+        },
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19499881499999105
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-054"
+        },
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.1962681790000147
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-000"
+        },
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19576364100001342
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-000"
+        },
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19639704799999436
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-070"
+        },
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19420312400001194
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-070"
+        },
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19654858399999853
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-782"
+        },
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19523654400001078
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-782"
+        },
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19452133100000424
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-882"
+        },
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19555654699999536
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-882"
+        },
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19532666199998516
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-882"
+        },
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19544171399999755
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-954"
+        },
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.196431691999976
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-994"
+        },
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.1955053899999939
+    },
+    {
+      "request": {
+        "label": "schema-fuzz",
+        "operation": "/v1/stores/{store_id}/availability/{sku}",
+        "credential": "contract",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "fuzz",
+        "path_parameters": {
+          "store_id": 8,
+          "sku": "SKU-994"
+        },
+        "query": {}
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.1971225650000008
+    },
+    {
+      "request": {
+        "label": "dedicated-quota",
+        "operation": "/v1/stores",
+        "credential": "low_quota",
+        "expected_status": null,
+        "expected_code": null,
+        "category": "quota",
+        "allowed_statuses": [
+          200,
+          429
+        ]
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.19597438699997838
+    },
+    {
+      "request": {
+        "label": "dedicated-quota",
+        "operation": "/v1/stores",
+        "credential": "low_quota",
+        "expected_status": null,
+        "expected_code": null,
+        "category": "quota",
+        "allowed_statuses": [
+          200,
+          429
+        ]
+      },
+      "status": "passed",
+      "http_status": 429,
+      "elapsed_seconds": 0.19721480199999064
+    },
+    {
+      "request": {
+        "label": "technical-fixture-after",
+        "operation": "/v1/stores/{store_id}/summary",
+        "credential": "probe",
+        "expected_status": 200,
+        "expected_code": null,
+        "category": "positive",
+        "path_parameters": {
+          "store_id": 7
+        },
+        "query": {
+          "start": "2026-01-01",
+          "end": "2026-01-01"
+        },
+        "expected_revenue": 12500
+      },
+      "status": "passed",
+      "http_status": 200,
+      "elapsed_seconds": 0.20010784699999817
+    }
+  ],
+  "failures": [],
+  "schemathesis_version": "4.30.1",
+  "base_url": "http://proxy",
+  "quota_policy": "fixed-window",
+  "burst_capacity": 10,
+  "schema_sha256": "894c086b29a99dea75f59efcbffd7bf869acbead63f862ea6b291e3c75ad7f9c",
+  "requests_sent": 156,
+  "elapsed_seconds": 33.828328575,
+  "finished_at": "2026-10-12T04:41:36.762069+00:00",
+  "summary": {
+    "/v1/stores": {
+      "cases": 36,
+      "validated_200": 32
+    },
+    "/v1/stores/{store_id}/summary": {
+      "cases": 40,
+      "validated_200": 33
+    },
+    "/v1/stores/{store_id}/sales": {
+      "cases": 42,
+      "validated_200": 32
+    },
+    "/v1/stores/{store_id}/availability/{sku}": {
+      "cases": 37,
+      "validated_200": 31
+    }
+  }
+}

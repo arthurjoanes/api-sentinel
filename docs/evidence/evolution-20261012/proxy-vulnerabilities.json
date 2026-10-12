@@ -1,0 +1,17 @@
+{
+  "SchemaVersion": 2,
+  "Metadata": {
+    "ImageID": "sha256:7129ec54a7f5ac966d055f2f3168496d1ffa23c46256d7e0c6074931609fa52b",
+    "OS": {
+      "Family": "alpine",
+      "Name": "3.24.2"
+    }
+  },
+  "Results": [
+    {
+      "Target": "pf-api-sentinel-review-20261012t043755793312z-proxy:local (alpine 3.24.2)",
+      "Class": "os-pkgs",
+      "Vulnerabilities": []
+    }
+  ]
+}
