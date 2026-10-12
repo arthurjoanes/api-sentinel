@@ -1,0 +1,2172 @@
+{
+  "started_at": "2026-10-12T04:41:54.024175+00:00",
+  "project": "pf-api-sentinel-review-20261012t043755793312z",
+  "image_id": "sha256:45d249e9c5a50921466bd2199ac0ea66d0ed2f1a563827a6b1a17ebaa417a340",
+  "quota_per_second": 30,
+  "burst_capacity": 10,
+  "request_offsets_seconds": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.025,
+    0.05,
+    0.075,
+    0.1,
+    0.125,
+    0.15,
+    0.175,
+    0.2,
+    0.225,
+    0.25,
+    0.275,
+    0.3,
+    0.325,
+    0.35,
+    0.375,
+    0.4,
+    0.425,
+    0.45,
+    0.475,
+    0.5,
+    0.525,
+    0.55,
+    0.575,
+    0.6,
+    0.625,
+    0.65,
+    0.675,
+    0.7,
+    0.725,
+    0.75,
+    0.775,
+    0.8,
+    0.825,
+    0.85,
+    0.875,
+    0.9,
+    0.925,
+    0.95,
+    0.975,
+    0.99,
+    1.0,
+    1.01,
+    1.025,
+    1.05,
+    1.075,
+    1.1,
+    1.125,
+    1.15,
+    1.175,
+    1.2,
+    1.225,
+    1.25,
+    1.275,
+    1.3,
+    1.325,
+    1.35,
+    1.375,
+    1.4,
+    1.425,
+    1.45,
+    1.475
+  ],
+  "scope": "bounded policy comparison; shared daemon; no maximum-throughput claim",
+  "phases": [
+    {
+      "allowed": 48,
+      "rejected": 26,
+      "elapsed_seconds": 1.482,
+      "latency_ms": {
+        "p50": 6.1965,
+        "p95": 62.673,
+        "max": 149.623
+      },
+      "responses": [
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 43.279,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 149.623,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 110.73,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 105.882,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 62.673,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 38.803,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 40.835,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 45.805,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 17.941,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 16.393,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 15.868,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 15.119,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 15.89,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 15.169,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 16.646,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 15.848,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 15.114,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 15.454,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 15.302,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 11.663,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 7.785,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 4.834,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.026,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.456,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.339,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.962,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.465,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.638,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.042,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.023,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 7.872,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.369,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.258,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.672,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.466,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 5.149,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.413,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.93,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 5.037,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.498,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.199,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 5.23,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.625,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.847,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.797,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.703,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.469,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 7.86,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.227,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.386,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.595,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.502,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.396,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.353,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.468,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.589,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.338,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.946,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.257,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.902,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.972,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.893,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 10.612,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.183,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.077,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.04,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.969,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.997,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.276,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.21,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.135,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.432,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.999,
+          "instance": "c14383c67f50"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.603,
+          "instance": "c14383c67f50"
+        }
+      ],
+      "algorithm": "fixed-window",
+      "replicas": 1,
+      "effective_policy": {
+        "algorithm": "fixed-window",
+        "burst_capacity": 10
+      },
+      "containers": [
+        "c14383c67f50a3f794dee99f1296a94784f34a678605b29d3691fe94a2a762aa"
+      ],
+      "expected_instances": [
+        "c14383c67f50"
+      ],
+      "previous_state": {
+        "keys": [
+          "quota:1",
+          "quota:gcra:1"
+        ],
+        "before_ttl_ms": [
+          184,
+          -2
+        ],
+        "after_ttl_ms": [
+          -2,
+          -2
+        ]
+      },
+      "readiness_state": {
+        "keys": [
+          "quota:1",
+          "quota:gcra:1"
+        ],
+        "before_ttl_ms": [
+          -2,
+          -2
+        ],
+        "after_ttl_ms": [
+          -2,
+          -2
+        ]
+      },
+      "resources_before": {
+        "c14383c67f50a3f794dee99f1296a94784f34a678605b29d3691fe94a2a762aa": {
+          "cpu_usage_us": 1297206,
+          "memory_bytes": 79781888
+        }
+      },
+      "resources_after": {
+        "c14383c67f50a3f794dee99f1296a94784f34a678605b29d3691fe94a2a762aa": {
+          "cpu_usage_us": 1762528,
+          "memory_bytes": 79941632
+        }
+      },
+      "api_cpu_usage_us": 465322
+    },
+    {
+      "allowed": 50,
+      "rejected": 24,
+      "elapsed_seconds": 1.482,
+      "latency_ms": {
+        "p50": 6.248,
+        "p95": 82.25,
+        "max": 182.181
+      },
+      "responses": [
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 62.139,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 11.593,
+          "instance": "cc40cb88d0b5"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 73.395,
+          "instance": "cc40cb88d0b5"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 182.181,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 60.746,
+          "instance": "cc40cb88d0b5"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 11.606,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 13.608,
+          "instance": "cc40cb88d0b5"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 8.432,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 60.911,
+          "instance": "cc40cb88d0b5"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 9.818,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 35.948,
+          "instance": "cc40cb88d0b5"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 59.899,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 7.482,
+          "instance": "cc40cb88d0b5"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 93.658,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 18.579,
+          "instance": "cc40cb88d0b5"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 71.09,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.94,
+          "instance": "cc40cb88d0b5"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 95.343,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 82.25,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.835,
+          "instance": "cc40cb88d0b5"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 39.958,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.537,
+          "instance": "cc40cb88d0b5"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 17.018,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.245,
+          "instance": "cc40cb88d0b5"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.331,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.095,
+          "instance": "cc40cb88d0b5"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.362,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 11.121,
+          "instance": "cc40cb88d0b5"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.629,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.689,
+          "instance": "cc40cb88d0b5"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.522,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.452,
+          "instance": "cc40cb88d0b5"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.306,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.546,
+          "instance": "cc40cb88d0b5"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 5.739,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 5.9,
+          "instance": "cc40cb88d0b5"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 47.187,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 21.654,
+          "instance": "cc40cb88d0b5"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.449,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.568,
+          "instance": "cc40cb88d0b5"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.211,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.334,
+          "instance": "cc40cb88d0b5"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.393,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.242,
+          "instance": "cc40cb88d0b5"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.162,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.173,
+          "instance": "cc40cb88d0b5"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 9.003,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.343,
+          "instance": "cc40cb88d0b5"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.059,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.096,
+          "instance": "cc40cb88d0b5"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.297,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 5.484,
+          "instance": "cc40cb88d0b5"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.419,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.133,
+          "instance": "cc40cb88d0b5"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.07,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.053,
+          "instance": "cc40cb88d0b5"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.117,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.433,
+          "instance": "cc40cb88d0b5"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.596,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.331,
+          "instance": "cc40cb88d0b5"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.251,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.508,
+          "instance": "cc40cb88d0b5"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.552,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.107,
+          "instance": "cc40cb88d0b5"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.167,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.217,
+          "instance": "cc40cb88d0b5"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.655,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.958,
+          "instance": "cc40cb88d0b5"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.286,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.011,
+          "instance": "cc40cb88d0b5"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.111,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.934,
+          "instance": "cc40cb88d0b5"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.045,
+          "instance": "a9e61a9ef2cf"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.976,
+          "instance": "cc40cb88d0b5"
+        }
+      ],
+      "algorithm": "fixed-window",
+      "replicas": 2,
+      "effective_policy": {
+        "algorithm": "fixed-window",
+        "burst_capacity": 10
+      },
+      "containers": [
+        "a9e61a9ef2cff0e81105c35e939b0338aaf0c574fbf8aa6b7a495069436c2777",
+        "cc40cb88d0b5e401c31c4cdef3f01bf5d9cf3f74e097af0c2b52cb8a7b17c721"
+      ],
+      "expected_instances": [
+        "a9e61a9ef2cf",
+        "cc40cb88d0b5"
+      ],
+      "previous_state": {
+        "keys": [
+          "quota:1",
+          "quota:gcra:1"
+        ],
+        "before_ttl_ms": [
+          -2,
+          -2
+        ],
+        "after_ttl_ms": [
+          -2,
+          -2
+        ]
+      },
+      "readiness_state": {
+        "keys": [
+          "quota:1",
+          "quota:gcra:1"
+        ],
+        "before_ttl_ms": [
+          -2,
+          -2
+        ],
+        "after_ttl_ms": [
+          -2,
+          -2
+        ]
+      },
+      "resources_before": {
+        "a9e61a9ef2cff0e81105c35e939b0338aaf0c574fbf8aa6b7a495069436c2777": {
+          "cpu_usage_us": 1366196,
+          "memory_bytes": 79568896
+        },
+        "cc40cb88d0b5e401c31c4cdef3f01bf5d9cf3f74e097af0c2b52cb8a7b17c721": {
+          "cpu_usage_us": 1311302,
+          "memory_bytes": 79360000
+        }
+      },
+      "resources_after": {
+        "a9e61a9ef2cff0e81105c35e939b0338aaf0c574fbf8aa6b7a495069436c2777": {
+          "cpu_usage_us": 1743120,
+          "memory_bytes": 79794176
+        },
+        "cc40cb88d0b5e401c31c4cdef3f01bf5d9cf3f74e097af0c2b52cb8a7b17c721": {
+          "cpu_usage_us": 1633190,
+          "memory_bytes": 79835136
+        }
+      },
+      "api_cpu_usage_us": 698812
+    },
+    {
+      "allowed": 54,
+      "rejected": 20,
+      "elapsed_seconds": 1.482,
+      "latency_ms": {
+        "p50": 6.105499999999999,
+        "p95": 65.583,
+        "max": 161.03
+      },
+      "responses": [
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 43.774,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 110.155,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 161.03,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 120.902,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 65.583,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 50.435,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 58.828,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 47.795,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 19.473,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 18.602,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 18.555,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 18.451,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 15.741,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 15.468,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 15.483,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 7.964,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 8.714,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 8.943,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 8.557,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 8.189,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 5.84,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.025,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 11.52,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.907,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.023,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.87,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.69,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.56,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 8.406,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.397,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.848,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.555,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.115,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.837,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 7.199,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.066,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.334,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.733,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.506,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.948,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.298,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.563,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.758,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.22,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.268,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.788,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.14,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.166,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 8.072,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.77,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.942,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.067,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.062,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 3.807,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.362,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.191,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.073,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.103,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.208,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 11.35,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.928,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 4.896,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 5.058,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.069,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.321,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 7.433,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 5.305,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.984,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.108,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.098,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.384,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.051,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.115,
+          "instance": "e4b154c87c0e"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.873,
+          "instance": "e4b154c87c0e"
+        }
+      ],
+      "algorithm": "gcra",
+      "replicas": 1,
+      "effective_policy": {
+        "algorithm": "gcra",
+        "burst_capacity": 10
+      },
+      "containers": [
+        "e4b154c87c0e2708853447a3c8f684d545e37ec7fe3fa5b541166e5ca819acbe"
+      ],
+      "expected_instances": [
+        "e4b154c87c0e"
+      ],
+      "previous_state": {
+        "keys": [
+          "quota:1",
+          "quota:gcra:1"
+        ],
+        "before_ttl_ms": [
+          -2,
+          -2
+        ],
+        "after_ttl_ms": [
+          -2,
+          -2
+        ]
+      },
+      "readiness_state": {
+        "keys": [
+          "quota:1",
+          "quota:gcra:1"
+        ],
+        "before_ttl_ms": [
+          -2,
+          -2
+        ],
+        "after_ttl_ms": [
+          -2,
+          -2
+        ]
+      },
+      "resources_before": {
+        "e4b154c87c0e2708853447a3c8f684d545e37ec7fe3fa5b541166e5ca819acbe": {
+          "cpu_usage_us": 1278015,
+          "memory_bytes": 79491072
+        }
+      },
+      "resources_after": {
+        "e4b154c87c0e2708853447a3c8f684d545e37ec7fe3fa5b541166e5ca819acbe": {
+          "cpu_usage_us": 1779062,
+          "memory_bytes": 79847424
+        }
+      },
+      "api_cpu_usage_us": 501047
+    },
+    {
+      "allowed": 54,
+      "rejected": 20,
+      "elapsed_seconds": 1.481,
+      "latency_ms": {
+        "p50": 6.171,
+        "p95": 79.456,
+        "max": 107.181
+      },
+      "responses": [
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 52.589,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 53.485,
+          "instance": "22506d4f5111"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 84.463,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 79.456,
+          "instance": "22506d4f5111"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 10.349,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 8.027,
+          "instance": "22506d4f5111"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 11.738,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 9.819,
+          "instance": "22506d4f5111"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 107.181,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 45.935,
+          "instance": "22506d4f5111"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 64.589,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 33.832,
+          "instance": "22506d4f5111"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 22.578,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.885,
+          "instance": "22506d4f5111"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 87.84,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 5.581,
+          "instance": "22506d4f5111"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 67.784,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.34,
+          "instance": "22506d4f5111"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 32.053,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 5.04,
+          "instance": "22506d4f5111"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 16.402,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.053,
+          "instance": "22506d4f5111"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.03,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.183,
+          "instance": "22506d4f5111"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.147,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.499,
+          "instance": "22506d4f5111"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.322,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.023,
+          "instance": "22506d4f5111"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.437,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.989,
+          "instance": "22506d4f5111"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.838,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.225,
+          "instance": "22506d4f5111"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.095,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.382,
+          "instance": "22506d4f5111"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.821,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.842,
+          "instance": "22506d4f5111"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.292,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.02,
+          "instance": "22506d4f5111"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.481,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.863,
+          "instance": "22506d4f5111"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.187,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.163,
+          "instance": "22506d4f5111"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.1,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.585,
+          "instance": "22506d4f5111"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.121,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.865,
+          "instance": "22506d4f5111"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.583,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.179,
+          "instance": "22506d4f5111"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.032,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 7.055,
+          "instance": "22506d4f5111"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.33,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.289,
+          "instance": "22506d4f5111"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.287,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.271,
+          "instance": "22506d4f5111"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.022,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 3.972,
+          "instance": "22506d4f5111"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.259,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 9.697,
+          "instance": "22506d4f5111"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.458,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.287,
+          "instance": "22506d4f5111"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 7.112,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.208,
+          "instance": "22506d4f5111"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.635,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.186,
+          "instance": "22506d4f5111"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.464,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.898,
+          "instance": "22506d4f5111"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.193,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.776,
+          "instance": "22506d4f5111"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.156,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.959,
+          "instance": "22506d4f5111"
+        },
+        {
+          "status": 429,
+          "retry_after": 1,
+          "latency_ms": 4.239,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.702,
+          "instance": "22506d4f5111"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 6.282,
+          "instance": "d792f1c7f338"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "latency_ms": 5.742,
+          "instance": "22506d4f5111"
+        }
+      ],
+      "algorithm": "gcra",
+      "replicas": 2,
+      "effective_policy": {
+        "algorithm": "gcra",
+        "burst_capacity": 10
+      },
+      "containers": [
+        "22506d4f5111210e6a64770c2799832dc676c8b89f4182a5ebe9bfd14a702065",
+        "d792f1c7f33838faf156a625d336f0f374942307c6e121473e1ecd6e1feae8aa"
+      ],
+      "expected_instances": [
+        "22506d4f5111",
+        "d792f1c7f338"
+      ],
+      "previous_state": {
+        "keys": [
+          "quota:1",
+          "quota:gcra:1"
+        ],
+        "before_ttl_ms": [
+          -2,
+          -2
+        ],
+        "after_ttl_ms": [
+          -2,
+          -2
+        ]
+      },
+      "readiness_state": {
+        "keys": [
+          "quota:1",
+          "quota:gcra:1"
+        ],
+        "before_ttl_ms": [
+          -2,
+          -2
+        ],
+        "after_ttl_ms": [
+          -2,
+          -2
+        ]
+      },
+      "resources_before": {
+        "22506d4f5111210e6a64770c2799832dc676c8b89f4182a5ebe9bfd14a702065": {
+          "cpu_usage_us": 1326525,
+          "memory_bytes": 81498112
+        },
+        "d792f1c7f33838faf156a625d336f0f374942307c6e121473e1ecd6e1feae8aa": {
+          "cpu_usage_us": 1331674,
+          "memory_bytes": 79589376
+        }
+      },
+      "resources_after": {
+        "22506d4f5111210e6a64770c2799832dc676c8b89f4182a5ebe9bfd14a702065": {
+          "cpu_usage_us": 1630627,
+          "memory_bytes": 81797120
+        },
+        "d792f1c7f33838faf156a625d336f0f374942307c6e121473e1ecd6e1feae8aa": {
+          "cpu_usage_us": 1655002,
+          "memory_bytes": 79904768
+        }
+      },
+      "api_cpu_usage_us": 627430
+    }
+  ],
+  "restore_state": {
+    "keys": [
+      "quota:1",
+      "quota:gcra:1"
+    ],
+    "before_ttl_ms": [
+      -2,
+      -2
+    ],
+    "after_ttl_ms": [
+      -2,
+      -2
+    ]
+  },
+  "restored": {
+    "containers": [
+      "afb3424b5c692414f10fca08669ce689ce67f420b440c2ecbfcb6dc3449cd83a",
+      "9d8a0563e7b037fff4a5915f02f9e62b693d99232521ed13a34dd41c6297cf54"
+    ],
+    "effective_policy": {
+      "algorithm": "fixed-window",
+      "burst_capacity": 10
+    },
+    "replicas": 2,
+    "expected_instances": [
+      "9d8a0563e7b0",
+      "afb3424b5c69"
+    ]
+  },
+  "finished_at": "2026-10-12T04:42:33.199558+00:00"
+}

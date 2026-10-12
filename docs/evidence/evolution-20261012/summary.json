@@ -1,0 +1,187 @@
+{
+  "source_commit": "bf7131886c38afe9991e35539e0f330651e435f3",
+  "branch_snapshot": "bf7131886c38afe9991e35539e0f330651e435f3",
+  "run_url": "https://github.com/arthurjoanes/api-sentinel/actions/runs/38204283171",
+  "run_id": "20261012t043755793312z",
+  "project": "pf-api-sentinel-review-20261012t043755793312z",
+  "test_project": "pf-api-sentinel-review-20261012t043755793312z-tests",
+  "started_at": "2026-10-12T04:37:55.793482+00:00",
+  "finished_at": "2026-10-12T04:47:20.736251+00:00",
+  "status": "passed",
+  "source_unchanged": true,
+  "isolated_xml": {
+    "tests": "453",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "77",
+    "time": "11.052"
+  },
+  "http_xml": {
+    "tests": "73",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "time": "13.981"
+  },
+  "contracts_selftests": 16,
+  "contracts": {
+    "status": "passed",
+    "requests_sent": 156,
+    "seed": 20261012,
+    "unexpected_500": 0,
+    "summary": {
+      "/v1/stores": {
+        "cases": 36,
+        "validated_200": 32
+      },
+      "/v1/stores/{store_id}/summary": {
+        "cases": 40,
+        "validated_200": 33
+      },
+      "/v1/stores/{store_id}/sales": {
+        "cases": 42,
+        "validated_200": 32
+      },
+      "/v1/stores/{store_id}/availability/{sku}": {
+        "cases": 37,
+        "validated_200": 31
+      }
+    }
+  },
+  "scans": {
+    "runtime": {
+      "image_id": "sha256:45d249e9c5a50921466bd2199ac0ea66d0ed2f1a563827a6b1a17ebaa417a340",
+      "severities": {
+        "CRITICAL": 0,
+        "HIGH": 0,
+        "MEDIUM": 3,
+        "LOW": 0,
+        "UNKNOWN": 0
+      }
+    },
+    "proxy": {
+      "image_id": "sha256:7129ec54a7f5ac966d055f2f3168496d1ffa23c46256d7e0c6074931609fa52b",
+      "severities": {
+        "CRITICAL": 0,
+        "HIGH": 0,
+        "MEDIUM": 0,
+        "LOW": 0,
+        "UNKNOWN": 0
+      }
+    }
+  },
+  "quota_phases": [
+    {
+      "algorithm": "fixed-window",
+      "replicas": 1,
+      "allowed": 48,
+      "rejected": 26,
+      "elapsed_seconds": 1.482,
+      "latency_ms": {
+        "p50": 6.1965,
+        "p95": 62.673,
+        "max": 149.623
+      },
+      "api_cpu_usage_us": 465322
+    },
+    {
+      "algorithm": "fixed-window",
+      "replicas": 2,
+      "allowed": 50,
+      "rejected": 24,
+      "elapsed_seconds": 1.482,
+      "latency_ms": {
+        "p50": 6.248,
+        "p95": 82.25,
+        "max": 182.181
+      },
+      "api_cpu_usage_us": 698812
+    },
+    {
+      "algorithm": "gcra",
+      "replicas": 1,
+      "allowed": 54,
+      "rejected": 20,
+      "elapsed_seconds": 1.482,
+      "latency_ms": {
+        "p50": 6.105499999999999,
+        "p95": 65.583,
+        "max": 161.03
+      },
+      "api_cpu_usage_us": 501047
+    },
+    {
+      "algorithm": "gcra",
+      "replicas": 2,
+      "allowed": 54,
+      "rejected": 20,
+      "elapsed_seconds": 1.481,
+      "latency_ms": {
+        "p50": 6.171,
+        "p95": 79.456,
+        "max": 107.181
+      },
+      "api_cpu_usage_us": 627430
+    }
+  ],
+  "runtime_inventory_unchanged": true,
+  "contracts_absent_from_runtime": true,
+  "owned_resources_after": {
+    "containers": [],
+    "volumes": [],
+    "networks": []
+  },
+  "initial_scan_failure": {
+    "commit": "7c2e829668125f54b0ed49261fcad62f176ba022",
+    "run_url": "https://github.com/arthurjoanes/api-sentinel/actions/runs/38203934751",
+    "package": "tiff",
+    "installed": "4.7.1-r0",
+    "fixed": "4.7.2-r0",
+    "vulnerability": "CVE-2026-4775",
+    "severity": "HIGH",
+    "fix_commit": "6383a6d7b6cfe48a6e203ac297276be63ce020a0"
+  },
+  "scope": "GitHub-hosted Ubuntu24.04 disposable Docker; synthetic data; bounded workload; no maximum-capacity or commercial migration claim.",
+  "published_artifacts": [
+    {
+      "path": "contracts-http.json",
+      "sha256": "7fc7cbd8ccb91e81ebf7d0dbe29e174b92275dfa39702067f3482448f8dfa23d"
+    },
+    {
+      "path": "http-tests.xml",
+      "sha256": "0f103ef68e07dd1a2f634b6dca35b8b4ef3af7420b1608bd944be1150a4386a0"
+    },
+    {
+      "path": "local.json",
+      "sha256": "8d3aa770df6f21ab510b8a6bb793beb9c2aafaaf7bafddbbfef120cbff195693"
+    },
+    {
+      "path": "missing-tool.json",
+      "sha256": "9cab76fb94b5bf5e720608135aed7937187b37f0667d96f427b24da6bc95b337"
+    },
+    {
+      "path": "operational-run.json",
+      "sha256": "b45de0a52c93030c05392bc588429316bd30217c7569473cce0ce55e0f40a2a7"
+    },
+    {
+      "path": "oracle.json",
+      "sha256": "2e889710ec4472d13d261f5b68e8d4c5d43dcec5a8934d1660a74dda416cd69c"
+    },
+    {
+      "path": "proxy-vulnerabilities.json",
+      "sha256": "36f3ac3ac6f9cc2de71d73eb66cb3be11b87f79bdcd185064230ce44e40b3fc7"
+    },
+    {
+      "path": "quota-comparison.json",
+      "sha256": "012d3216f236dd256429381c925c6334a58af0325a8fb0191ad874bfdc3a71d6"
+    },
+    {
+      "path": "runtime-vulnerabilities.json",
+      "sha256": "3e45a6c85f8fda24b94a634a76c7443998bbb4d556a47aff60917381b0d88695"
+    },
+    {
+      "path": "tests.xml",
+      "sha256": "490c578569386adcd161969810938493d23d18972011ecc78700925933b424a9"
+    }
+  ]
+}

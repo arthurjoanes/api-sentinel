@@ -1,0 +1,54 @@
+{
+  "SchemaVersion": 2,
+  "Metadata": {
+    "ImageID": "sha256:45d249e9c5a50921466bd2199ac0ea66d0ed2f1a563827a6b1a17ebaa417a340",
+    "OS": {
+      "Family": "alpine",
+      "Name": "3.24.2"
+    }
+  },
+  "Results": [
+    {
+      "Target": "pf-api-sentinel-review-20261012t043755793312z:local (alpine 3.24.2)",
+      "Class": "os-pkgs",
+      "Vulnerabilities": [
+        {
+          "VulnerabilityID": "CVE-2026-85091",
+          "PkgName": "zlib",
+          "InstalledVersion": "1.3.2-r0",
+          "FixedVersion": "1.3.2-r1",
+          "Severity": "MEDIUM",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-85091"
+        }
+      ]
+    },
+    {
+      "Target": "Python",
+      "Class": "lang-pkgs",
+      "Vulnerabilities": [
+        {
+          "VulnerabilityID": "CVE-2026-102991",
+          "PkgName": "Mako",
+          "InstalledVersion": "1.4.1",
+          "FixedVersion": "1.4.2",
+          "Severity": "MEDIUM",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-102991"
+        }
+      ]
+    },
+    {
+      "Target": "usr/local/bin/uv",
+      "Class": "lang-pkgs",
+      "Vulnerabilities": [
+        {
+          "VulnerabilityID": "CVE-2026-104843",
+          "PkgName": "uv",
+          "InstalledVersion": "0.12.17",
+          "FixedVersion": "0.12.18",
+          "Severity": "MEDIUM",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-104843"
+        }
+      ]
+    }
+  ]
+}

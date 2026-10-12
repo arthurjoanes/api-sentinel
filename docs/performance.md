@@ -1,6 +1,6 @@
 # Desempenho e recuperação
 
-Os números vêm das execuções de **22/09/2026**, às [12:12 UTC](evidence/editorial-20260922/full-run.json) e às [02:19 UTC](evidence/publication.json). Taxas, contagens e percentis descrevem seus cenários locais; não são projeções de produção.
+Os números vêm da [execução de 12/10/2026](evidence/evolution-20261012/summary.json) e das execuções de **22/09/2026**, às [12:12 UTC](evidence/editorial-20260922/full-run.json) e às [02:19 UTC](evidence/publication.json). Taxas, contagens e percentis descrevem os cenários e imagens de cada rodada; não são projeções de produção.
 
 ## Comparar janela fixa e GCRA
 
@@ -9,6 +9,23 @@ A [arquitetura](architecture.md#políticas-de-quota) define a taxa por organiza�
 O ensaio limitado usa a mesma imagem identificada, inputs e proxy descartável com uma e duas réplicas. Registra permitidos/rejeitados, valores de `Retry-After`, tempo observado e recursos consumidos por rodada. A comparação inclui chegadas próximas à fronteira de um segundo e recuperação após repouso. Uma configuração mista de réplicas invalida o ensaio.
 
 Na troca de política, o gerador para, ambas as réplicas recebem a mesma configuração, o registro confere a configuração efetiva e o TTL anterior, e a carga recomeça depois da expiração do estado. Build, scan e carga pesada executam em sequência; o inventário registra outras tarefas Docker presentes na janela. As políticas mudam a forma de admitir chegadas, e o ensaio não sustenta uma alegação de throughput superior, capacidade máxima ou migração sem interrupção. Resultados novos precisam de recibo próprio em [verificação](verification.md#verificar-a-versão-atual).
+
+### Resultado de 12/10/2026
+
+A [comparação executada](evidence/evolution-20261012/quota-comparison.json) pertence ao snapshot `bf71318` e à imagem `sha256:45d249e9…`, identificada no [recibo operacional](evidence/evolution-20261012/operational-run.json). Cada fase enviou os mesmos 74 pedidos ao proxy: 12 entradas iniciais, 60 espaçadas por 25 ms e duas nos offsets de 0,99 e 1,01 s. O tenant 1 tinha quota de 30/s; GCRA usou capacidade total 10. Agendamento e resposta influenciam o instante real de chegada.
+
+| Política | Réplicas | Permitidos | Recusas 429 | Duração s | p95 de todas as respostas ms | CPU somada das APIs µs |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `fixed-window` | 1 | 48 | 26 | 1,482 | 62,673 | 465322 |
+| `fixed-window` | 2 | 50 | 24 | 1,482 | 82,250 | 698812 |
+| `gcra` | 1 | 54 | 20 | 1,482 | 65,583 | 501047 |
+| `gcra` | 2 | 54 | 20 | 1,481 | 79,456 | 627430 |
+
+Todas as recusas trouxeram `tenant_quota_exceeded` e `Retry-After: 1`; as respostas permitidas não tinham esse cabeçalho. Todas as réplicas configuradas foram observadas pelo proxy. Na primeira conferência, a janela fixa tinha TTL de 184 ms; o gerador aguardou até ambos os namespaces retornarem `PTTL=-2`, indicando ausência. As demais conferências também encontraram os estados ausentes. Ao terminar, o runner restaurou janela fixa e duas réplicas.
+
+O p95 reúne 200 e 429. CPU é o incremento de `cpu.stat usage_usec` nos cgroups das APIs, somado entre réplicas; inclui autenticação, SQL, HTTP e telemetria, sem isolar o custo do Lua. As amostras de memória antes/depois estão no JSON e não representam pico ou série contínua. As diferenças nesse intervalo de cerca de 1,482 s não demonstram throughput superior, capacidade máxima ou ganho linear de réplicas.
+
+O Ubuntu 24.04 do GitHub informou quatro CPUs e `memory_bytes=16765378560`, sem containers ou volumes no inventário inicial. Builds, scans e cargas ocorreram em sequência; API, banco, gerador e observabilidade compartilharam o host. A [verificação](verification.md#rodada-completa-no-linux-de-12102026) identifica fontes e limpeza. As medições de setembro permanecem nas seções históricas seguintes.
 
 ## Execução de 22/09 às 12:12 UTC
 

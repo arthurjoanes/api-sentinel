@@ -2,17 +2,48 @@
 
 As provas publicadas incluem o [recibo completo](evidence/editorial-20260922/full-run.json), o [XML isolado](evidence/editorial-20260922/full-tests.xml), o [XML HTTP](evidence/editorial-20260922/full-http-tests.xml) e o [scan](evidence/editorial-20260922/full-vulnerabilities.json), de **22/09/2026**. Seus resultados valem para as versões executadas; a presença de um teste ou workflow no código não aprova edições posteriores.
 
-Para entender o produto, comece pela [consulta de R$ 125,00, falha e recuperação](operational-story.md). Este documento aprofunda os resultados por execução: os pacotes abaixo são históricos e preservam suas próprias versões. Para produzir evidência da sua cópia, execute `python scripts/review.py`; a saída aponta o novo `run.json`.
+Para entender o produto, comece pela [consulta de R$ 125,00, falha e recuperação](operational-story.md). Cada pacote abaixo preserva a versão executada. Para produzir evidência da sua cópia, execute `python scripts/review.py`; a saída aponta o novo `run.json`.
 
 ## Verificar a versão atual
 
+### Rodada completa no Linux de 12/10/2026
+
+`python scripts/review.py --scenario all` passou no [CI 38204283171](https://github.com/arthurjoanes/api-sentinel/actions/runs/38204283171), no snapshot `bf7131886c38afe9991e35539e0f330651e435f3`. A execução `20261012t043755793312z` ocorreu de 01:37:55 a 01:47:20 em São Paulo. O [resumo publicado](evidence/evolution-20261012/summary.json) e o [recibo operacional](evidence/evolution-20261012/operational-run.json) identificam comandos, imagens, resultados e limpeza. Este incremento documental publica essa prova; mudanças posteriores exigem sua própria verificação.
+
+| Gate | Resultado desta rodada |
+| --- | --- |
+| Build, Ruff, formato, mypy e monitoramento | Aprovados com o lock da versão executada. |
+| PostgreSQL/Redis isolados | 361 casos e 15 subtests aprovados; 77 skips. [XML](evidence/evolution-20261012/tests.xml). |
+| HTTP pelo proxy | 73 aprovados, sem skips. [XML](evidence/evolution-20261012/http-tests.xml). |
+| Controles da ferramenta | 16 aprovados na imagem com o grupo `contracts`, incluindo servidor inválido, orçamento, prazo e replay. |
+| Contratos gerados | 156 chamadas, 128 respostas 200 validadas e nenhum 500 inesperado. [Relatório](evidence/evolution-20261012/contracts-http.json). |
+| Quota, carga e falhas | Políticas com uma/duas réplicas, carga mista, isolamento, cache, dependências, revogação e alertas aprovados. [Comparação limitada](performance.md#resultado-de-12102026). |
+| Limpeza | Zero containers, volumes ou redes dos projetos da tentativa após o encerramento registrado. |
+
+Os 77 skips isolados são 73 casos HTTP e quatro que exigem o grupo opcional `contracts`; foram executados nas etapas próprias. Os nove testes OpenAPI pertencem aos 361 casos isolados. Os 16 controles da ferramenta incluem casos também executados na suíte normal; essas contagens não são somadas como testes independentes. Os 25 testes locais descritos abaixo reuniram 16 controles e nove testes OpenAPI.
+
+O contrato enviou 155 casos comerciais e uma leitura do OpenAPI: 120 gerados pelo schema, nove de autenticação, oito de domínio, nove de isolamento, sete positivos e dois de quota. Respostas negativas não preencheram a cobertura positiva.
+
+| Operação | Casos comerciais | HTTP 200 validados |
+| --- | ---: | ---: |
+| `/v1/stores` | 36 | 32 |
+| `/v1/stores/{store_id}/summary` | 40 | 33 |
+| `/v1/stores/{store_id}/sales` | 42 | 32 |
+| `/v1/stores/{store_id}/availability/{sku}` | 37 | 31 |
+
+A fixture original foi conferida antes/depois e terminou com 12.500 centavos, dois pedidos e ticket de 6.250. A seed e seu manifesto descrevem a massa original; o provisionamento de contratos acrescentou seis linhas copiadas no banco descartável, três em cada loja 8/9, sem alterar as lojas originais. O [oráculo](evidence/evolution-20261012/oracle.json) e o recibo conservam essas identidades.
+
+Os 160 hashes de fontes coincidiram antes/depois; HEAD permaneceu em `bf71318`, com árvore e diff vazios. O inventário dos 66 pacotes do runtime ficou idêntico e sem Schemathesis. As imagens de runtime `sha256:45d249e9…`, proxy `sha256:7129ec54…` e contratos `sha256:9095d437…` têm IDs completos no recibo. Os [scans da aplicação e do proxy](security.md#scan-de-12102026) preservam seu escopo.
+
+Ubuntu 24.04 hospedado pelo GitHub: quatro CPUs e `memory_bytes=16765378560`. O inventário não tinha containers ou volumes antes da rodada nem após a limpeza; restaram somente as mesmas três redes nativas do Docker. IDs e labels dos recursos removidos estão registrados. Não havia containers alheios para testar preservação sob concorrência. Esse ambiente é distinto da tentativa Windows abaixo.
+
 ### Rodada local de 12/10/2026
 
-O [recibo local](evidence/evolution-20261012/local.json) identifica HEAD, alterações locais e hashes antes/depois. As fontes permaneceram estáveis. Ruff, formato e mypy passaram; o grupo dedicado passou 25 testes, incluindo HTTP inválido, replay sanitizado, orçamento esgotado, JSON escalar e headers lentos. O comando sem Schemathesis retornou `failed` e exit 1, conforme o [controle de dependência ausente](evidence/evolution-20261012/missing-tool.json).
+O [recibo local](evidence/evolution-20261012/local.json) identifica HEAD, alterações locais e hashes antes/depois. As fontes permaneceram estáveis. Ruff, formato e mypy passaram; a suíte com grupo `contracts` e regressões OpenAPI passou 25 testes, incluindo HTTP inválido, replay sanitizado, orçamento esgotado, JSON escalar e headers lentos. O comando sem Schemathesis retornou `failed` e exit 1, conforme o [controle de dependência ausente](evidence/evolution-20261012/missing-tool.json).
 
 A suíte normal no Windows passou 317 casos e 15 subtests, com sete skips previstos para leitores Linux e testes que exigem o grupo `contracts`. Um teste existente falhou ao exigir modo POSIX `0600`: o Windows reportou `0666`. O código e o teste desse arquivo não foram alterados. Esse resultado local não aprova o gate Linux isolado.
 
-Monitoramento e `python scripts/review.py --scenario all` foram tentados, mas o Docker Desktop não iniciou. A falha ocorreu antes de build ou criação de recursos da tentativa, ao acessar `sailor-ingest.sock`; o runner também registrou que não conseguiu conferir a limpeza. Renomear o socket falhou, o reinício nativo não concluiu e a revisão automática de aprovação rejeitou sua remoção. Nenhum reset ou prune foi executado. A execução Linux no CI conserva os gates completos e deve produzir recibo próprio; resultados locais não substituem HTTP pelo proxy, scans de imagem ou medição de quota.
+Monitoramento e `python scripts/review.py --scenario all` foram tentados, mas o Docker Desktop não iniciou. A falha ocorreu antes de build ou criação de recursos da tentativa, ao acessar `sailor-ingest.sock`; o runner também registrou que não conseguiu conferir a limpeza. Renomear o socket falhou, o reinício nativo não concluiu e a revisão automática de aprovação rejeitou sua remoção. Nenhum reset ou prune foi executado. A rodada Linux acima tem recibo e ambiente próprios; sua aprovação não demonstra a recuperação do Docker local.
 
 ```sh
 python scripts/review.py --scenario all
@@ -35,6 +66,8 @@ python scripts/verify_contracts.py --base-url http://proxy --attempt "<projeto-d
 No host, `uv run --group contracts python scripts/verify_contracts.py` usa os mesmos argumentos, com a URL loopback do proxy da tentativa e o caminho privado das credenciais. A identidade e a URL precisam corresponder à execução autorizada. Destino externo arbitrário é recusado.
 
 Os padrões são até 30 exemplos por operação, cinco chamadas/s, no máximo 180 chamadas e prazo total de 90 s, com cada pedido limitado a três segundos. O limite total inclui os casos adicionais de cobertura; o relatório registra o consumo real. Orçamento ou prazo esgotado produz `incomplete`, sem apresentar a cobertura parcial como aprovação. `failed` identifica divergência ou falha do gate; `passed` exige todos os critérios.
+
+O supervisor inclui importação, geração, HTTP e validação no prazo total. Se encerrar o worker antes do relatório final, informa `incomplete` e `partial_results_unavailable`; as contagens dessa tentativa ficam indisponíveis. Um resumo vazio nesse caso não comprova ausência de chamadas.
 
 O resumo informa operação, cobertura 200, positivos/negativos, seed, política de quota e motivo de falha. HTTP 401/403/404/429 não conta como cobertura positiva. O cenário saudável e o caso dedicado de 429 usam tenants distintos, mantendo o limitador ativo. Período, cobertura, SKU, cursor de outra versão, autenticação e acesso entre tenants têm negativos explícitos, conforme o [contrato](data-contract.md#contrato-http-executável).
 
