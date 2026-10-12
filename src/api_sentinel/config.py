@@ -24,6 +24,8 @@ class Settings(BaseSettings):
     trace_sample_ratio: float = Field(default=0.25, ge=0, le=1)
     sentinel_env: Literal["demo", "test"] = "demo"
     cache_ttl: int = Field(default=15, ge=1, le=300)
+    quota_algorithm: Literal["fixed-window", "gcra"] = "fixed-window"
+    quota_burst_capacity: int = Field(default=10, ge=1, le=10000)
     entry_limit: int = Field(default=48, ge=1, le=48)
     authentication_limit: int = Field(default=8, ge=1, le=8)
     tenant_limit: int = Field(default=8, ge=1, le=16)
