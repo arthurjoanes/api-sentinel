@@ -37,6 +37,12 @@ Os 160 hashes de fontes coincidiram antes/depois; HEAD permaneceu em `bf71318`, 
 
 Ubuntu 24.04 hospedado pelo GitHub: quatro CPUs e `memory_bytes=16765378560`. O inventário não tinha containers ou volumes antes da rodada nem após a limpeza; restaram somente as mesmas três redes nativas do Docker. IDs e labels dos recursos removidos estão registrados. Não havia containers alheios para testar preservação sob concorrência. Esse ambiente é distinto da tentativa Windows abaixo.
 
+### Falha após reduzir as réplicas
+
+A [execução 38206127094 do PR](https://github.com/arthurjoanes/api-sentinel/actions/runs/38206127094), no snapshot de merge `062a08b` da branch `e79190b`, falhou em `warmup-one` após reduzir duas réplicas para uma. Das 50 chamadas concluídas, 48 foram válidas e duas retornaram `503 proxy_unavailable`, sem drops. O [recibo da tentativa](evidence/evolution-20261012/failed-scale-preparation.json) conserva fontes estáveis, falha e limpeza dos recursos exclusivos. Seleção de peer removido ou DNS ainda antigo é uma inferência; os logs disponíveis não demonstram a causa no proxy.
+
+A preparação agora confere IDs, labels de projeto/serviço e hostnames atuais; espera 3,25 s para a renovação DNS e exige uma janela contínua de três segundos de respostas 200, cobrindo todas as réplicas esperadas. O resultado fica em `run.json.scale_preparation`. Taxas, durações de carga e thresholds originais foram mantidos. A aprovação da correção depende de uma rodada própria, identificada pelo commit e pelos artefatos do CI.
+
 ### Rodada local de 12/10/2026
 
 O [recibo local](evidence/evolution-20261012/local.json) identifica HEAD, alterações locais e hashes antes/depois. As fontes permaneceram estáveis. Ruff, formato e mypy passaram; a suíte com grupo `contracts` e regressões OpenAPI passou 25 testes, incluindo HTTP inválido, replay sanitizado, orçamento esgotado, JSON escalar e headers lentos. O comando sem Schemathesis retornou `failed` e exit 1, conforme o [controle de dependência ausente](evidence/evolution-20261012/missing-tool.json).

@@ -10,6 +10,7 @@ from datetime import UTC, datetime
 from operations import (
     ARTIFACTS,
     COMPOSE,
+    COMPOSE_PROJECT,
     LOCAL_URLS,
     PROJECT,
     command,
@@ -20,6 +21,7 @@ from operations import (
     require_disposable,
     wait_until,
 )
+from quota_compare import inspected_instances, wait_for_proxy_instances
 
 TOKENS = credentials()
 SUMMARY = "/v1/stores/1/summary?start=2026-01-01&end=2026-03-01"
@@ -51,7 +53,7 @@ def cache_permissions(enabled: bool) -> None:
     )
 
 
-def scale(replicas: int) -> None:
+def scale(replicas: int) -> dict:
     require_disposable()
     compose(
         "run",
@@ -63,8 +65,20 @@ def scale(replicas: int) -> None:
         f"from pathlib import Path; Path('/secrets/expected-replicas').write_text('{replicas}')",
     )
     compose("up", "-d", "--no-deps", "--scale", f"api={replicas}", "api")
+    ids = compose("ps", "-q", "api").splitlines()
+    if len(ids) != replicas:
+        raise RuntimeError("The running API container count differs from the requested replicas.")
+    inspected = json.loads(command("docker", "inspect", *ids))
+    expected_instances = inspected_instances(inspected, COMPOSE_PROJECT, ids)
     wait_until("coleta por réplica", lambda: len(healthy_targets()) == replicas)
-    wait_until("readiness", lambda: request(BASE + "/health/ready")[0] == 200)
+
+    def business_probe() -> dict:
+        status, _, headers = query("/v1/stores")
+        normalized = {key.lower(): value for key, value in headers.items()}
+        return {"status": status, "instance": normalized.get("x-instance-id")}
+
+    prepared = wait_for_proxy_instances(expected_instances, business_probe)
+    return {"containers": ids, "replicas": replicas, **prepared}
 
 
 def run_load(name: str, rate: int, duration: str = "20s", path: str = SUMMARY) -> dict:

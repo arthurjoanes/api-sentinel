@@ -605,10 +605,10 @@ def main() -> None:
 
             ops.wait_until("ERP recuperado nas duas réplicas", erp_recovered, timeout=30)
             record["recovery"] = mixed("mixed-recovered", "mixed", 10)
-            exp.scale(1)
+            record["scale_preparation"] = [exp.scale(1)]
             mixed("warmup-one", "mixed", 5)
             record["loads"].append(mixed("quota-one", "quota", 10))
-            exp.scale(2)
+            record["scale_preparation"].append(exp.scale(2))
             mixed("warmup-two", "mixed", 5)
             record["loads"].append(mixed("quota-two", "quota", 10))
             record["loads"].append(mixed("tenant-isolation", "isolation", 10))

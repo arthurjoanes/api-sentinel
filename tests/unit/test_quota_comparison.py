@@ -89,6 +89,7 @@ def test_comparison_waits_for_both_new_instances_and_quiet_quota_before_sampling
     monkeypatch.setenv("QUOTA_ALGORITHM", "fixed-window")
     monkeypatch.setenv("QUOTA_BURST_CAPACITY", "10")
     state = {"replicas": 2, "algorithm": "fixed-window", "upstream": 0, "probed": set()}
+    clock = {"now": 0.0}
     events: list[tuple] = []
 
     def compose(*arguments: str) -> str:
@@ -110,6 +111,8 @@ def test_comparison_waits_for_both_new_instances_and_quiet_quota_before_sampling
         inspected = []
         for index in range(state["replicas"]):
             item = replica(state["algorithm"])
+            item["Id"] = f"container-{index}"
+            item["Config"]["Labels"]["com.docker.compose.service"] = "api"
             item["Config"]["Hostname"] = f"instance-{index}"
             inspected.append(item)
         return json.dumps(inspected)
@@ -118,7 +121,7 @@ def test_comparison_waits_for_both_new_instances_and_quiet_quota_before_sampling
         state["upstream"] += 1
         return nullcontext(SimpleNamespace(status=200))
 
-    def positive(*arguments: str) -> dict:
+    def positive(*arguments: str, **keywords: object) -> dict:
         # Match round robin across health and stores requests. One stores probe
         # per round would see the same replica forever when two are active.
         instance = f"instance-{state['upstream'] % state['replicas']}"
@@ -150,7 +153,10 @@ def test_comparison_waits_for_both_new_instances_and_quiet_quota_before_sampling
         "_resources",
         lambda ids: {name: {"cpu_usage_us": 0, "memory_bytes": 1} for name in ids},
     )
-    monkeypatch.setattr(quota_compare.time, "sleep", lambda _: None)
+    monkeypatch.setattr(
+        quota_compare.time, "sleep", lambda seconds: clock.update(now=clock["now"] + seconds)
+    )
+    monkeypatch.setattr(quota_compare.time, "monotonic", lambda: clock["now"])
     output = quota_compare.quota_comparison(compose, "http://127.0.0.1:1234", "private", IMAGE)
     assert len(output["phases"]) == 4
     assert output["restored"]["replicas"] == 2
