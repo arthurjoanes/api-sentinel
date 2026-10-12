@@ -20,7 +20,7 @@ from api_sentinel import auth, queries
 from api_sentinel.admission import Admission, enforce_quota
 from api_sentinel.cache import SummaryCache
 from api_sentinel.config import Settings
-from api_sentinel.contracts import BUSINESS_ERRORS, SalesPage, StoreList, StoreSummary
+from api_sentinel.contracts import BUSINESS_ERRORS, ERP_ERRORS, SalesPage, StoreList, StoreSummary
 from api_sentinel.db import Database
 from api_sentinel.erp import ERP, Availability
 from api_sentinel.errors import Problem
@@ -110,6 +110,11 @@ async def handle_problem(request: Request, exc: Problem) -> JSONResponse:
 
 @app.exception_handler(RequestValidationError)
 async def handle_validation(request: Request, exc: RequestValidationError) -> JSONResponse:
+    if any(error["loc"] == ("path", "sku") for error in exc.errors()):
+        return problem_response(
+            Problem(422, "invalid_sku", "SKU deve seguir o formato SKU-001."),
+            request.state.request_id,
+        )
     return problem_response(
         Problem(422, "invalid_request", "Parâmetros inválidos; confira o contrato da API."),
         request.state.request_id,
@@ -151,13 +156,21 @@ async def principal(
 
 Identity = Annotated[auth.Principal, Depends(principal)]
 StoreId = Annotated[int, PathParameter(ge=1, le=2**63 - 1)]
+Sku = Annotated[str, PathParameter(pattern=r"^SKU-[0-9]{3}$", min_length=7, max_length=7)]
 
 
 async def admit(
     request: Request, identity: auth.Principal, scope: str, store: int | None = None
 ) -> None:
     auth.authorize(identity, scope, store)
-    await enforce_quota(request.app.state.quota, identity.tenant_id, identity.quota_per_second)
+    settings = request.app.state.settings
+    await enforce_quota(
+        request.app.state.quota,
+        identity.tenant_id,
+        identity.quota_per_second,
+        algorithm=settings.quota_algorithm,
+        burst_capacity=settings.quota_burst_capacity,
+    )
 
 
 @app.get(
@@ -225,19 +238,11 @@ async def sales(
 @app.get(
     "/v1/stores/{store_id}/availability/{sku}",
     response_model=Availability,
-    responses=BUSINESS_ERRORS
-    | {
-        502: {"description": "O ERP retornou contrato ou status inválido."},
-        504: {"description": "O ERP excedeu o prazo total de 900 ms."},
-    },
+    responses=BUSINESS_ERRORS | ERP_ERRORS,
     tags=["Integração ERP"],
     summary="Consultar estoque no ERP fictício",
 )
-async def availability(request: Request, identity: Identity, store_id: StoreId, sku: str) -> dict:
-    import re
-
-    if not re.fullmatch(r"SKU-[0-9]{3}", sku):
-        raise Problem(422, "invalid_sku", "SKU deve seguir o formato SKU-001.")
+async def availability(request: Request, identity: Identity, store_id: StoreId, sku: Sku) -> dict:
     await admit(request, identity, "inventory:read", store_id)
     with request.app.state.business.enter(identity.tenant_id):
         return await request.app.state.erp.availability(store_id, sku)
