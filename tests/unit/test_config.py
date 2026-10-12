@@ -24,6 +24,11 @@ from api_sentinel.config import Settings
         {"trace_sample_ratio": 1.1},
         {"trace_sample_ratio": float("nan")},
         {"sentinel_env": "production"},
+        {"quota_algorithm": "token-bucket"},
+        {"quota_burst_capacity": 0},
+        {"quota_burst_capacity": -1},
+        {"quota_burst_capacity": 10001},
+        {"quota_burst_capacity": 1.5},
     ],
 )
 def test_invalid_configuration_fails_before_serving(override: dict) -> None:
@@ -53,3 +58,20 @@ def test_cursor_secret_is_validated_at_startup(tmp_path: Path, secret: str) -> N
 def test_cursor_secret_accepts_bootstrap_format(tmp_path: Path) -> None:
     (tmp_path / "cursor-key").write_text("s" * 64 + "\n", encoding="utf-8")
     assert Settings(secrets_dir=tmp_path).cursor_secret() == "s" * 64
+
+
+def test_quota_defaults_and_total_burst_are_separate_from_rate() -> None:
+    config = Settings()
+    assert config.quota_algorithm == "fixed-window"
+    assert config.quota_burst_capacity == 10
+    config = Settings(quota_algorithm="gcra", quota_burst_capacity=1)
+    assert config.quota_algorithm == "gcra"
+    assert config.quota_burst_capacity == 1
+
+
+def test_quota_policy_can_be_selected_by_environment(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("QUOTA_ALGORITHM", "gcra")
+    monkeypatch.setenv("QUOTA_BURST_CAPACITY", "7")
+    config = Settings()
+    assert config.quota_algorithm == "gcra"
+    assert config.quota_burst_capacity == 7
