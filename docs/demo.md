@@ -33,6 +33,18 @@ python scripts/review.py --scenario alerts --keep
 
 Essa variante executa checks, testes, dois ciclos reais de incidentes e correlação, sem a matriz de carga/falhas de dependências. `--keep` preserva somente uma execução aprovada. Abra as URLs impressas ou registradas em `run.json.urls`; não use as portas da demonstração persistente. Os links de investigação da central resolvem para esses mesmos serviços.
 
+## Jornada da interface
+
+A [revisão de UI de 12/10/2026](ui-ux-20261012.md) define as cinco jornadas e o escopo da validação do candidato. Use a URL do receiver da sua execução; capturas de fixtures de apresentação não demonstram um incidente novo.
+
+1. Confira o instante da leitura e a validade da consulta de referência antes de escolher uma ocorrência. Atualizar leitura recarrega a página; não há polling. Probe vencido, pendente ou desativado não confirma saúde.
+2. Filtre Em andamento, confira o ID e abra Investigar. Leia início, último registro, impacto e próximo passo. Volte à fila e confira filtro e posição.
+3. Se o ID procurado estiver fora das 100 linhas, use a busca por ID. Um ID inválido precisa de correção junto ao campo; ausência do registro não prova ausência de falha no período.
+4. No detalhe, compare o período registrado com o intervalo enviado a Grafana ou Jaeger. O recorte de investigação tem limite explícito de 24 horas. Ferramenta indisponível conserva orientação e retorno; trace ausente pode decorrer de amostragem, retenção ou coleta.
+5. Em Finalizados, abra uma recuperação recebida e um encerramento administrativo. Confira as diferenças na cronologia antes de concluir que o serviço recuperou. Atualizar ou tentar novamente mantém o contexto limitado da navegação.
+
+Os critérios e resultados do navegador ficam no relatório de UI. O roteiro operacional abaixo continua usando as provas e dados de sua própria execução.
+
 ## Apresentação de 5–8 minutos
 
 1. **Problema e resultado correto (1 min).** Mostre `fixture_final`: 12.500 centavos, dois pedidos, ticket 6.250. A fixture tem três itens e dois pedidos, portanto contar linhas daria o resultado errado. Em `oracle.json`, explique que totais e primeiros itens foram calculados a partir das linhas SQL, independentemente do agregado da API. A suíte HTTP verifica IDs válidos de outro tenant e cache aquecido.

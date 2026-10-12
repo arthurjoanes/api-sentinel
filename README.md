@@ -23,9 +23,11 @@ A quota permite escolher janela fixa ou GCRA, com taxa por organização e capac
 
 ## Demonstração
 
-![Interface do API Sentinel: filtros e duas ocorrências com estado, impacto e ação de investigação](docs/screenshots/focused-20260922/fila-foco.png)
+![Interface do API Sentinel: consulta e instante da leitura antes da fila, IDs e investigação por período](docs/screenshots/ui-ux-20261012/candidate-central-1440.png)
 
-Recorte real de 22/09/2026, 17:37 UTC, com registros preservados. Mostra a apresentação da fila; fotografar a página não executou falha ou recuperação. [Manifesto da captura](docs/screenshots/focused-20260922/capture.json) · [outros focos](docs/screenshots.md) · [página completa versionada](docs/readme/home.png).
+Revisão de UI de 12/10/2026, com fixture explícita de apresentação e probe desativado. O horário do cenário é distinto da data de captura; a imagem não executou nova falha ou recuperação do serviço. [Manifesto da captura](docs/evidence/ui-ux-20261012/manifest.json) · [jornadas, antes/depois e limites](docs/ui-ux-20261012.md) · [capturas históricas preservadas](docs/screenshots.md).
+
+A central apresenta o instante da leitura e a validade da consulta antes da fila. Investigar abre o detalhe com período e contexto; busca por ID localiza uma ocorrência retida fora das 100 linhas iniciais. Filtros e retorno preservam a posição. Recuperação recebida e encerramento administrativo continuam estados distintos.
 
 <a id="uma-conta-pequena-antes-de-falar-em-desempenho"></a>
 
@@ -46,6 +48,21 @@ GET /v1/stores/7/summary?start=2026-01-01&end=2026-01-01
 ```
 
 Esperado: `revenue_cents: 12500`, `order_count: 2` e `average_ticket_cents: 6250`. O [roteiro](docs/demo.md) explica a credencial e a execução; a [sequência histórica de 22/09/2026, 12:49 UTC](docs/operational-story.md) liga consulta, falha controlada e recuperação recebida à mesma ocorrência.
+
+### Paleta de marca
+
+![Paleta do API Sentinel: azul sentinela, azul de ação, petróleo, gelo e tons de texto](docs/readme/palette.svg)
+
+| Cor | Código | Função |
+| --- | --- | --- |
+| Azul sentinela | `#14334B` | Estrutura, cabeçalho e marca |
+| Azul de ação | `#155BA6` | Links e ações |
+| Petróleo | `#087F8C` | Acento do contexto de leitura |
+| Gelo | `#F0F5F8` | Superfícies de apoio |
+| Texto | `#1B2E40` | Conteúdo principal |
+| Texto secundário | `#4C6374` | Metadados e orientação |
+
+A paleta identifica a marca e a navegação. Estados de incidente mantêm verde, vermelho e âmbar acompanhados de texto; o acento petróleo não indica saúde do serviço. Os vetores da marca e os quatro selos de navegação tiveram cores alinhadas, preservando desenho e fontes. O selo do LinkedIn conserva a cor da plataforma.
 
 <a id="implementação"></a>
 
@@ -172,7 +189,7 @@ O setup gera credenciais locais; `stop` preserva volumes. [Instalação Linux, c
 | Consultas, dinheiro e isolamento | [Contrato de dados](docs/data-contract.md)                                                                                      |
 | Executar e investigar            | [Demonstração](docs/demo.md) · [indicadores e procedimentos](docs/slo.md)                                                       |
 | Conferir resultados e fontes     | [Verificação](docs/verification.md) · [desempenho](docs/performance.md) · [fontes e datas](docs/fontes-e-afirmacoes.md)         |
-| Interface e manutenção           | [Capturas](docs/screenshots.md) · [acessibilidade](docs/frontend-quality.md) · [padrão documental](docs/padrao-documentacao.md) |
+| Interface e manutenção           | [Revisão de UI e jornadas](docs/ui-ux-20261012.md) · [capturas](docs/screenshots.md) · [qualidade](docs/frontend-quality.md) · [padrão documental](docs/padrao-documentacao.md) |
 
 ## Autor e licença
 

@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-12",
+  "source": "frozen FINAL02, identified in manifest.json",
+  "method": "Assistant visual inspection of actual PNGs and manual browser actions; no human participant study.",
+  "image_views_inspected": [
+    "central 320, 390, 768, 1024, 1440",
+    "baseline/candidate exact viewport pairs 390 and 1440",
+    "recovered detail 390",
+    "firing detail 1440",
+    "runbook code 320 and 1440",
+    "synthetic read failure 320"
+  ],
+  "observations": [
+    "Visible brand colors align header, links, context surface and existing vectors.",
+    "Probe state and snapshot time precede the queue; mobile dates and IDs remain readable.",
+    "No visible overlap in inspected frames; long code intentionally scrolls within its named region.",
+    "Synthetic fixture notice is visible in both exact viewport comparison pairs."
+  ],
+  "manual_browser_actions": [
+    "Finalizados -> recovered incident #2 -> period-bearing metrics/trace links.",
+    "Unconfigured trace destination -> real HTML 503 with retry and contextual return.",
+    "Return -> preserved resolved filter and incident focus.",
+    "Lookup ID 0 -> inline HTML error; correction to 2 -> matching filtered detail."
+  ],
+  "keyboard_evidence": "supplement.json: 15 complete Tab/Enter paths and local code scroll in candidate-audit.json",
+  "limits": [
+    "Native browser zoom unverified",
+    "Screen reader unverified",
+    "Physical device unverified",
+    "Firefox engine unavailable",
+    "Configured external Grafana/Jaeger destinations not exercised by this preview",
+    "Screenshots prove presentation of a fixture, not service health or domain recovery"
+  ]
+}

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="142" viewBox="0 0 840 142" role="img" aria-labelledby="title description">
+  <title id="title">Paleta do API Sentinel</title>
+  <desc id="description">Azul sentinela #14334B, azul de ação #155BA6, petróleo #087F8C, gelo #F0F5F8, texto #1B2E40 e texto secundário #4C6374.</desc>
+  <rect width="840" height="142" fill="#fff"/>
+  <g font-family="Arial, sans-serif" font-size="13" fill="#1b2e40">
+    <rect x="0" y="0" width="132" height="76" rx="3" fill="#14334b"/>
+    <text x="0" y="103">Azul sentinela</text><text x="0" y="125">#14334B</text>
+    <rect x="142" y="0" width="132" height="76" rx="3" fill="#155ba6"/>
+    <text x="142" y="103">Azul de ação</text><text x="142" y="125">#155BA6</text>
+    <rect x="284" y="0" width="132" height="76" rx="3" fill="#087f8c"/>
+    <text x="284" y="103">Petróleo</text><text x="284" y="125">#087F8C</text>
+    <rect x="426" y="0" width="132" height="76" rx="3" fill="#f0f5f8" stroke="#cbd8e3"/>
+    <text x="426" y="103">Gelo</text><text x="426" y="125">#F0F5F8</text>
+    <rect x="568" y="0" width="132" height="76" rx="3" fill="#1b2e40"/>
+    <text x="568" y="103">Texto</text><text x="568" y="125">#1B2E40</text>
+    <rect x="710" y="0" width="130" height="76" rx="3" fill="#4c6374"/>
+    <text x="710" y="103">Texto secundário</text><text x="710" y="125">#4C6374</text>
+  </g>
+</svg>

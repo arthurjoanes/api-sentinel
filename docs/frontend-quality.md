@@ -2,9 +2,11 @@
 
 Este guia reúne revisões históricas. Medidas e capturas pertencem aos JSONs de cada rodada, incluindo a [auditoria visual](evidence/art-direction/visual-audit.json) e o [navegador](evidence/art-direction/browser-review.json), de **22/09/2026**. Os resultados não certificam conformidade integral.
 
-As [capturas de apresentação atuais](screenshots.md) foram refeitas em 22/09/2026 a partir do código atual. As comparações e provas abaixo são registros históricos das respectivas rodadas; seus arquivos e hashes não foram regravados.
+A [revisão de UI de 12/10/2026](ui-ux-20261012.md) é a fonte principal das jornadas, mudanças e verificações do candidato em Chromium. O [registro próprio](evidence/ui-ux-20261012/manifest.json) distingue fixture visual, execução HTTP e evidência de domínio, com os limites do scanner e do segundo motor.
 
-## Direção visual atual — revisão de 22/09/2026
+As [capturas de apresentação de setembro](screenshots.md) foram refeitas em 22/09/2026 a partir do código daquela rodada. As comparações e provas abaixo são registros históricos das respectivas versões; seus arquivos e hashes não foram regravados.
+
+## Direção visual de 22/09/2026
 
 Esta seção substitui a descrição visual da rodada anterior; as evidências anteriores abaixo permanecem históricas. Base desta rodada: `88dcebdf65399db19563c8bfe1406ab24a110d61`. A API, autenticação, deduplicação, reconciliação e probe mantêm seus contratos. O único acréscimo de rota é uma lista fechada de assets locais; a CSP permite fontes da própria origem e continua sem `unsafe-inline`.
 

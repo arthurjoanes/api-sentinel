@@ -1,8 +1,12 @@
-# Validação da interface — 22/09/2026
+# Validação da interface
+
+A [revisão de UI de 12/10/2026](ui-ux-20261012.md) registra cinco jornadas, diagnóstico, paleta de marca, composição escolhida e verificação do candidato em Chromium. O [manifesto](evidence/ui-ux-20261012/manifest.json) identifica as fontes congeladas, fixtures e resultados. As provas abaixo preservam as versões de setembro; nenhuma captura nova substitui seus hashes ou renova suas medições.
+
+## Revisões de 22/09/2026
 
 Os recibos de [navegação](evidence/interface-navigation.json), [primeira revisão](evidence/interface-review.json) e [pacote](evidence/interface-package.json) identificam a versão e o alcance das conclusões abaixo. São registros históricos, não uma nova validação da interface.
 
-A revisão mais recente parte de `be419e0` e está em
+A revisão histórica que parte de `be419e0` está em
 [frontend-quality.md](frontend-quality.md), com matriz de 11 dimensões, capturas
 comparáveis e prova de empacotamento separada. As seções abaixo descrevem rodadas
 anteriores; suas imagens e hashes não são atribuídos ao candidato mais recente.

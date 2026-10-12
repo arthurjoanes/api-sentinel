@@ -1,4 +1,6 @@
-# Recortes da interface atual
+# Recortes da interface
+
+A [revisão de UI de 12/10/2026](ui-ux-20261012.md) reúne pares do baseline `66ab33a` e candidato em 1440 e 390 CSS px, com fixture explícita e probe desativado. O [manifesto](evidence/ui-ux-20261012/manifest.json) separa horário do cenário, data da captura e fontes executadas. Os recortes de setembro abaixo permanecem históricos, com seus próprios pixels e manifestos.
 
 O [manifesto de captura](screenshots/focused-20260922/capture.json) e o [coletor](../scripts/capture_docs.cjs) documentam a origem das imagens. A data da captura identifica o layout fotografado, sem atualizar a data dos incidentes exibidos.
 
