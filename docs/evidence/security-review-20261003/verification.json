@@ -23,33 +23,7 @@
     "mypy": "passed",
     "changed_python_format": "passed",
     "git_diff_check": "passed",
-    "markdown_missing_local_links": 0,
-    "humanizer_protected_elements": {
-      "README.md": {
-        "code_blocks": 4,
-        "inline_code": 9,
-        "link_targets": 54,
-        "numeric_tokens": 98
-      },
-      "docs/security.md": {
-        "code_blocks": 0,
-        "inline_code": 7,
-        "link_targets": 11,
-        "numeric_tokens": 18
-      },
-      "docs/data-contract.md": {
-        "code_blocks": 1,
-        "inline_code": 75,
-        "link_targets": 16,
-        "numeric_tokens": 63
-      },
-      "docs/problem-solution.md": {
-        "code_blocks": 0,
-        "inline_code": 11,
-        "link_targets": 33,
-        "numeric_tokens": 60
-      }
-    }
+    "markdown_missing_local_links": 0
   },
   "test_resources": {
     "isolated": true,

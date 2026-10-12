@@ -60,6 +60,10 @@ Como: implementei em [storage.py](../alert_receiver/storage.py) a persistência 
 
 Na interface: central → filtro → ocorrência → runbook → retorno preserva filtro e referência. “Finalizados” reúne dois estados visuais: “Resolvido” exige a recuperação recebida; “Encerrado pelo operador” tem indicação neutra e explica a ausência desse webhook. A reconciliação administrativa existente é restrita ao alerta de perda de réplica da demo e não acrescenta uma entrega fictícia.
 
+A [central de incidentes](incident-console.md) mostra os totais retidos de “Em andamento” e “Finalizados” independentemente do filtro. O gráfico de inícios usa somente os primeiros 100 registros carregados desse filtro, em sete dias UTC ancorados ao instante da leitura. Datas indisponíveis não são contadas; um zero não comprova ausência de chamadas ou saúde do serviço. As tabelas preservam os valores e o escopo da amostra.
+
+ID, estado e datas ficam visíveis na fila; impacto e entregas aparecem por expansão. No detalhe, o período informado pelo alerta fica separado dos horários de recebimento e da origem dos eventos, evitando tratar atraso de entrega como duração de recuperação. Estado e eventos são lidos no mesmo snapshot SQLite.
+
 Uma consulta do probe validada também não comprova saúde global. Resultado vencido perde a indicação de validação; probe desativado ou sem observação não aparece saudável. [UI](../alert_receiver/ui.py), [expiração no navegador](../alert_receiver/snapshot.js) e [testes de estados](../tests/unit/test_receiver_ui.py) preservam essa distinção. Os links de investigação usam a configuração da mesma execução; sem ela, a navegação mostra erro explícito. Não há fallback para ferramentas de outra stack.
 
 A [história operacional](operational-story.md) mostra entregas reais e a mesma ocorrência recuperada. O cenário de entrega antiga fora de ordem é verificado pelos testes automatizados; não atribuo quatro entregas a uma captura que registra apenas duas.
@@ -68,6 +72,6 @@ A [história operacional](operational-story.md) mostra entregas reais e a mesma 
 
 Em 21/09/2026, duas tentativas de quota tiveram 300 respostas corretas, 299 recusas 429 e duas recusas 503 em 601 conclusões. Aquecimento não eliminou o problema. Os contadores localizaram as recusas na admissão de autenticação, sem demonstrar a causa subjacente da espera. O limite foi de quatro para oito operações, mantendo pool de duas conexões, aquisição de 200 ms e prazo de 500 ms. O [teste de admissão](../tests/unit/test_auth_admission.py) exige recusa da nona e liberação após cancelamento.
 
-As tentativas e medições posteriores permanecem em [verification.md](verification.md) e [performance.md](performance.md). A central foi redesenhada depois da primeira prova operacional; [interface-validation.md](interface-validation.md) registra testes e capturas com esse escopo separado. Nenhuma captura sintética comprova entrega operacional de alerta ou disponibilidade mensal.
+As tentativas e medições posteriores permanecem em [verification.md](verification.md) e [performance.md](performance.md). O contrato atual da interface está na [central de incidentes](incident-console.md); as capturas históricas mantêm as versões e os horários em que foram obtidas. A entrega operacional de alertas e a correção financeira têm provas próprias, sem inferir disponibilidade mensal das imagens.
 
 Uma resposta 200 com tenant ou valor incorreto, Redis indisponível liberando SQL protegido, ERP lento derrubando as consultas independentes ou recuperação sem voltar à fixture conhecida reprova a demonstração. Reduzir latência global por meio de recusas rápidas não satisfaz esses critérios.

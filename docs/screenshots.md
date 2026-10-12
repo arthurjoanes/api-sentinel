@@ -1,31 +1,17 @@
-# Recortes da interface
+# Central e detalhe
 
-A [revisão de UI de 12/10/2026](ui-ux-20261012.md) reúne pares do baseline `66ab33a` e candidato em 1440 e 390 CSS px, com fixture explícita e probe desativado. O [manifesto](evidence/ui-ux-20261012/manifest.json) separa horário do cenário, data da captura e fontes executadas. Os recortes de setembro abaixo permanecem históricos, com seus próprios pixels e manifestos.
+As imagens mostram a central local com dados sintéticos de referência de 12/10/2026, 06:00 UTC. O probe está desativado nesta prévia; os gráficos e a cronologia apresentam registros de exemplo, sem executar falha ou recuperação da API. Consulte o [guia da central](incident-console.md) para interpretar os dados.
 
-O [manifesto de captura](screenshots/focused-20260922/capture.json) e o [coletor](../scripts/capture_docs.cjs) documentam a origem das imagens. A data da captura identifica o layout fotografado, sem atualizar a data dos incidentes exibidos.
+## Central
 
-Capturados em **22/09/2026, 17:37 UTC**, diretamente no navegador, sem montagem ou alteração dos dados. Cada imagem isola o trecho relacionado à explicação; páginas históricas completas ficam disponíveis por links.
+![Central com totais retidos, inícios por dia e fila de ocorrências](readme/incidents.png)
 
-A fila usa registros preservados do receiver local. Os recortes mostram filtros e ocorrências, ou o histórico recebido; não abriram alertas nem executaram falha/recuperação.
+Os totais incluem todos os estados retidos. Os inícios por dia usam somente a amostra carregada pelo filtro, nos sete dias UTC indicados.
 
-| Foco                            | Imagem                                                            |
-| ------------------------------- | ----------------------------------------------------------------- |
-| Filtros e duas ocorrências      | [Abrir recorte](screenshots/focused-20260922/fila-foco.png)       |
-| Fila no celular, uma ocorrência | [Abrir recorte](screenshots/focused-20260922/fila-movel-foco.png) |
-| Duas entregas no histórico      | [Abrir recorte](screenshots/focused-20260922/historico-foco.png)  |
+## Detalhe
 
-O [manifesto](screenshots/focused-20260922/capture.json) registra rotas, viewport, coordenadas do recorte, seletores, fontes, código e hashes. Fontes carregadas, ausência de erros JavaScript e reflow foram conferidos. Os recortes desktop têm altura/largura de no máximo 1,1; os móveis têm altura inferior a 650 px. A captura usa `clip` a partir dos limites reais dos elementos, sem reduzir um print longo para caber na documentação.
+![Ocorrência ativa com período registrado, impacto, runbook e histórico de entregas](readme/incident-detail.png)
 
-## Reproduzir
+O período informado pelo alerta aparece separado dos horários de recebimento das entregas. Origem, interpretação e identificação ficam disponíveis por expansão.
 
-Requer Node.js, Playwright e Chromium/Edge. Defina `PLAYWRIGHT_MODULE` com o caminho absoluto do módulo e `PLAYWRIGHT_CHANNEL=msedge` para usar Edge. Inicie o receiver local antes da captura. O script navega por cinco rotas em 1120, 390 e 320 px, mas salva apenas os três recortes úteis abaixo.
-
-```sh
-node scripts/capture_docs.cjs http://127.0.0.1:9184 .runtime/docs-captures/novo-recorte
-```
-
-Escolha uma saída nova: o script recusa sobrescrever imagens. Confira região, legibilidade e datas antes de promover outro recorte à README. O histórico não é substituído por capturas novas: seus manifests e pixels permanecem com a execução original.
-
-## Conservação e limpeza
-
-Capturas com hashes e pares de comparação continuam ligados às execuções originais. O inventário da limpeza e as cópias de segurança anteriores ficaram fora do repositório; não são uma prova pública de contagem de arquivos removidos. Para a proveniência das imagens publicadas, use o manifesto ligado acima, de **22/09/2026**.
+A [conta comercial](readme/commercial-fixture.svg) usa os valores da [fixture independente](../data/fixtures/manual-sales.json); o [mapa de arquitetura](readme/architecture.svg) mostra os componentes no mesmo host. Para uma sequência operacional já executada, veja [consulta, falha e recuperação de 22/09/2026](operational-story.md), com seus registros técnicos e imagens originais.

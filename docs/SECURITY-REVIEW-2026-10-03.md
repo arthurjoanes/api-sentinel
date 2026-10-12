@@ -61,10 +61,6 @@ A [primeira tentativa](evidence/proxy-patch-20261003/first-proxy-http-tests.xml)
 
 Os pins dependem da disponibilidade dos pacotes nos índices Alpine; uma reconstrução futura deve conferir as versões e repetir o scan. Trivy também avisou que Alpine 3.24.2 não consta na sua lista interna de fim de suporte; esse aviso permanece no recibo e não certifica o ciclo de suporte do sistema. As demais imagens auxiliares continuam fora deste incremento.
 
-## Revisão da prosa
-
-O Humanizer 3.1.0 foi aplicado em modo de arquivo ao README, segurança, contrato de dados, problema e solução, e a este relatório. A revisão identificou rótulos em negrito, pontuação repetitiva e contrastes dispensáveis; reescreveu a prosa, conferiu os fatos e releu o resultado. Comandos, blocos de código, links, paths, números e artefatos históricos foram preservados. O [registro editorial](evidence/security-review-20261003/humanizer.json) informa o escopo e as verificações dos elementos protegidos.
-
 ## Limites da conclusão
 
 Esta rodada verifica o código local e os controles descritos. Não executou carga de longa duração, teste de disponibilidade entre hosts ou ataque a uma implantação pública. Não substitui a política de identidade, TLS, segregação de segredos e scans das imagens auxiliares necessários para uma implantação compartilhada. Na rodada inicial, não houve commit ou push. A demonstração já em execução permaneceu intacta.

@@ -2,7 +2,9 @@
 
 A sequência está registrada na [execução de 22/09/2026, 12:49 UTC](evidence/editorial-20260922/capture-run.json), no [oráculo](evidence/editorial-20260922/capture-oracle.json) e nas [entregas](evidence/editorial-20260922/capture-alerts.json).
 
-**Registro histórico:** as imagens desta página pertencem às execuções identificadas abaixo e preservam seus bytes originais. Veja a [galeria da interface atual](screenshots.md) para a apresentação do código atual.
+**Registro histórico:** as imagens desta página pertencem às execuções identificadas abaixo e preservam seus bytes originais. O comportamento atual está no guia da [central de incidentes](incident-console.md).
+
+A central atual mostra totais retidos sem filtro e inícios em sete dias UTC na amostra de até 100 registros do filtro selecionado. Na fila, impacto e entregas ficam em expansões. O detalhe distingue período informado pelo alerta e horários de recebimento; condição, identificação e origem dos eventos também podem ser expandidas. Os gráficos não representam disponibilidade global nem uma taxa de recuperação.
 
 O operador precisa distinguir três coisas: a conta comercial está correta, a consulta falhou e a mesma ocorrência recebeu uma recuperação. A ausência de incidentes, sozinha, não responde à primeira pergunta.
 
@@ -58,7 +60,7 @@ O runner espera até 120 segundos pela captura inicial antes de aplicar a primei
 
 Build, lint, formato, tipos e monitoramento passaram, assim como **261 testes isolados e 11 subtests**, seguidos de **73 HTTP**. Trivy da imagem final reportou zero achados no escopo descrito. Não houve nova medição de carga: ela está na [prova completa separada](evidence/editorial-20260922/full-run.json). [Verificação e tentativas preservadas](verification.md).
 
-Ainda não houve uma sessão com participantes: [exercício preparado](demo.md#exercício-com-outra-pessoa--preparado-ainda-não-realizado). A prova técnica não demonstra ganho de produtividade, implantação comercial ou tolerância à perda do host.
+A prova técnica não demonstra ganho de produtividade, implantação comercial ou tolerância à perda do host.
 
 ## Histórico — execução das 05:42 UTC
 
@@ -67,9 +69,8 @@ Ainda não houve uma sessão com participantes: [exercício preparado](demo.md#e
 
 O texto a seguir registra a interface e os comandos daquela rodada. Para uma nova captura, use o procedimento com `--wait-for-capture` acima.
 
-Registro histórico da execução abaixo. A apresentação foi revisada depois;
-[frontend-quality.md](frontend-quality.md) documenta a interface seguinte com
-cenários sintéticos, sem repetir nem substituir esta prova operacional.
+O texto abaixo descreve a execução identificada e suas fontes preservadas.
+Para o comportamento atual, consulte a [central de incidentes](incident-console.md).
 
 **Problema central:** o operador precisa distinguir um resultado financeiro correto, uma falha da consulta e uma recuperação confirmada. Uma tela sem incidentes, sozinha, não informa se a consulta autenticada funciona.
 
@@ -120,7 +121,7 @@ Os [XMLs e demais contadores](evidence/operational-story-20260922/20260922t05420
 
 A [primeira tentativa](evidence/operational-story-20260922/attempt-01.json) parou nos testes: o arquivo da fixture financeira estava fora da lista usada para copiar e identificar as fontes. O runner passou a incluir `data/`; um teste de regressão demonstrou que alterar o resultado esperado da fixture muda a identidade das fontes. O controle negativo falhou antes da correção.
 
-A [segunda tentativa](evidence/operational-story-20260922/20260922t053056476675z/proof.json) passou, mas usou uma revisão visual anterior à edição simultânea da interface. Seus resultados foram preservados. A execução apresentada nesta página foi repetida sobre o snapshot atualizado, com comparação dos hashes. O [índice das tentativas](evidence/operational-story-20260922/index.json) explicita qual foi selecionada; nenhum resultado reprovado foi transformado em sucesso.
+A [segunda tentativa](evidence/operational-story-20260922/20260922t053056476675z/proof.json) passou, mas usou um snapshot anterior a uma alteração simultânea das fontes. Seus resultados foram preservados. A execução apresentada nesta página foi repetida sobre o snapshot atualizado, com comparação dos hashes. O [índice das tentativas](evidence/operational-story-20260922/index.json) explicita qual foi selecionada; nenhum resultado reprovado foi transformado em sucesso.
 
 ## Como repetir
 
@@ -140,6 +141,6 @@ node scripts/capture_operational_story.cjs --run-dir '<raiz>/artifacts/problem-r
 
 Ele aguarda o sucesso HTTP e observa as transições ao vivo. Salva PNGs, observações e hashes em `operational-story/` dentro da execução; recusa sobrescrever uma coleta anterior. A coleta tem prazo de 15 minutos e deve terminar com status aprovado. Como `--keep` preserva a stack para inspeção, finalize com a [limpeza do namespace da execução](demo.md#encerrar-uma-execução-preservada), que configura `SENTINEL_RUN_DIR` e usa o comando registrado no próprio `run.json`.
 
-Esta prova ajuda a conferir o comportamento do sistema. A capacidade de outra pessoa seguir o procedimento ainda depende do [exercício humano preparado](demo.md#exercício-com-outra-pessoa--preparado-ainda-não-realizado). Não há relato de cliente, implantação comercial ou tolerância à perda do computador nesta demonstração.
+Esta prova ajuda a conferir o comportamento do sistema. Não há relato de cliente, implantação comercial ou tolerância à perda do computador nesta demonstração.
 
 </details>
