@@ -19,6 +19,8 @@ x-api-env: &api-env
   ERP_URL: http://erp:8080
   TRACE_ENDPOINT: http://jaeger:4318/v1/traces
   SENTINEL_ENV: demo
+  QUOTA_ALGORITHM: ${QUOTA_ALGORITHM:-fixed-window}
+  QUOTA_BURST_CAPACITY: ${QUOTA_BURST_CAPACITY:-10}
 services:
   postgres:
     image: postgres:17.11-bookworm@sha256:639ab7ceb90e13123085b741fb31ef493fba25463002f6da665352e7b534b652
