@@ -21,8 +21,8 @@ sequenceDiagram
   A->>D: Pool auth 2: hash, expiração, revogação, tenant e lojas
   D-->>A: Principal, conexão auth devolvida
   Note over A: Autoriza sales:read e loja antes de quota/cache
-  A->>R: DB 0: Lua INCR + PEXPIRE por tenant
-  R-->>A: Contagem e TTL, excesso 429, falha 503
+  A->>R: DB 0: Lua atômico da política de quota por tenant
+  R-->>A: Admissão e retry, excesso 429, falha 503
   Note over A: Admissão: 16 ativos, até 8 por tenant na réplica
   A->>D: Pool dados 4: versão do dataset
   D-->>A: Versão para a chave do resumo
@@ -128,7 +128,7 @@ O [gerador](../src/api_sentinel/seed.py) cria a massa descrita abaixo; a [autori
 | Estado | Estrutura e proprietário | Persistência e efeito da perda |
 | --- | --- | --- |
 | Identidade e vendas | [Schema PostgreSQL](../migrations/versions/0001_initial.py): `tenants` → `stores` → `sale_items`; `products`, `credentials` e singleton `datasets`. A FK composta de item/loja inclui tenant; o índice de vendas segue tenant, loja, instante e ID. | Volume `postgres-data`. API apenas lê; bootstrap/migração/seed escrevem com papel separado. Indisponibilidade impede autenticar e consultar, mesmo com resumo em cache. |
-| Quota e preenchimento | Redis DB 0: `quota:{tenant}`; DB 1: `summary:v1:{version}:{tenant}:{store}:{start}:{end}` e `fill:{key}`. ACLs separadas para quota e cache. | Mesmo processo, memória limitada e `noeviction`; RDB/AOF desabilitados no Compose. Reinício perde contadores, locks e cache. O TTL permite reconstruir resumos, sem tornar Redis fonte comercial. |
+| Quota e preenchimento | Redis DB 0: `quota:{tenant}` na janela fixa e `quota:gcra:{tenant}` no GCRA; DB 1: `summary:v1:{version}:{tenant}:{store}:{start}:{end}` e `fill:{key}`. ACLs separadas para quota e cache. | Mesmo processo, memória limitada e `noeviction`; RDB/AOF desabilitados no Compose. Reinício perde contadores, locks e cache. O TTL permite reconstruir resumos, sem tornar Redis fonte comercial. |
 | Histórico de alertas | [SQLite](../alert_receiver/storage.py): `incidents` possui chave única fingerprint/início; `delivery_events` referencia ocorrência e preserva cada entrega. | Volume `receiver-data`, WAL e retenção padrão de 30 dias. Histórico independente do PostgreSQL comercial; indisponibilidade da central não implica indisponibilidade da API. |
 | Séries e traces | Prometheus guarda séries; Alertmanager mantém seu estado; Jaeger guarda traces em memória. | Prometheus: volume e retenção de 2 dias/256 MB. Jaeger: até 3.000 traces, perdidos no reinício. Esses dados apoiam investigação, sem reconstruir vendas ou substituir o histórico do receiver. |
 
@@ -163,6 +163,23 @@ A autenticação admite até oito operações e usa um pool próprio de duas con
 
 Chave inclui contrato, versão lida do banco, tenant, loja, datas normalizadas. Autorização sempre precede lookup. `data_updated_at` corresponde à massa, `observed_at` ao cálculo e `cache_age_seconds` cresce no hit. Não há stale nem alegação de consistência forte. Lock Redis usa token e remoção condicional. A indisponibilidade exclusiva do cache permite SQL sob admissão; Redis inteiro indisponível faz a quota falhar fechada com 503. Injeções são comandos locais/arquivos internos, nunca endpoints públicos de falha.
 
+## Políticas de quota
+
+`QUOTA_ALGORITHM` aceita `fixed-window` ou `gcra`; o padrão é `fixed-window`. A taxa `Q` vem da quota por segundo da organização autenticada e vale para todas as suas credenciais. Autorização precede o consumo da quota em ambas as políticas. Cada réplica conserva sua admissão simultânea, seu rate de autenticação e seu circuito ERP, que protegem recursos diferentes.
+
+| Política | Estado e regra | Rajada e recuperação |
+| --- | --- | --- |
+| `fixed-window` | Mantém `quota:{tenant}` e a operação Lua de contador inteiro com expiração de um segundo. | Admite até `Q` no intervalo do contador. Chamadas junto ao vencimento podem usar o restante da janela e a seguinte em pouco tempo. Essa limitação conhecida permanece no contrato. |
+| `gcra` | Mantém `quota:gcra:{tenant}`. Lua usa `TIME` do Redis e calcula a dívida de tempo de forma atômica; o cliente HTTP não fornece o relógio. | Admite capacidade total inicial `B`, definida por `QUOTA_BURST_CAPACITY`, e recupera um token a cada `1/Q` segundo. Não reinicia uma reserva inteira na fronteira de um segundo. |
+
+`QUOTA_BURST_CAPACITY` é inteiro de 1 a 10.000, padrão 10, separado de `Q`. `B=10` admite dez pedidos imediatos após repouso, incluindo o primeiro. O [redis-cell](https://github.com/brandur/redis-cell#usage) apresenta o limite total como `max_burst + 1`; esta API recebe diretamente o total `B`. A implementação usa Lua própria e não instala o módulo redis-cell.
+
+O estado GCRA inclui versão, taxa e capacidade. A dívida usa valores relativos ao relógio Redis para evitar multiplicar o timestamp de época pela taxa. O TTL em milissegundos é o tempo arredondado para cima necessário para recuperar toda a capacidade; portanto é finito e depende de `B/Q`. Estados com formato inválido, tipo errado, TTL ausente ou parâmetros incompatíveis falham fechados, sem sobrescrever o estado suspeito. Rejeição de quota retorna `429 tenant_quota_exceeded`, com `Retry-After` arredondado para cima em segundos, mínimo um. Redis indisponível ou estado inválido retorna `503 quota_unavailable`. Esses códigos continuam separados nos SLIs, sem tenant ou token como label.
+
+Todas as réplicas precisam usar o mesmo algoritmo, capacidade e quota da organização. Um rollout com janela fixa e GCRA simultâneos usa namespaces diferentes e permite consumir duas reservas independentes; ele não garante um limite global combinado. Mudar taxa ou capacidade com dívida GCRA existente também requer tratar o estado anterior. No ensaio, pare o gerador, configure ambas as réplicas, confira sua configuração efetiva e o TTL do estado anterior, aguarde a expiração e só então retome a carga. O runner rejeita a comparação com configuração divergente. Esse procedimento não demonstra migração comercial ou zero downtime.
+
+Redis permanece volátil: reinício perde o estado das duas políticas. A [comparação limitada](performance.md#comparar-janela-fixa-e-gcra) registra comportamento observado por imagem e entrada, sem inferir capacidade máxima ou vantagem de throughput.
+
 ## Ameaças e mitigação
 
 | Ameaça                                    | Controle e teste                                                                            |
@@ -193,7 +210,9 @@ Referências sobre o comportamento das ferramentas: [SQLAlchemy pools](https://d
 
 ### Testes operacionais isolados
 
-`scripts/review.py` aplica compose.review.yml com projeto novo `pf-api-sentinel-review-<UTC>`, imagem própria, portas loopback efêmeras e volumes exclusivos. A configuração funcional deriva do mesmo Compose, sem compartilhar bancos/cache/segredos/receiver da demonstração. Cargas/falhas dos scripts exigem esse contexto. Resultados ficam em artifacts/problem-review/<execução>, com fingerprint dos fontes sem commit, comandos, versões, limites e falhas preservadas. A remoção automática atinge somente os projetos gerados naquela chamada; `--keep` mantém uma execução aprovada para inspeção e registra seu comando de encerramento.
+`scripts/review.py` aplica compose.review.yml com projeto novo `pf-api-sentinel-review-<UTC>`, tags exclusivas de API, proxy e ferramentas, portas loopback efêmeras e volumes próprios. A suíte compose.test.yml recebe também um `-p` exclusivo e `SENTINEL_TEST_IMAGE` da tentativa. A configuração funcional deriva do mesmo Compose, sem compartilhar bancos/cache/segredos/receiver da demonstração. Cargas/falhas dos scripts exigem esse contexto. Resultados ficam em artifacts/problem-review/<execução>, com HEAD, diff e hashes das fontes antes/depois, comandos, versões, inventários de recursos e falhas preservadas. A remoção automática atinge somente os projetos e arquivos Compose registrados naquela chamada; `--keep` mantém uma execução aprovada para inspeção e registra seu comando de encerramento.
+
+A imagem de contratos deriva da imagem identificada da tentativa e instala somente nela o grupo não padrão `contracts` do lock. O inventário de pacotes do runtime antes/depois permite conferir essa separação. O gate dedicado falha se sua ferramenta ou dependência estiver ausente. As fontes ficam congeladas durante testes e capturas; um mount somente leitura não impede edição pelo host. Mudança de hash invalida a associação dos resultados e exige repetir os gates afetados.
 
 A central resolve `/tools/{serviço}/...` pelo arquivo PUBLIC_URLS_FILE gerado para a execução. Somente origens loopback explícitas são aceitas; arquivo ausente/inválido retorna 503, sem redirecionar silenciosamente para a demonstração. Isso evita investigar o Grafana de outro ambiente quando as portas mudam. Metadados de alertas são convertidos para navegação local, não escolhem o host de destino.
 
@@ -201,7 +220,7 @@ O verificador da carga (`scripts/review_oracle.py`) lê linhas brutas no Postgre
 
 Na execução padrão, o estado só vira `passed` depois da limpeza. Durante ela, fica `cleanup_pending`; falhas de transporte do Docker, inclusive timeout antes de obter exit code, gravam `failed` e `cleanup_failure` sem apagar a falha de medição anterior. Com `--keep`, uma prova aprovada pode terminar em `passed` preservando a stack; a limpeza posterior exige conferência própria, como no campo `cleanup` da [sequência operacional](evidence/operational-story-20260922/20260922t054206130821z/proof.json). A correção do orquestrador foi testada separadamente depois da matriz operacional; os hashes e o escopo estão na verificação.
 
-A quota usa janela fixa de um segundo, operação Lua atômica e TTL. Pode haver burst junto à fronteira; não equivale a uma janela deslizante. Redis usa noeviction: esgotamento de memória pode afetar quota e deve falhar fechado, sem fallback para contadores locais. Cache usa usuário ACL e banco Redis distintos, permitindo testar falha apenas dessa camada. Ambos continuam no mesmo processo Redis e compartilham sua disponibilidade.
+A [política de quota](#políticas-de-quota) seleciona janela fixa ou GCRA com Lua atômica e TTL. Redis usa noeviction: esgotamento de memória pode afetar quota e deve falhar fechado, sem fallback para contadores locais. Cache usa usuário ACL e banco Redis distintos, permitindo testar falha apenas dessa camada. Ambos continuam no mesmo processo Redis e compartilham sua disponibilidade.
 
 O usuário Redis `default` fica desabilitado. O serviço `redis-init` gera senhas aleatórias por projeto e uma ACL com hashes antes de iniciar o Redis; os arquivos ficam em volumes próprios e são preservados em reinícios. A API recebe apenas as credenciais de `quota` e `cache`, limitadas aos comandos e prefixos de chave necessários. O healthcheck usa um terceiro usuário que só pode executar `PING`. Os experimentos leem uma credencial administrativa em outro volume, montado apenas nas ferramentas, sem incluir senha nos argumentos dos comandos. Os testes reais de Redis verificam negação de conexões anônimas, administração e acesso cruzado de chaves pelos usuários da API. [Referência de ACL](https://redis.io/docs/latest/operate/oss_and_stack/management/security/acl/).
 

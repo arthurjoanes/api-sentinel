@@ -4,6 +4,56 @@ As provas publicadas incluem o [recibo completo](evidence/editorial-20260922/ful
 
 Para entender o produto, comece pela [consulta de R$ 125,00, falha e recuperação](operational-story.md). Este documento aprofunda os resultados por execução: os pacotes abaixo são históricos e preservam suas próprias versões. Para produzir evidência da sua cópia, execute `python scripts/review.py`; a saída aponta o novo `run.json`.
 
+## Verificar a versão atual
+
+### Rodada local de 12/10/2026
+
+O [recibo local](evidence/evolution-20261012/local.json) identifica HEAD, alterações locais e hashes antes/depois. As fontes permaneceram estáveis. Ruff, formato e mypy passaram; o grupo dedicado passou 25 testes, incluindo HTTP inválido, replay sanitizado, orçamento esgotado, JSON escalar e headers lentos. O comando sem Schemathesis retornou `failed` e exit 1, conforme o [controle de dependência ausente](evidence/evolution-20261012/missing-tool.json).
+
+A suíte normal no Windows passou 317 casos e 15 subtests, com sete skips previstos para leitores Linux e testes que exigem o grupo `contracts`. Um teste existente falhou ao exigir modo POSIX `0600`: o Windows reportou `0666`. O código e o teste desse arquivo não foram alterados. Esse resultado local não aprova o gate Linux isolado.
+
+Monitoramento e `python scripts/review.py --scenario all` foram tentados, mas o Docker Desktop não iniciou. A falha ocorreu antes de build ou criação de recursos da tentativa, ao acessar `sailor-ingest.sock`; o runner também registrou que não conseguiu conferir a limpeza. Renomear o socket falhou, o reinício nativo não concluiu e a revisão automática de aprovação rejeitou sua remoção. Nenhum reset ou prune foi executado. A execução Linux no CI conserva os gates completos e deve produzir recibo próprio; resultados locais não substituem HTTP pelo proxy, scans de imagem ou medição de quota.
+
+```sh
+python scripts/review.py --scenario all
+```
+
+O runner executa build, Ruff check/format, mypy, monitoramento, PostgreSQL/Redis isolados, HTTP pelo proxy, contratos HTTP, carga e falhas. O gate de contratos é uma etapa própria também nos cenários `load` e `alerts`; `all` acrescenta a comparação limitada de quota. A aprovação depende dos resultados daquela rodada, incluindo limpeza e fontes estáveis. As provas de 22/09 abaixo conservam o escopo histórico.
+
+Todas as chamadas Compose recebem `-p` exclusivo. A tentativa identifica tags e IDs da API, proxy e imagem de contratos; `SENTINEL_TEST_IMAGE` aponta para sua imagem de API. Banco, seed, credenciais e volumes são descartáveis. O registro conserva inventário anterior/posterior, IDs/labels, comandos, início/fim, HEAD, diff e hashes antes/depois. Fontes alteradas durante a rodada invalidam a associação dos resultados. Builds, scans e carga pesada executam em sequência; concorrência no host continua sendo uma condição ambiental a registrar.
+
+### Gate de contratos HTTP
+
+Schemathesis 4.30.1 pertence ao grupo não padrão `contracts`, com resolução no [lock](../uv.lock). A imagem `contracts` é construída pelo [Dockerfile próprio](../deploy/contracts/Dockerfile) a partir da imagem identificada da tentativa. O inventário de pacotes verifica que o runtime normal conserva suas dependências. Ferramenta ou dependência ausente reprova a etapa dedicada.
+
+O runner prepara `/secrets/contracts.json` e executa este comando no serviço `contracts`, substituindo a identidade pelo projeto registrado:
+
+```sh
+python scripts/verify_contracts.py --base-url http://proxy --attempt "<projeto-do-run.json>" --credentials-file /secrets/contracts.json --report /artifacts/contracts-http.json --seed 20261012 --examples-per-operation 30 --rate 5 --max-cases 180 --deadline 90
+```
+
+No host, `uv run --group contracts python scripts/verify_contracts.py` usa os mesmos argumentos, com a URL loopback do proxy da tentativa e o caminho privado das credenciais. A identidade e a URL precisam corresponder à execução autorizada. Destino externo arbitrário é recusado.
+
+Os padrões são até 30 exemplos por operação, cinco chamadas/s, no máximo 180 chamadas e prazo total de 90 s, com cada pedido limitado a três segundos. O limite total inclui os casos adicionais de cobertura; o relatório registra o consumo real. Orçamento ou prazo esgotado produz `incomplete`, sem apresentar a cobertura parcial como aprovação. `failed` identifica divergência ou falha do gate; `passed` exige todos os critérios.
+
+O resumo informa operação, cobertura 200, positivos/negativos, seed, política de quota e motivo de falha. HTTP 401/403/404/429 não conta como cobertura positiva. O cenário saudável e o caso dedicado de 429 usam tenants distintos, mantendo o limitador ativo. Período, cobertura, SKU, cursor de outra versão, autenticação e acesso entre tenants têm negativos explícitos, conforme o [contrato](data-contract.md#contrato-http-executável).
+
+Para reproduzir a primeira falha, dentro da mesma ferramenta e contexto privado:
+
+```sh
+python scripts/verify_contracts.py --base-url http://proxy --attempt "<projeto-do-run.json>" --credentials-file /secrets/contracts.json --replay-report /artifacts/contracts-http.json --replay-case 0 --report /artifacts/contracts-replay.json
+```
+
+O índice seleciona um caso de `failures`; a autenticação vem do arquivo privado. O relatório conserva parâmetros e comando seguro, sem Authorization, cookies ou token na URL. A suíte da ferramenta inclui orçamento esgotado e servidor de controle que viola o schema; esse controle precisa ser rejeitado. Nenhum check de resposta é desligado genericamente para aprovar a geração.
+
+### Gate de quota
+
+A integração Redis verifica propriedades com sequências conhecidas: capacidade inicial e recuperação, taxa derivada da organização, TTL, clientes concorrentes, tenant independente, fronteira da janela, taxas menor/maior, estado corrompido, indisponibilidade e ACL. O [contrato de quota](architecture.md#políticas-de-quota) define os resultados 429/503 e a convenção de capacidade.
+
+A comparação pelo proxy usa janela fixa e GCRA com uma e duas réplicas, inputs iguais e a imagem identificada. O runner confere política única antes da carga e rejeita configuração mista. Entre políticas, o runner interrompe o gerador, atualiza ambas as réplicas, confere configuração/TTL, aguarda o estado anterior e retoma. Os contadores, retries e custo observado ficam separados por rodada; os [limites da comparação](performance.md#comparar-janela-fixa-e-gcra) impedem atribuir throughput superior ou capacidade máxima a esse ensaio curto.
+
+O scan mantém o gate HIGH/CRITICAL da aplicação e do proxy, além de Gitleaks no conteúdo publicável e histórico. Um novo relatório só aprova a imagem e as fontes que ele identifica; as evidências históricas não substituem esses gates.
+
 ## Auditoria do candidato — 22/09/2026
 
 A narrativa anterior descrevia uma inspeção sobre `f9d1c52704c285d7961da4545a9dbae7ecc2ca7b`, com resultados locais e consultas ao CI. Seus registros completos não estão ligados a um pacote público verificável nesta seção. Por isso, as contagens, tempos, inventários e conclusões de contratação sustentados apenas por essa narrativa foram retirados da apresentação de resultados comprovados.

@@ -38,7 +38,7 @@ services:
     image: ${SENTINEL_TEST_IMAGE:-pf-api-sentinel:local}
     user: root
     working_dir: /app
-    volumes: ['.:/app', '${SENTINEL_TEST_ARTIFACTS:-./artifacts}:/artifacts', redis-credentials:/redis-credentials:ro, redis-admin:/redis-admin:ro]
+    volumes: ['.:/app:ro', '${SENTINEL_TEST_ARTIFACTS:-./artifacts}:/artifacts', redis-credentials:/redis-credentials:ro, redis-admin:/redis-admin:ro]
     environment:
       DATABASE_URL: postgresql+asyncpg://sentinel_test:test-only@postgres/sentinel_test
       TEST_DATABASE_URL: postgresql+asyncpg://sentinel_test:test-only@postgres/sentinel_test
@@ -49,7 +49,7 @@ services:
     depends_on:
       postgres: {condition: service_healthy}
       redis: {condition: service_healthy}
-    command: [python, -m, pytest, -q, tests, '--junitxml=/artifacts/tests.xml']
+    command: [python, -m, pytest, -q, -p, 'no:cacheprovider', tests, '--junitxml=/artifacts/tests.xml']
     mem_limit: 384m
 volumes:
   redis-credentials:

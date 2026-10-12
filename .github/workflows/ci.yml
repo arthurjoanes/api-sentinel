@@ -18,7 +18,13 @@ jobs:
     timeout-minutes: 25
     env:
       TEST_PROJECT: pf-api-sentinel-ci-test-${{ github.run_id }}-${{ github.run_attempt }}
-      SMOKE_PROJECT: pf-api-sentinel-ci-smoke-${{ github.run_id }}-${{ github.run_attempt }}
+      SMOKE_PROJECT: pf-api-sentinel-review-ci-${{ github.run_id }}-${{ github.run_attempt }}
+      SENTINEL_LAB_PROJECT: pf-api-sentinel-review-ci-${{ github.run_id }}-${{ github.run_attempt }}
+      SENTINEL_REVIEW_IMAGE: pf-api-sentinel-ci-${{ github.run_id }}-${{ github.run_attempt }}:local
+      SENTINEL_TEST_IMAGE: pf-api-sentinel-ci-${{ github.run_id }}-${{ github.run_attempt }}:local
+      SENTINEL_PROXY_IMAGE: pf-api-sentinel-ci-${{ github.run_id }}-${{ github.run_attempt }}-proxy:local
+      SENTINEL_CONTRACTS_IMAGE: pf-api-sentinel-ci-${{ github.run_id }}-${{ github.run_attempt }}-contracts:local
+      SENTINEL_RUN_DIR: ${{ github.workspace }}/artifacts
       PYTHONUNBUFFERED: '1'
     defaults:
       run:
@@ -37,9 +43,12 @@ jobs:
       - name: Preparar artefatos e construir a imagem com lockfile
         run: |
           mkdir -p artifacts
+          chmod 777 artifacts
           docker compose version
-          docker build --tag pf-api-sentinel:local . 2>&1 | tee artifacts/build.log
-          docker compose -f compose.yml build proxy 2>&1 | tee artifacts/proxy-build.log
+          docker build --tag "$SENTINEL_REVIEW_IMAGE" . 2>&1 | tee artifacts/build.log
+          docker compose -f compose.yml -f compose.review.yml -p "$SMOKE_PROJECT" build proxy 2>&1 | tee artifacts/proxy-build.log
+          docker build -f deploy/contracts/Dockerfile --build-arg "SENTINEL_API_IMAGE=$SENTINEL_REVIEW_IMAGE" \
+            --tag "$SENTINEL_CONTRACTS_IMAGE" . 2>&1 | tee artifacts/contracts-build.log
 
       - name: Verificar vulnerabilidades da aplicação e do proxy
         run: |
@@ -49,13 +58,13 @@ jobs:
             -v "$PWD/.runtime/scan:/reports" \
             aquasec/trivy:0.74.0@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969 \
             image --scanners vuln --ignorefile /dev/null --format json \
-            --output /reports/runtime.json pf-api-sentinel:local
+            --output /reports/runtime.json "$SENTINEL_REVIEW_IMAGE"
           docker run --rm \
             -v /var/run/docker.sock:/var/run/docker.sock:ro \
             -v "$PWD/.runtime/scan:/reports" \
             aquasec/trivy:0.74.0@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969 \
             image --scanners vuln --ignorefile /dev/null --format json \
-            --output /reports/proxy.json pf-api-sentinel-proxy:local
+            --output /reports/proxy.json "$SENTINEL_PROXY_IMAGE"
           python - <<'PY'
           import json
           from pathlib import Path
@@ -83,13 +92,13 @@ jobs:
       - name: Lint, formato e tipos
         run: |
           docker run --rm --network none --read-only --tmpfs /tmp \
-            --volume "$PWD:/app:ro" --workdir /app pf-api-sentinel:local \
+            --volume "$PWD:/app:ro" --workdir /app "$SENTINEL_REVIEW_IMAGE" \
             ruff check --no-cache .
           docker run --rm --network none --read-only --tmpfs /tmp \
-            --volume "$PWD:/app:ro" --workdir /app pf-api-sentinel:local \
+            --volume "$PWD:/app:ro" --workdir /app "$SENTINEL_REVIEW_IMAGE" \
             ruff format --check --no-cache .
           docker run --rm --network none --read-only --tmpfs /tmp \
-            --volume "$PWD:/app:ro" --workdir /app pf-api-sentinel:local \
+            --volume "$PWD:/app:ro" --workdir /app "$SENTINEL_REVIEW_IMAGE" \
             mypy --cache-dir=/tmp/mypy-cache
 
       - name: Validar regras, configurações e séries sintéticas
@@ -103,24 +112,28 @@ jobs:
 
       - name: Preparar massa e credenciais exclusivas do smoke
         run: |
-          docker compose -f compose.yml -p "$SMOKE_PROJECT" up -d --wait postgres redis
-          docker compose -f compose.yml -p "$SMOKE_PROJECT" \
+          docker compose -f compose.yml -f compose.review.yml -p "$SMOKE_PROJECT" up -d --wait postgres redis
+          docker compose -f compose.yml -f compose.review.yml -p "$SMOKE_PROJECT" \
             run --rm -e REPLICAS=2 tools python scripts/bootstrap.py
 
       - name: Iniciar jornada real com proxy e duas réplicas
         run: |
-          docker compose -f compose.yml -p "$SMOKE_PROJECT" --profile observability \
+          docker compose -f compose.yml -f compose.review.yml -p "$SMOKE_PROJECT" --profile observability \
             up -d --wait --wait-timeout 90 --scale api=2
           python - <<'PY'
           import json
+          import os
+          import subprocess
           import time
           import urllib.error
           import urllib.request
 
+          published = subprocess.check_output(['docker', 'compose', '-f', 'compose.yml', '-f', 'compose.review.yml', '-p', os.environ['SMOKE_PROJECT'], 'port', 'proxy', '80'], text=True).strip()
+          base = 'http://' + published
           deadline = time.monotonic() + 90
           while time.monotonic() < deadline:
               try:
-                  with urllib.request.urlopen("http://127.0.0.1:8104/health/ready", timeout=3) as response:
+                  with urllib.request.urlopen(base + '/health/ready', timeout=3) as response:
                       if response.status == 200 and json.load(response) == {"status": "ready"}:
                           print("Prontidão confirmada pelo proxy real.")
                           break
@@ -135,7 +148,7 @@ jobs:
         run: |
           # tools usa root sem DAC_OVERRIDE; o diretório do bind pertence ao runner.
           sudo install -o 0 -g 0 -m 0644 /dev/null artifacts/http-tests.xml
-          docker compose -f compose.yml -p "$SMOKE_PROJECT" run --rm \
+          docker compose -f compose.yml -f compose.review.yml -p "$SMOKE_PROJECT" run --rm \
             -e RUN_HTTP_TESTS=1 -e SENTINEL_EXPECTED_REPLICAS=2 \
             -e SENTINEL_BASE_URL=http://proxy \
             -e SENTINEL_CREDENTIALS_FILE=/secrets/demo.json \
@@ -143,15 +156,26 @@ jobs:
             --junitxml=/artifacts/http-tests.xml \
             2>&1 | tee artifacts/http-tests.log
 
+      - name: Contratos HTTP gerados e controle negativo (grupo contracts obrigatório)
+        run: |
+          base="http://$(docker compose -f compose.yml -f compose.review.yml -p "$SMOKE_PROJECT" port proxy 80)"
+          docker compose -f compose.yml -f compose.review.yml -p "$SMOKE_PROJECT" run --rm -T \
+            tools python scripts/provision_contracts.py --attempt "$SMOKE_PROJECT" --base-url "$base"
+          docker compose -f compose.yml -f compose.review.yml -p "$SMOKE_PROJECT" run --rm -T \
+            contracts python -m pytest -q -p no:cacheprovider tests/contracts
+          docker compose -f compose.yml -f compose.review.yml -p "$SMOKE_PROJECT" run --rm -T \
+            contracts python scripts/verify_contracts.py --attempt "$SMOKE_PROJECT" --base-url http://proxy \
+            --credentials-file /secrets/contracts.json --report /artifacts/contracts-http.json
+
       - name: Coletar diagnóstico, inclusive em caso de falha
         if: always()
         run: |
           mkdir -p artifacts
           docker compose -f compose.test.yml -p "$TEST_PROJECT" \
             logs --no-color --tail 150 > artifacts/test-services.log 2>&1 || true
-          docker compose -f compose.yml -p "$SMOKE_PROJECT" --profile observability \
+          docker compose -f compose.yml -f compose.review.yml -p "$SMOKE_PROJECT" --profile observability \
             logs --no-color --tail 150 > artifacts/smoke-services.log 2>&1 || true
-          docker compose -f compose.yml -p "$SMOKE_PROJECT" --profile observability \
+          docker compose -f compose.yml -f compose.review.yml -p "$SMOKE_PROJECT" --profile observability \
             ps --all > artifacts/smoke-containers.txt 2>&1 || true
 
       - name: Encerrar somente os projetos temporários desta execução
@@ -160,7 +184,7 @@ jobs:
           result=0
           docker compose -f compose.test.yml -p "$TEST_PROJECT" \
             down --volumes --remove-orphans || result=1
-          docker compose -f compose.yml -p "$SMOKE_PROJECT" --profile observability --profile tools \
+          docker compose -f compose.yml -f compose.review.yml -p "$SMOKE_PROJECT" --profile observability --profile tools \
             down --volumes --remove-orphans || result=1
           exit "$result"
 
@@ -170,5 +194,29 @@ jobs:
         with:
           name: sentinel-verification-${{ github.run_id }}-${{ github.run_attempt }}
           path: artifacts/
+          if-no-files-found: warn
+          retention-days: 7
+
+  operational-review:
+    needs: verify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - name: Obter snapshot estável
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Preparar Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+      - name: Revisão completa, comparação de quota e limpeza registrada
+        run: python scripts/review.py --scenario all
+      - name: Preservar evidências e falhas da rodada
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: sentinel-operational-review-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/problem-review/
           if-no-files-found: warn
           retention-days: 7

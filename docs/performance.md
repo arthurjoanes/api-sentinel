@@ -2,6 +2,14 @@
 
 Os números vêm das execuções de **22/09/2026**, às [12:12 UTC](evidence/editorial-20260922/full-run.json) e às [02:19 UTC](evidence/publication.json). Taxas, contagens e percentis descrevem seus cenários locais; não são projeções de produção.
 
+## Comparar janela fixa e GCRA
+
+A [arquitetura](architecture.md#políticas-de-quota) define a taxa por organização, capacidade total de rajada e estado das duas políticas. Os números históricos abaixo foram medidos com janela fixa; eles não são resultados de GCRA nem aprovam automaticamente a versão atual.
+
+O ensaio limitado usa a mesma imagem identificada, inputs e proxy descartável com uma e duas réplicas. Registra permitidos/rejeitados, valores de `Retry-After`, tempo observado e recursos consumidos por rodada. A comparação inclui chegadas próximas à fronteira de um segundo e recuperação após repouso. Uma configuração mista de réplicas invalida o ensaio.
+
+Na troca de política, o gerador para, ambas as réplicas recebem a mesma configuração, o registro confere a configuração efetiva e o TTL anterior, e a carga recomeça depois da expiração do estado. Build, scan e carga pesada executam em sequência; o inventário registra outras tarefas Docker presentes na janela. As políticas mudam a forma de admitir chegadas, e o ensaio não sustenta uma alegação de throughput superior, capacidade máxima ou migração sem interrupção. Resultados novos precisam de recibo próprio em [verificação](verification.md#verificar-a-versão-atual).
+
 ## Execução de 22/09 às 12:12 UTC
 
 Repeti a matriz completa em um projeto Docker novo, com as fontes identificadas na [prova atual](evidence/editorial-20260922/full-run.json). O tráfego usa lojas, vendas e ERP sintéticos; banco, Redis, proxy e requisições são reais. Os critérios não foram reduzidos para aprovar a rodada.

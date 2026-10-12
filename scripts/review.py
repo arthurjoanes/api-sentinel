@@ -18,6 +18,20 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+PACKAGE_INVENTORY = (
+    "import importlib.metadata as m,json; "
+    "print(json.dumps(dict(sorted((d.metadata['Name'],d.version) for d in m.distributions()))))"
+)
+
+
+def validate_cleanup(prefix: list[str], owner: str, record: dict) -> None:
+    if owner not in (record["project"], record["test_project"]):
+        raise RuntimeError("Cleanup project not registered in this attempt.")
+    if "-p" not in prefix or prefix[prefix.index("-p") + 1] != owner:
+        raise RuntimeError("Cleanup command project does not match ownership record.")
+    files = [prefix[index + 1] for index, value in enumerate(prefix) if value == "-f"]
+    if files != record["compose_files"][owner]:
+        raise RuntimeError("Cleanup Compose files do not match the attempt registry.")
 
 
 @contextmanager
@@ -46,6 +60,8 @@ def fingerprint() -> dict[str, str]:
             "compose.review.yml",
             "compose.test.yml",
             "Dockerfile",
+            "README.md",
+            "deploy/contracts/Dockerfile",
             ".dockerignore",
             ".env.example",
             "pyproject.toml",
@@ -65,12 +81,14 @@ def fingerprint() -> dict[str, str]:
         "tests",
         "data",
         "docs/runbooks",
+        ".github",
     ):
         files.extend(
             path
             for path in (ROOT / folder).rglob("*")
             if path.is_file() and "__pycache__" not in path.parts
         )
+    files.extend((ROOT / "docs").glob("*.md"))
     return {
         path.relative_to(ROOT).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
         for path in sorted(files)
@@ -95,9 +113,20 @@ def main() -> None:
     project = "pf-api-sentinel-review-" + run_id
     output = ROOT / "artifacts" / "problem-review" / run_id
     output.mkdir(parents=True, exist_ok=False)
+    # Public sanitized artifacts are written by different restricted container UIDs.
+    # Private credentials stay in the project volume, never in this bind directory.
+    output.chmod(0o777)
     os.environ["SENTINEL_LAB_PROJECT"] = project
     os.environ["SENTINEL_RUN_DIR"] = str(output)
-    os.environ["SENTINEL_TEST_IMAGE"] = "pf-api-sentinel-review:local"
+    image = project + ":local"
+    proxy_image = project + "-proxy:local"
+    contracts_image = project + "-contracts:local"
+    os.environ["SENTINEL_REVIEW_IMAGE"] = image
+    os.environ["SENTINEL_PROXY_IMAGE"] = proxy_image
+    os.environ["SENTINEL_CONTRACTS_IMAGE"] = contracts_image
+    os.environ["SENTINEL_TEST_IMAGE"] = image
+    os.environ["QUOTA_ALGORITHM"] = "fixed-window"
+    os.environ["QUOTA_BURST_CAPACITY"] = "10"
     os.environ["SENTINEL_TEST_ARTIFACTS"] = str(output)
     compose = [
         "docker",
@@ -118,6 +147,13 @@ def main() -> None:
         "id": run_id,
         "started_at": datetime.now(UTC).isoformat(),
         "project": project,
+        "test_project": project + "-tests",
+        "compose_files": {
+            project: [str(ROOT / "compose.yml"), str(ROOT / "compose.review.yml")],
+            project + "-tests": [str(ROOT / "compose.test.yml")],
+        },
+        "images": {"runtime": image, "proxy": proxy_image, "contracts": contracts_image},
+        "execution_policy": "Sequential builds, scans and load; Docker daemon shared.",
         "scenario": args.scenario,
         "source_files_sha256": fingerprint(),
         "commands": [],
@@ -163,6 +199,47 @@ def main() -> None:
 
     def local(*arguments: str) -> list[str]:
         return [*compose, *arguments]
+
+    def inventory(label: str, selected: bool = False) -> dict:
+        result = {}
+        for kind, command in (
+            ("containers", ["docker", "ps", "-a", "--no-trunc"]),
+            ("volumes", ["docker", "volume", "ls"]),
+            ("networks", ["docker", "network", "ls", "--no-trunc"]),
+        ):
+            filters = (
+                ["--filter", "label=com.docker.compose.project=" + project] if selected else []
+            )
+            rows = run(label + "-" + kind, [*command, *filters, "--format", "{{json .}}"])
+            result[kind] = [json.loads(row) for row in rows.splitlines() if row]
+        return result
+
+    def registered_cleanup(prefix: list[str], owner: str, label: str) -> None:
+        validate_cleanup(prefix, owner, record)
+        ids = run(
+            label + "-ids",
+            [
+                "docker",
+                "ps",
+                "-aq",
+                "--no-trunc",
+                "--filter",
+                "label=com.docker.compose.project=" + owner,
+            ],
+        ).splitlines()
+        if ids:
+            labels = run(
+                label + "-labels",
+                ["docker", "inspect", "--format", "{{json .Config.Labels}}", *ids],
+            )
+            rows = [json.loads(row) for row in labels.splitlines()]
+            if any(row.get("com.docker.compose.project") != owner for row in rows):
+                raise RuntimeError("Docker resource ownership mismatch.")
+            record.setdefault("cleanup_resource_labels", {})[owner] = dict(
+                zip(ids, rows, strict=True)
+            )
+        record.setdefault("cleanup_registered_container_ids", {})[owner] = ids
+        run(label, [*prefix, "down", "--volumes", "--remove-orphans"])
 
     def mixed(name: str, mode: str, seconds: int) -> dict:
         before = exp.snapshot()
@@ -281,6 +358,7 @@ def main() -> None:
         if (ROOT / ".git").exists():
             record["source_kind"] = "git_checkout"
             record["working_tree"] = run("git-state", ["git", "status", "--short"])
+            record["diff_before"] = run("git-diff-before", ["git", "diff", "--binary", "HEAD"])
             revision = subprocess.run(
                 ["git", "rev-parse", "--verify", "-q", "HEAD"],
                 cwd=ROOT,
@@ -296,6 +374,7 @@ def main() -> None:
                 git_revision=None,
                 revision_probe_exit_code=None,
             )
+        record["inventory_before"] = inventory("inventory-before")
         record["active_containers_before"] = run(
             "concurrent-services", ["docker", "ps", "--format", "{{.Names}} {{.Image}}"]
         ).splitlines()
@@ -322,8 +401,49 @@ def main() -> None:
         run("build", local("build", "api", "proxy"), timeout=600)
         record["image_id"] = run(
             "image-id",
-            ["docker", "image", "inspect", "pf-api-sentinel-review:local", "--format", "{{.Id}}"],
+            ["docker", "image", "inspect", image, "--format", "{{.Id}}"],
         )
+        record["proxy_image_id"] = run(
+            "proxy-image-id", ["docker", "image", "inspect", proxy_image, "--format", "{{.Id}}"]
+        )
+        record["runtime_packages_before"] = json.loads(
+            run(
+                "runtime-packages-before",
+                local(
+                    "run",
+                    "--rm",
+                    "-T",
+                    "--no-deps",
+                    "tools",
+                    "python",
+                    "-c",
+                    PACKAGE_INVENTORY,
+                ),
+            )
+        )
+        assert "schemathesis" not in {name.lower() for name in record["runtime_packages_before"]}
+        run(
+            "contracts-build",
+            [
+                "docker",
+                "build",
+                "-f",
+                "deploy/contracts/Dockerfile",
+                "--build-arg",
+                "SENTINEL_API_IMAGE=" + image,
+                "-t",
+                contracts_image,
+                ".",
+            ],
+            timeout=600,
+        )
+        record["contracts_image_id"] = run(
+            "contracts-image-id",
+            ["docker", "image", "inspect", contracts_image, "--format", "{{.Id}}"],
+        )
+        from review_scans import scan_images
+
+        record["vulnerability_scan"] = scan_images(run, output, image, proxy_image)
         run("lint", local("run", "--rm", "-T", "tools", "ruff", "check", "."))
         run("format", local("run", "--rm", "-T", "tools", "ruff", "format", "--check", "."))
         run("types", local("run", "--rm", "-T", "tools", "mypy", "--cache-dir=/tmp/mypy-cache"))
@@ -332,7 +452,7 @@ def main() -> None:
             "isolated-tests",
             [*tests, "up", "--abort-on-container-exit", "--exit-code-from", "tests", "tests"],
         )
-        run("isolated-cleanup", [*tests, "down", "--volumes", "--remove-orphans"])
+        registered_cleanup(tests, project + "-tests", "isolated-cleanup")
         run("database", local("up", "-d", "--wait", "postgres", "redis"))
         run("seed", local("run", "--rm", "-T", "tools", "python", "scripts/bootstrap.py"))
         run("start", local("--profile", "observability", "up", "-d", "--scale", "api=2"))
@@ -347,6 +467,7 @@ def main() -> None:
         )
         ops.wait_until("duas réplicas coletadas", lambda: len(ops.healthy_targets()) == 2)
         record["urls"] = ops.LOCAL_URLS
+        record["owned_resources"] = inventory("owned-resources", selected=True)
         print(json.dumps({"urls_locais_desta_execucao": ops.LOCAL_URLS}), flush=True)
         destinations = {
             key: value
@@ -385,6 +506,57 @@ def main() -> None:
                 connection.close()
         run("oracle", local("run", "--rm", "-T", "tools", "python", "scripts/review_oracle.py"))
         run(
+            "contracts-fixtures",
+            local(
+                "run",
+                "--rm",
+                "-T",
+                "tools",
+                "python",
+                "scripts/provision_contracts.py",
+                "--attempt",
+                project,
+                "--base-url",
+                ops.LOCAL_URLS["proxy"],
+            ),
+        )
+        run(
+            "contracts-selftest",
+            local(
+                "run",
+                "--rm",
+                "-T",
+                "contracts",
+                "python",
+                "-m",
+                "pytest",
+                "-q",
+                "-p",
+                "no:cacheprovider",
+                "tests/contracts",
+            ),
+        )
+        run(
+            "contracts-http",
+            local(
+                "run",
+                "--rm",
+                "-T",
+                "contracts",
+                "python",
+                "scripts/verify_contracts.py",
+                "--base-url",
+                "http://proxy",
+                "--attempt",
+                project,
+                "--credentials-file",
+                "/secrets/contracts.json",
+                "--report",
+                "/artifacts/contracts-http.json",
+            ),
+        )
+        record["contracts"] = json.loads((output / "contracts-http.json").read_text())
+        run(
             "contract-mutations", local("run", "--rm", "-T", "k6", "run", "/load/contract-check.js")
         )
         run(
@@ -406,6 +578,14 @@ def main() -> None:
             ),
         )
         if args.scenario in ("all", "load"):
+            from quota_compare import quota_comparison
+
+            record["quota_comparison"] = quota_comparison(
+                ops.compose, ops.LOCAL_URLS["proxy"], exp.TOKENS["tenant_a"], record["image_id"]
+            )
+            (output / "quota-comparison.json").write_text(
+                json.dumps(record["quota_comparison"], indent=2)
+            )
             record["cache"] = exp.cache_experiment()
             record["loads"] = [mixed("warmup", "mixed", 5), mixed("mixed-normal", "mixed", 15)]
             exp.erp_mode("trickle")
@@ -513,6 +693,22 @@ def main() -> None:
         assert not leaks, "Segredo encontrado nos artefatos: " + ", ".join(leaks)
         record["source_unchanged"] = fingerprint() == record["source_files_sha256"]
         assert record["source_unchanged"], "Fontes mudaram durante a medição; repita a execução."
+        record["runtime_packages_after"] = json.loads(
+            run(
+                "runtime-packages-after",
+                local(
+                    "run",
+                    "--rm",
+                    "-T",
+                    "--no-deps",
+                    "tools",
+                    "python",
+                    "-c",
+                    PACKAGE_INVENTORY,
+                ),
+            )
+        )
+        assert record["runtime_packages_before"] == record["runtime_packages_after"]
         record["status"] = "passed"
     except BaseException as exc:
         record["status"] = "failed"
@@ -528,25 +724,55 @@ def main() -> None:
         # Both names were generated here, never supplied by caller or taken from demo.
         with record_cleanup_outcome(record, save):
             try:
-                run("cleanup-tests", [*tests, "down", "--volumes", "--remove-orphans"])
-            finally:
-                cleanup = local(
-                    "--profile",
-                    "observability",
-                    "--profile",
-                    "tools",
-                    "down",
-                    "--volumes",
-                    "--remove-orphans",
+                record["source_files_sha256_after"] = fingerprint()
+                record["source_unchanged"] = (
+                    record["source_files_sha256_after"] == record["source_files_sha256"]
                 )
-                if args.keep and record["status"] == "cleanup_pending":
-                    record["cleanup_command"] = cleanup
-                    print(
-                        "Stack preservada por --keep; cleanup_command está em run.json.",
-                        flush=True,
+                if (ROOT / ".git").exists():
+                    record["diff_after"] = run(
+                        "git-diff-after", ["git", "diff", "--binary", "HEAD"]
                     )
-                else:
-                    run("cleanup-lab", cleanup)
+                    record["git_revision_after"] = run(
+                        "git-revision-after", ["git", "rev-parse", "HEAD"]
+                    )
+                    record["source_unchanged"] = record["source_unchanged"] and (
+                        record["git_revision_after"] == record["git_revision"]
+                        and record["diff_after"] == record["diff_before"]
+                    )
+                if not record["source_unchanged"]:
+                    raise RuntimeError("Sources changed; results are invalid for this snapshot.")
+            except BaseException as exc:
+                record["status"] = "failed"
+                record["source_audit_failure"] = {"type": type(exc).__name__, "message": str(exc)}
+                raise
+            finally:
+                try:
+                    registered_cleanup(tests, project + "-tests", "cleanup-tests")
+                finally:
+                    cleanup = local(
+                        "--profile",
+                        "observability",
+                        "--profile",
+                        "tools",
+                        "down",
+                        "--volumes",
+                        "--remove-orphans",
+                    )
+                    if args.keep and record["status"] == "cleanup_pending":
+                        record["cleanup_command"] = cleanup
+                        print(
+                            "Stack preservada por --keep; cleanup_command está em run.json.",
+                            flush=True,
+                        )
+                    else:
+                        registered_cleanup(cleanup[:-3], project, "cleanup-lab")
+                        record["inventory_after"] = inventory("inventory-after")
+                        record["owned_resources_after"] = inventory(
+                            "owned-resources-after", selected=True
+                        )
+                        assert not any(record["owned_resources_after"].values()), (
+                            "Attempt resources remain."
+                        )
     print(f"Evidências: {output}", flush=True)
 
 

@@ -38,6 +38,32 @@ class EvidenceSourceIdentity(unittest.TestCase):
 
 
 class CleanupRecording(unittest.TestCase):
+    def test_cleanup_requires_registered_project_and_compose_files(self) -> None:
+        record = {
+            "project": "review-a",
+            "test_project": "review-a-tests",
+            "compose_files": {"review-a": ["compose.yml", "compose.review.yml"]},
+        }
+        valid = [
+            "docker",
+            "compose",
+            "-p",
+            "review-a",
+            "-f",
+            "compose.yml",
+            "-f",
+            "compose.review.yml",
+        ]
+        REVIEW.validate_cleanup(valid, "review-a", record)
+        for command, owner in (
+            (valid, "other"),
+            (["docker", "compose", "-p", "other", "-f", "compose.yml"], "review-a"),
+            (valid[:-2], "review-a"),
+            (["docker", "compose", "-f", "compose.yml"], "review-a"),
+        ):
+            with self.subTest(command=command, owner=owner), self.assertRaises(RuntimeError):
+                REVIEW.validate_cleanup(command, owner, record)
+
     def test_success_is_not_published_until_cleanup_finishes(self) -> None:
         record = {"status": "passed"}
         snapshots = []

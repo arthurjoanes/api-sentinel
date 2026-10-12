@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-12",
+  "skill": "humanizer 3.1.0",
+  "skill_source": "local humanizer/SKILL.md",
+  "mode": "embedded/file",
+  "base_commit": "5c13e59fe5c32d61725381b5a74475bd28a665b9",
+  "workflow": [
+    "leitura integral dos sete documentos e da skill local",
+    "identificação de repetições e afirmações com escopo amplo",
+    "redação baseada nos contratos atuais e nas referências primárias consultadas",
+    "conferência de comandos, números, URLs e evidências históricas",
+    "releitura final e verificação de links locais e git diff --check"
+  ],
+  "primary_sources": {
+    "http_contract": "docs/data-contract.md",
+    "quota_contract": "docs/architecture.md",
+    "execution": "docs/verification.md"
+  },
+  "source_references": [
+    "https://github.com/brandur/redis-cell#usage",
+    "https://schemathesis.readthedocs.io/en/stable/reference/checks/",
+    "https://schemathesis.readthedocs.io/en/stable/guides/auth/"
+  ],
+  "files": [
+    {
+      "path": "README.md",
+      "base_git_blob_sha1": "eb506f59ec2f65c125bde6f6cb2e0de865ef37cc",
+      "canonical_git_content_sha256": "5832a951e57280364825a88e74de60658ee132938099467228b04e1908a487b2",
+      "git_blob_sha1": "63c264251873f47765387ec8726559cc85bf553e",
+      "scope": "Current prose and operational instructions; historical execution records remain unchanged."
+    },
+    {
+      "path": "docs/architecture.md",
+      "base_git_blob_sha1": "d8bd559c5bca5a99e91f10c2a6fc782b16df446f",
+      "canonical_git_content_sha256": "c40f0f37783a5828013acf003e0de3c487ddf02ad639133187ea5ca4e793125a",
+      "git_blob_sha1": "7da7798beb9fe344cd85fb1c15b25f2ed87ae85c",
+      "scope": "Current prose and operational instructions; historical execution records remain unchanged."
+    },
+    {
+      "path": "docs/demo.md",
+      "base_git_blob_sha1": "a408829ff578a4e40a9355f74a404e7ecebb5f6f",
+      "canonical_git_content_sha256": "798e1cb9111cbdd555b9e3b68f303e0638e62bb5e37cf4e7a940b60234b4ae08",
+      "git_blob_sha1": "c67c32823bc3927d1f2f828ffb988fa4131f425d",
+      "scope": "Current prose and operational instructions; historical execution records remain unchanged."
+    },
+    {
+      "path": "docs/data-contract.md",
+      "base_git_blob_sha1": "3c931d04d4d3eb0ab6d550fff5d053523515bded",
+      "canonical_git_content_sha256": "af1dc4f0934f600ce394915ac05fdeb4a4ca2c95855c689fd588f2f3ef83c7db",
+      "git_blob_sha1": "612c8d745774d7546dc3e7499eb8d3857f0adc74",
+      "scope": "Current prose and operational instructions; historical execution records remain unchanged."
+    },
+    {
+      "path": "docs/performance.md",
+      "base_git_blob_sha1": "9f60fda67f1c16d3196c0933883d7eeafb25d9bd",
+      "canonical_git_content_sha256": "cde104b56f7e0eb90d051363ece1939794f82a541a5017eff401972e9a83d67b",
+      "git_blob_sha1": "60c53e264e05bb02153ec98d46acc9334f16b50c",
+      "scope": "Current prose and operational instructions; historical execution records remain unchanged."
+    },
+    {
+      "path": "docs/security.md",
+      "base_git_blob_sha1": "01b631752adbdce0a7ed10d0c6a587afcf0cce9d",
+      "canonical_git_content_sha256": "86bf6ed36e78978bd855d080d53b088c302f55d8634fbe233397385a88926c5f",
+      "git_blob_sha1": "93bc1039495dc7ae0a8104aa1297d8fd60217d8e",
+      "scope": "Current prose and operational instructions; historical execution records remain unchanged."
+    },
+    {
+      "path": "docs/verification.md",
+      "base_git_blob_sha1": "579f7587c1fe8412b8ac48fa072ab2e3eef4681c",
+      "canonical_git_content_sha256": "dc925feae128899da7faf34bc710ca644ec153f6461973022a577c03849008cc",
+      "git_blob_sha1": "a521e7a0ad053e33ca7d8747cdf04f280d476dab",
+      "scope": "Current prose and operational instructions; historical execution records remain unchanged."
+    }
+  ],
+  "preserved_historical_manifests": [
+    "docs/evidence/editorial-20260922/",
+    "docs/evidence/security-review-20261003/humanizer.json",
+    "docs/evidence/security-review-20261003/verification.json",
+    "docs/evidence/interface-navigation.json",
+    "docs/evidence/frontend-quality/package.json"
+  ],
+  "protected_elements": "Comandos fora do incremento, números, URLs, IDs, datas, evidências e hashes históricos preservados. Novos comandos e defaults documentam o incremento; o desenho de quota passa a representar as duas políticas. A receita de limpeza foi atualizada para validar projeto/arquivos registrados e aplicar/restaurar os cinco campos de ambiente exigidos.",
+  "remaining_patterns": "Limites técnicos, erros contratuais e escopo histórico mantidos; sem afirmações novas de aprovação ou desempenho.",
+  "hash_scope": "UTF-8 text normalized to LF, matching publication text policy; SHA-1 Git blobs recorded separately.",
+  "execution_scope": "Editorial record only. New runtime gates and measurements require a separate receipt identifying their source snapshot and image.",
+  "cleanup_followup": {
+    "file": "docs/demo.md",
+    "powershell_blocks_parse": "passed",
+    "mocked_docker_command": "passed",
+    "registered_project_and_files": "passed",
+    "all_five_environment_fields_set_and_restored": "passed",
+    "absent_prior_variables_removed": "passed",
+    "resources_removed": false,
+    "scope": "Only the documented recipe was executed with Docker replaced by a local mock; no runtime cleanup was performed."
+  }
+}
