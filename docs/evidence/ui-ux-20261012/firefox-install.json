@@ -1,0 +1,16 @@
+{
+  "operation": "official Playwright 1.63.0 Firefox install",
+  "timeout_ms": 120000,
+  "exit_code": 1,
+  "status": "failed",
+  "external_cache_modified": false,
+  "urls": [
+    "https://cdn.playwright.dev/dbazure/download/playwright/builds/firefox/1543/firefox-win64.zip",
+    "https://playwright.download.prss.microsoft.com/dbazure/download/playwright/builds/firefox/1543/firefox-win64.zip",
+    "https://cdn.playwright.dev/builds/firefox/1543/firefox-win64.zip"
+  ],
+  "publication": {
+    "original_attempt": "firefox-install-final",
+    "original_receipt_sha256": "23f746a07c97e3c4c9259fba7d202f3aa5f1278b55b34ec74d82d383f0735080"
+  }
+}
