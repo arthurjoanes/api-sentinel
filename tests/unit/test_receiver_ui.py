@@ -1,5 +1,9 @@
+import shutil
+import subprocess
 from datetime import UTC, datetime, timedelta
 from html.parser import HTMLParser
+from pathlib import Path
+from urllib.parse import parse_qs, urlsplit
 
 import pytest
 
@@ -289,3 +293,145 @@ def test_runbook_preserves_code_lists_and_safe_section_navigation() -> None:
         if tag == "a" and (attrs.get("href") or "").startswith("#etapa-")
     }
     assert links == section_ids == {"etapa-1", "etapa-2"}
+
+
+def evidence_incident(*, active: bool = False, hours: int = 1) -> Incident:
+    start = datetime(2026, 10, 1, 12, tzinfo=UTC)
+    end = start + timedelta(hours=hours)
+    return Incident(
+        id=42,
+        fingerprint="abcdef42",
+        starts_at=start,
+        ends_at=None if active else end,
+        status="firing" if active else "resolved",
+        first_received_at=start,
+        last_received_at=end,
+        deliveries=2,
+        labels={},
+        annotations={"summary": "Ocorrência sintética"},
+    )
+
+
+def test_snapshot_heading_and_probe_precede_queue_and_lookup_has_visible_entry() -> None:
+    document = ui.home(page(), ProbeState(), "firing")
+    assert document.index('class="page-heading"') < document.index('class="triage-workspace"')
+    assert document.index('class="observation-workspace"') < document.index('class="inbox"')
+    assert "Leitura de" in document and "Atualização manual" in document
+    assert 'href="#buscar-incidente">Abrir por ID' in document
+    assert (
+        'id="buscar-incidente"' in document and 'action="/incident-lookup" method="get"' in document
+    )
+    assert 'pattern="[0-9]{1,19}"' in document and 'maxlength="19"' in document
+
+
+def test_row_exposes_id_and_both_dates_in_the_same_recent_cell() -> None:
+    record = evidence_incident()
+    document = ui.incident_row(record)
+    assert '<h3><span class="row-reference">' in document
+    assert '<span class="visually-hidden">Incidente </span>#42</span>' in document
+    recent = document.split('<div class="row-recent">', 1)[1].split("</div>", 1)[0]
+    assert "Início" in recent and "Recuperação" in recent
+    assert "01/10/2026 · 12:00:00 UTC" in recent and "01/10/2026 · 13:00:00 UTC" in recent
+
+
+@pytest.mark.parametrize("active,hours", [(False, 1), (True, 1), (False, 72)])
+def test_evidence_links_use_saved_period_correct_units_and_bounded_recrop(
+    active: bool, hours: int
+) -> None:
+    record = evidence_incident(active=active, hours=hours)
+    document = ui.incident_card(record, "resolved")
+    links = [attrs["href"] for tag, attrs in Elements(document).tags if tag == "a"]
+    metrics = parse_qs(urlsplit(next(link for link in links if "/grafana/" in link)).query)
+    traces = parse_qs(urlsplit(next(link for link in links if "/jaeger/" in link)).query)
+    end = record.last_received_at
+    start = max(record.starts_at, end - timedelta(hours=24))
+    assert metrics["from"] == [str(int(start.timestamp() * 1000))]
+    assert metrics["to"] == [str(int(end.timestamp() * 1000))]
+    assert traces["start"] == [str(int(start.timestamp() * 1_000_000))]
+    assert traces["end"] == [str(int(end.timestamp() * 1_000_000))]
+    assert traces["service"] == ["api-sentinel"] and traces["limit"] == ["20"]
+    assert traces["sentinel_status"] == ["resolved"] and traces["sentinel_incident"] == ["42"]
+    assert "Traces são amostrados" in document and "Regras atuais" in document
+    assert ("Recorte de até 24 horas" in document) == (hours > 24)
+
+
+def test_unknown_period_does_not_invent_historical_evidence() -> None:
+    record = evidence_incident()
+    record.ends_at = None
+    document = ui.incident_card(record)
+    assert "Período da evidência indisponível" in document
+    assert "/tools/jaeger/search" not in document and "from=" not in document
+
+
+def test_detail_shows_saved_period_and_snapshot_before_actions() -> None:
+    record = evidence_incident(hours=72)
+    document = ui.incident_detail(record, [], generated_at=datetime.now(UTC))
+    assert document.index('class="detail-period"') < document.index('class="decision-strip"')
+    assert "01/10/2026 · 12:00:00 UTC" in document and "04/10/2026 · 12:00:00 UTC" in document
+    assert "Atualizar ocorrência" in document and "Leitura de" in document
+
+
+def test_probe_deadline_is_recorded_from_server_observation() -> None:
+    checked = datetime(2026, 10, 1, 12, tzinfo=UTC)
+    probe = ProbeState(result="success", checked_at=checked, stale_after_seconds=15)
+    document = ui.probe_observation(probe, checked + timedelta(seconds=5))
+    assert (
+        f'data-expires-at-ms="{int((checked + timedelta(seconds=15)).timestamp() * 1000)}"'
+        in document
+    )
+    assert (
+        f'data-observed-at-ms="{int((checked + timedelta(seconds=5)).timestamp() * 1000)}"'
+        in document
+    )
+    assert 'data-expires-in-ms="10000"' in document
+    assert "Última consulta" in document and "01/10/2026 · 12:00:00 UTC" in document
+    assert 'href="#observacao"' not in document
+    home = ui.home(page(), probe, "all")
+    assert 'href="#observacao">Ver probe' in home and '<details id="observacao">' in home
+
+
+def test_javascript_expiry_counts_slow_navigation_and_never_revives_on_restore() -> None:
+    node = shutil.which("node")
+    if node is None:
+        pytest.skip("Browser/Node gate exercises the external snapshot script.")
+    script = Path(ui.__file__).with_name("snapshot.js")
+    program = r"""
+const vm = require('node:vm');
+const source = require('node:fs').readFileSync(process.argv[1], 'utf8');
+function check(elapsed, wall, nav=true, fields=true) {
+  const nodes = {title:{textContent:'fresh'}, description:{textContent:''}, dot:{className:'good'}};
+  const observation = {
+    dataset: fields ? {expiresInMs:'10000', observedAtMs:'100000', expiresAtMs:'110000'} :
+      {expiresInMs:'10000'},
+    querySelector: sel => sel.includes('title') ? nodes.title :
+      sel.includes('description') ? nodes.description : nodes.dot
+  };
+  const handlers = {}; let timer;
+  const listen = (name,fn) => (handlers[name] ??= []).push(fn);
+  const clock = {elapsed, wall};
+  const context = {
+    document: {querySelector:sel=>sel==='[data-expires-in-ms]'?observation:null,
+      addEventListener:listen},
+    window: {location:{hash:''},addEventListener:listen},
+    performance: {now:()=>clock.elapsed,getEntriesByType:()=>nav?[{startTime:0}]:[]},
+    Date:{now:()=>clock.wall},setTimeout:fn=>timer=fn
+  };
+  vm.runInNewContext(source, context);
+  return {nodes,handlers,clock,timer};
+}
+function assert(value) { if(!value) throw Error('snapshot expiry contract'); }
+assert(check(12000,100001).nodes.title.textContent==='Resultado desatualizado');
+assert(check(1,110001).nodes.title.textContent==='Resultado desatualizado');
+assert(check(1,100001,false).nodes.title.textContent==='Resultado desatualizado');
+assert(check(1,100001,true,false).nodes.title.textContent==='Resultado desatualizado');
+const recent=check(500,100500); assert(recent.nodes.title.textContent==='fresh');
+recent.clock.elapsed=10001; recent.clock.wall=90000;
+recent.handlers.pageshow.forEach(fn=>fn());
+assert(recent.nodes.title.textContent==='Resultado desatualizado');
+recent.clock.elapsed=100; recent.handlers.visibilitychange.forEach(fn=>fn());
+assert(recent.nodes.title.textContent==='Resultado desatualizado');
+"""
+    result = subprocess.run(
+        [node, "-e", program, str(script)], capture_output=True, text=True, timeout=10
+    )
+    assert result.returncode == 0, result.stderr

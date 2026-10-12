@@ -3,12 +3,14 @@ import contextlib
 import hmac
 import json
 import logging
+import re
 import sqlite3
 import uuid
 from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Annotated, Literal
+from urllib.parse import parse_qsl, urlencode
 
 from fastapi import FastAPI, Query, Request
 from fastapi import Path as PathParameter
@@ -103,31 +105,96 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.state.active_requests = 0
     webhook_rate = RateLimit(rate=10, burst=20)
 
+    def navigation_context(request: Request) -> tuple[str, int | None]:
+        value = request.query_params.get(
+            "sentinel_status", request.query_params.get("status", "all")
+        )
+        status = value if value in {"all", "firing", "resolved"} else "all"
+        path_identity = re.fullmatch(r"/incidents/([0-9]{1,19})", request.url.path)
+        raw = str(
+            request.path_params.get(
+                "incident_id",
+                path_identity.group(1)
+                if path_identity
+                else request.query_params.get(
+                    "sentinel_incident", request.query_params.get("incident_id", "")
+                ),
+            )
+        )
+        identity = int(raw) if re.fullmatch(r"[0-9]{1,19}", raw) else 0
+        return status, identity if 1 <= identity <= 2**63 - 1 else None
+
+    def is_navigation(request: Request) -> bool:
+        return (
+            request.url.path in {"/", "/incident-lookup", "/runbooks"}
+            or request.url.path.startswith(("/incidents/", "/runbooks/"))
+            or (
+                request.url.path.startswith("/tools/")
+                and "text/html" in request.headers.get("accept", "")
+            )
+        )
+
+    def navigation_problem(
+        request: Request,
+        status: int,
+        title: str,
+        detail: str,
+        *,
+        retry: bool = False,
+    ) -> HTMLResponse:
+        incident_filter, incident_id = navigation_context(request)
+        retry_url = None
+        if retry:
+            if request.url.path.startswith("/incidents/") and incident_id is not None:
+                retry_url = f"/incidents/{incident_id}?status={incident_filter}"
+            elif request.url.path.removeprefix("/runbooks/") in RUNBOOKS:
+                slug = request.url.path.removeprefix("/runbooks/")
+                retry_url = f"/runbooks/{slug}?status={incident_filter}"
+                if incident_id is not None:
+                    retry_url += f"&incident_id={incident_id}"
+            elif request.url.path.startswith("/tools/"):
+                known = {"from", "to", "service", "start", "end", "lookback", "limit"}
+                query = urlencode(
+                    [(key, value) for key, value in parse_qsl(request.url.query) if key in known]
+                )
+                retry_url = request.url.path + ("?" + query if query else "")
+                if incident_id is not None:
+                    retry_url = ui.tool_context(retry_url, incident_filter, incident_id)
+            else:
+                retry_url = ui.central_url(incident_filter)
+        return HTMLResponse(
+            ui.problem_page(
+                status,
+                title,
+                detail,
+                incident_filter=incident_filter,
+                incident_id=incident_id,
+                retry_url=retry_url,
+            ),
+            status_code=status,
+        )
+
     @application.exception_handler(RequestValidationError)
     async def invalid_parameters(request: Request, exc: RequestValidationError) -> Response:
-        if request.url.path == "/" or request.url.path.startswith(("/incidents/", "/runbooks/")):
-            return HTMLResponse(
-                ui.problem_page(
-                    422,
-                    "Consulta inválida",
-                    "Confira o endereço ou volte à central.",
-                ),
-                status_code=422,
+        if is_navigation(request):
+            return navigation_problem(
+                request,
+                422,
+                "Consulta inválida",
+                "Confira o endereço ou volte à central.",
             )
         return problem(422, "invalid_request", "Parâmetros de consulta inválidos.")
 
     @application.exception_handler(sqlite3.Error)
     async def storage_unavailable(request: Request, exc: sqlite3.Error) -> Response:
         logger.error(json.dumps({"event": "alert_read_failed", "category": "storage"}))
-        if request.url.path == "/" or request.url.path.startswith("/incidents/"):
-            return HTMLResponse(
-                ui.problem_page(
-                    503,
-                    "Histórico indisponível",
-                    "Falha ao ler incidentes. Confira o armazenamento "
-                    "do receiver e tente novamente.",
-                ),
-                status_code=503,
+        if is_navigation(request):
+            return navigation_problem(
+                request,
+                503,
+                "Histórico indisponível",
+                "Falha ao ler incidentes. Confira o armazenamento do receiver e tente novamente.",
+                retry=True,
             )
         return problem(503, "receiver_storage", "Histórico indisponível.")
 
@@ -135,24 +202,38 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     async def bounded_receiver(
         request: Request, call_next: Callable[[Request], Awaitable[Response]]
     ) -> Response:
+        response: Response
         if application.state.active_requests >= 24:
             if request.url.path == "/webhook":
                 metrics.webhooks.labels(result="busy").inc()
-            return problem(503, "receiver_busy", "Receiver ocupado. Tente novamente.")
-        application.state.active_requests += 1
-        try:
-            response = await call_next(request)
-            response.headers["Content-Security-Policy"] = (
-                "default-src 'none'; style-src 'self'; script-src 'self'; img-src 'self'; "
-                "font-src 'self'; base-uri 'none'; "
-                "frame-ancestors 'none'; form-action 'self'"
+            response = (
+                navigation_problem(
+                    request,
+                    503,
+                    "Receiver ocupado",
+                    "Não foi possível concluir esta leitura. Tente novamente.",
+                    retry=True,
+                )
+                if is_navigation(request)
+                else problem(503, "receiver_busy", "Receiver ocupado. Tente novamente.")
             )
-            response.headers["X-Content-Type-Options"] = "nosniff"
-            response.headers["Referrer-Policy"] = "no-referrer"
-            response.headers["Cache-Control"] = "no-store"
-            return response
-        finally:
-            application.state.active_requests -= 1
+        else:
+            application.state.active_requests += 1
+            try:
+                response = await call_next(request)
+            finally:
+                application.state.active_requests -= 1
+        if response.status_code == 503:
+            response.headers.setdefault("Retry-After", "1")
+        response.headers["Content-Security-Policy"] = (
+            "default-src 'none'; style-src 'self'; script-src 'self'; img-src 'self'; "
+            "font-src 'self'; base-uri 'none'; "
+            "frame-ancestors 'none'; form-action 'self'"
+        )
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["Referrer-Policy"] = "no-referrer"
+        response.headers["Cache-Control"] = "no-store"
+        return response
 
     @application.get("/health/live")
     async def live() -> dict[str, str]:
@@ -252,10 +333,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @application.get("/api/incidents/{incident_id}")
     async def incident_json(incident_id: IncidentId) -> Response:
-        record = await asyncio.to_thread(store.incident, incident_id)
+        record, events, _ = await asyncio.to_thread(store.incident_snapshot, incident_id)
         if record is None:
             return problem(404, "incident_not_found", "Ocorrência não encontrada.")
-        events = await asyncio.to_thread(store.events, incident_id)
         return JSONResponse(
             {
                 "incident": record.model_dump(mode="json"),
@@ -268,20 +348,36 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         page = await asyncio.to_thread(store.page, None if status == "all" else status)
         return ui.home(page, probe, status)
 
+    @application.get("/incident-lookup")
+    async def lookup(incident_id: str = "", status: IncidentFilter = "all") -> Response:
+        identity = int(incident_id) if re.fullmatch(r"[0-9]{1,19}", incident_id) else 0
+        if 1 <= identity <= 2**63 - 1:
+            return RedirectResponse(f"/incidents/{identity}?status={status}", status_code=303)
+        page = await asyncio.to_thread(store.page, None if status == "all" else status)
+        return HTMLResponse(
+            ui.home(
+                page,
+                probe,
+                status,
+                lookup_error="Informe um ID entre 1 e 9223372036854775807.",
+                lookup_value=incident_id[:19],
+            ),
+            status_code=422,
+        )
+
     @application.get("/incidents/{incident_id}", response_class=HTMLResponse)
-    async def incident_html(incident_id: IncidentId, status: IncidentFilter = "all") -> Response:
-        record = await asyncio.to_thread(store.incident, incident_id)
+    async def incident_html(
+        request: Request, incident_id: IncidentId, status: IncidentFilter = "all"
+    ) -> Response:
+        record, events, generated_at = await asyncio.to_thread(store.incident_snapshot, incident_id)
         if record is None:
-            return HTMLResponse(
-                ui.problem_page(
-                    404,
-                    "Ocorrência não encontrada",
-                    "Incidente não encontrado. O histórico de resolvidos pode ter expirado.",
-                ),
-                status_code=404,
+            return navigation_problem(
+                request,
+                404,
+                "Ocorrência não encontrada",
+                "Incidente não encontrado. O histórico de resolvidos pode ter expirado.",
             )
-        events = await asyncio.to_thread(store.events, incident_id)
-        return HTMLResponse(ui.incident_detail(record, events, status))
+        return HTMLResponse(ui.incident_detail(record, events, status, generated_at=generated_at))
 
     @application.get("/styles.css")
     async def styles() -> FileResponse:
@@ -306,30 +402,36 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @application.get("/tools/{service}/{path:path}")
     async def investigate(request: Request, service: str, path: str) -> Response:
+        forwarded_query = urlencode(
+            [
+                (key, value)
+                for key, value in parse_qsl(request.url.query)
+                if key not in {"sentinel_status", "sentinel_incident"}
+            ]
+        )
         try:
             destination = await asyncio.to_thread(
-                tool_url, service, path, request.url.query, settings.public_urls_file
+                tool_url, service, path, forwarded_query, settings.public_urls_file
             )
         except KeyError:
             if "text/html" in request.headers.get("accept", ""):
-                return HTMLResponse(
-                    ui.problem_page(
-                        404, "Ferramenta desconhecida", "Use os links de investigação da central."
-                    ),
-                    status_code=404,
+                return navigation_problem(
+                    request,
+                    404,
+                    "Ferramenta desconhecida",
+                    "Use os links de investigação da central.",
                 )
             return problem(404, "tool_not_found", "Ferramenta desconhecida.")
         except (OSError, ValueError, TypeError):
             if "text/html" in request.headers.get("accept", ""):
-                return HTMLResponse(
-                    ui.problem_page(
-                        503,
-                        "Investigação indisponível",
-                        "O endereço da ferramenta não está configurado para esta execução. "
-                        "Confira os destinos locais antes de tentar novamente; "
-                        "o histórico de incidentes continua acessível.",
-                    ),
-                    status_code=503,
+                return navigation_problem(
+                    request,
+                    503,
+                    "Investigação indisponível",
+                    "O endereço da ferramenta não está configurado para esta execução. "
+                    "Confira os destinos locais antes de tentar novamente; "
+                    "o histórico de incidentes continua acessível.",
+                    retry=True,
                 )
             return problem(
                 503,
@@ -344,29 +446,29 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @application.get("/runbooks/{slug}", response_class=HTMLResponse)
     async def runbook(
-        slug: str, incident_id: OriginIncidentId = None, status: IncidentFilter = "all"
+        request: Request,
+        slug: str,
+        incident_id: OriginIncidentId = None,
+        status: IncidentFilter = "all",
     ) -> Response:
         if slug not in RUNBOOKS:
-            return HTMLResponse(
-                ui.problem_page(
-                    404,
-                    "Runbook não encontrado",
-                    "Abra o runbook pelo incidente na central.",
-                ),
-                status_code=404,
+            return navigation_problem(
+                request,
+                404,
+                "Runbook não encontrado",
+                "Abra o runbook pelo incidente na central.",
             )
         try:
             markdown = await asyncio.to_thread(
                 (settings.runbooks_path / f"{slug}.md").read_text, encoding="utf-8"
             )
         except FileNotFoundError:
-            return HTMLResponse(
-                ui.problem_page(
-                    503,
-                    "Runbook temporariamente indisponível",
-                    "Runbook ausente. Confira docs/runbooks na imagem do receiver.",
-                ),
-                status_code=503,
+            return navigation_problem(
+                request,
+                503,
+                "Runbook temporariamente indisponível",
+                "Runbook ausente. Confira docs/runbooks na imagem do receiver.",
+                retry=True,
             )
         return HTMLResponse(ui.runbook_page(slug, markdown, incident_id=incident_id, status=status))
 

@@ -62,7 +62,6 @@ def code_block(source: str, language: str) -> str:
     label = _LABELS[language]
     return (
         f'<div class="code-block"><span class="code-language">{label}</span>'
-        f'<pre tabindex="0" aria-label="Código {label}"><code class="language-{language}">'
-        + "".join(fragments)
-        + "</code></pre></div>"
+        f'<pre tabindex="0" role="region" aria-label="Código {label}">'
+        f'<code class="language-{language}">' + "".join(fragments) + "</code></pre></div>"
     )
