@@ -14,8 +14,8 @@ from pathlib import Path
 
 FIXTURE_NOW = datetime(2026, 10, 12, 6, 0, tzinfo=UTC)
 NOTICE = (
-    '<p class="review-note">Prévia de revisão · ocorrências e observações sintéticas; '
-    "não é o estado da stack. Relógio dos dados: 12/10/2026, 06:00 UTC.</p>"
+    '<p class="review-note">Prévia local · dados sintéticos. '
+    "Referência dos dados: 12/10/2026, 06:00 UTC.</p>"
 )
 
 
@@ -81,7 +81,7 @@ def build_app(source: Path, run_dir: Path):
         return contracts.Webhook.model_validate(
             {
                 "version": "4",
-                "receiver": "ui-review-fixture",
+                "receiver": "browser-checks-fixture",
                 "status": status,
                 "alerts": [
                     {
@@ -114,7 +114,7 @@ def build_app(source: Path, run_dir: Path):
                                 3: "Menos réplicas para atender às consultas.",
                             }[number],
                             "condition": "Ocorrência sintética para verificar a apresentação.",
-                            "window": "Janela do cenário sintético de revisão",
+                            "window": "Janela do cenário sintético",
                             "action": "Confira o procedimento e valide a observação antes de agir.",
                             "runbook_url": "http://localhost:9184/runbooks/"
                             + {1: "erp", 2: "latency", 3: "replica"}[number],
@@ -129,7 +129,7 @@ def build_app(source: Path, run_dir: Path):
     store.persist(payload(1))
     store.persist(payload(2, "resolved"))
     store.persist(payload(2))
-    store.reconcile_replica(3, "Fixture de revisão: encerramento pelo operador, sem resolved.")
+    store.reconcile_replica(3, "Fixture sintética: encerramento pelo operador, sem resolved.")
 
     @app.middleware("http")
     async def fixture_readonly(request, call_next):
@@ -224,7 +224,7 @@ def build_app(source: Path, run_dir: Path):
             counts = {"firing": 100, "resolved": 0}
         elif case not in {"index", "fresh"}:
             return HTMLResponse(
-                ui.problem_page(404, "Cenário não encontrado", "Volte à central de revisão."),
+                ui.problem_page(404, "Cenário não encontrado", "Volte à central."),
                 status_code=404,
             )
         page = contracts.IncidentPage(
