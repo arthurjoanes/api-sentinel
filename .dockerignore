@@ -7,8 +7,8 @@ docs/*
 !docs/runbooks/**
 .venv
 .runtime
-tools/ui-review/node_modules
-tools/ui-review/test-results
+tools/browser-checks/node_modules
+tools/browser-checks/test-results
 artifacts
 **/__pycache__
 .pytest_cache

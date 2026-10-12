@@ -1,5 +1,5 @@
 {
-  "name": "api-sentinel-ui-review",
+  "name": "api-sentinel-browser-checks",
   "version": "0.1.0",
   "private": true,
   "description": "Isolated browser verification tools; excluded from application dependencies",
