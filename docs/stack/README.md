@@ -2,13 +2,16 @@
 
 Os cartões do README identificam tecnologias utilizadas no projeto. São SVGs locais, com título acessível e texto alternativo no README.
 
-Os ícones de marcas vêm do [Devicon no commit `7330accdbc47`](https://github.com/devicons/devicon/tree/7330accdbc47e2dc0c19789a48533c4a3c50fe58/icons), sob a [licença MIT](LICENSE.devicon). O desenho e as cores dos ícones foram preservados dentro de cartões de 72 × 72 pixels.
+Os ícones do Devicon usam o [commit `7330accdbc47`](https://github.com/devicons/devicon/tree/7330accdbc47e2dc0c19789a48533c4a3c50fe58/icons), sob a [licença MIT](LICENSE.devicon). Pydantic vem do Simple Icons 14.15.0, sob CC0. Os símbolos estão em cartões de 72 × 72 pixels, com as fontes indicadas abaixo.
 
 | Arquivo | Origem |
 | --- | --- |
 | [python.svg](python.svg) | [Devicon](https://raw.githubusercontent.com/devicons/devicon/7330accdbc47e2dc0c19789a48533c4a3c50fe58/icons/python/python-original.svg) |
 | [fastapi.svg](fastapi.svg) | [Devicon](https://raw.githubusercontent.com/devicons/devicon/7330accdbc47e2dc0c19789a48533c4a3c50fe58/icons/fastapi/fastapi-original.svg) |
+| [pydantic.svg](pydantic.svg) | [Simple Icons 14.15.0](https://raw.githubusercontent.com/simple-icons/simple-icons/5664507081ffb65b5a2a0ed2bf2ee2b3b327cb4e/icons/pydantic.svg), [CC0](LICENSE.simple-icons.md) |
+| [sqlalchemy.svg](sqlalchemy.svg) | [Devicon](https://raw.githubusercontent.com/devicons/devicon/7330accdbc47e2dc0c19789a48533c4a3c50fe58/icons/sqlalchemy/sqlalchemy-original.svg) |
 | [postgresql.svg](postgresql.svg) | [Devicon](https://raw.githubusercontent.com/devicons/devicon/7330accdbc47e2dc0c19789a48533c4a3c50fe58/icons/postgresql/postgresql-original.svg) |
+| [sqlite.svg](sqlite.svg) | [Devicon](https://raw.githubusercontent.com/devicons/devicon/7330accdbc47e2dc0c19789a48533c4a3c50fe58/icons/sqlite/sqlite-original.svg) |
 | [redis.svg](redis.svg) | [Devicon](https://raw.githubusercontent.com/devicons/devicon/7330accdbc47e2dc0c19789a48533c4a3c50fe58/icons/redis/redis-original.svg) |
 | [docker.svg](docker.svg) | [Devicon](https://raw.githubusercontent.com/devicons/devicon/7330accdbc47e2dc0c19789a48533c4a3c50fe58/icons/docker/docker-original.svg) |
 | [nginx.svg](nginx.svg) | [Devicon](https://raw.githubusercontent.com/devicons/devicon/7330accdbc47e2dc0c19789a48533c4a3c50fe58/icons/nginx/nginx-original.svg) |

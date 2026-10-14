@@ -111,19 +111,21 @@ A consulta de resumo segue Bearer → autorização → quota → admissão → 
 
 </details>
 
-<details>
-<summary>Stack e decisões</summary>
+## Stack e decisões
 
 <a id="stack"></a>
 
 <p>
   <img src="docs/stack/python.svg" alt="Python" width="64" height="64">
   <img src="docs/stack/fastapi.svg" alt="FastAPI" width="64" height="64">
+  <img src="docs/stack/pydantic.svg" alt="Pydantic" width="64" height="64">
+  <img src="docs/stack/sqlalchemy.svg" alt="SQLAlchemy Core" width="64" height="64">
   <img src="docs/stack/postgresql.svg" alt="PostgreSQL" width="64" height="64">
+  <img src="docs/stack/sqlite.svg" alt="SQLite" width="64" height="64">
   <img src="docs/stack/redis.svg" alt="Redis" width="64" height="64">
   <img src="docs/stack/docker.svg" alt="Docker" width="64" height="64">
   <img src="docs/stack/nginx.svg" alt="NGINX" width="64" height="64">
-  <img src="docs/stack/prometheus.svg" alt="Prometheus" width="64" height="64">
+  <img src="docs/stack/prometheus.svg" alt="Prometheus e Alertmanager" width="64" height="64">
   <img src="docs/stack/grafana.svg" alt="Grafana" width="64" height="64">
   <img src="docs/stack/jaegertracing.svg" alt="Jaeger" width="64" height="64">
   <img src="docs/stack/opentelemetry.svg" alt="OpenTelemetry" width="64" height="64">
@@ -134,18 +136,18 @@ A consulta de resumo segue Bearer → autorização → quota → admissão → 
 
 | Escolha                      | Motivo e compromisso                                                                            |
 | ---------------------------- | ----------------------------------------------------------------------------------------------- |
-| FastAPI + PostgreSQL         | Consultas autorizadas com SQL explícito; autenticação consulta o banco a cada chamada.          |
+| FastAPI + SQLAlchemy Core + PostgreSQL | Consultas autorizadas com SQL explícito; autenticação consulta o banco a cada chamada. |
+| Pydantic | Valida os contratos HTTP, os webhooks e as respostas do ERP. |
+| SQLite | Guarda incidentes e entregas dos alertas na central local. |
 | Redis                        | Coordena quota e preenchimento do cache entre réplicas; a quota depende de sua disponibilidade. |
 | NGINX + Compose              | Entrada comum e ambiente reproduzível; todos os processos continuam no mesmo host.              |
-| Prometheus, Grafana, OpenTelemetry e Jaeger | Métricas, alertas e traces amostrados; uma consulta sem trace ainda exige logs e outros sinais. |
+| Prometheus/Alertmanager, Grafana, OpenTelemetry e Jaeger | Métricas, alertas e traces amostrados; uma consulta sem trace ainda exige logs e outros sinais. |
 | HTML, CSS e JavaScript | Central local de incidentes; o JavaScript sinaliza leituras vencidas e orienta a navegação. |
 
 <a id="o-que-eu-implementei"></a>
 <a id="escolhas-de-engenharia-e-seus-custos"></a>
 
 [Decisões, alternativas e implementação](docs/decisoes-tecnicas.md) · [versões Python fixadas](uv.lock) · [imagens configuradas](compose.yml). Versões fixadas não são uma declaração de versão mais recente.
-
-</details>
 
 <a id="executar-e-verificar"></a>
 <a id="executar-e-conferir"></a>
