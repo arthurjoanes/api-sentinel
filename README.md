@@ -125,6 +125,11 @@ A consulta de resumo segue Bearer → autorização → quota → admissão → 
   <img src="docs/stack/nginx.svg" alt="NGINX" width="64" height="64">
   <img src="docs/stack/prometheus.svg" alt="Prometheus" width="64" height="64">
   <img src="docs/stack/grafana.svg" alt="Grafana" width="64" height="64">
+  <img src="docs/stack/jaegertracing.svg" alt="Jaeger" width="64" height="64">
+  <img src="docs/stack/opentelemetry.svg" alt="OpenTelemetry" width="64" height="64">
+  <img src="docs/stack/html5.svg" alt="HTML" width="64" height="64">
+  <img src="docs/stack/css3.svg" alt="CSS" width="64" height="64">
+  <img src="docs/stack/javascript.svg" alt="JavaScript" width="64" height="64">
 </p>
 
 | Escolha                      | Motivo e compromisso                                                                            |
@@ -132,7 +137,8 @@ A consulta de resumo segue Bearer → autorização → quota → admissão → 
 | FastAPI + PostgreSQL         | Consultas autorizadas com SQL explícito; autenticação consulta o banco a cada chamada.          |
 | Redis                        | Coordena quota e preenchimento do cache entre réplicas; a quota depende de sua disponibilidade. |
 | NGINX + Compose              | Entrada comum e ambiente reproduzível; todos os processos continuam no mesmo host.              |
-| Prometheus, Grafana e Jaeger | Métricas, alertas e traces amostrados; uma consulta sem trace ainda exige logs e outros sinais. |
+| Prometheus, Grafana, OpenTelemetry e Jaeger | Métricas, alertas e traces amostrados; uma consulta sem trace ainda exige logs e outros sinais. |
+| HTML, CSS e JavaScript | Central local de incidentes; o JavaScript sinaliza leituras vencidas e orienta a navegação. |
 
 <a id="o-que-eu-implementei"></a>
 <a id="escolhas-de-engenharia-e-seus-custos"></a>
@@ -236,3 +242,5 @@ Para conversar sobre APIs, isolamento e observabilidade neste laboratório:
 <p><a href="https://www.linkedin.com/in/arthur-joanes-6a2967373/"><img src="docs/contact/linkedin.svg" alt="" width="24" height="24"> <strong>Arthur Joanes no LinkedIn</strong></a></p>
 
 [Licença MIT](LICENSE). Ícones da stack e LinkedIn: [Devicon licença MIT](docs/stack/LICENSE.devicon).
+
+Fontes dos ícones e cartões: [documentação da stack](docs/stack/README.md).
