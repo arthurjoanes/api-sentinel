@@ -42,7 +42,7 @@ Para cada escolha a seguir, o motivo explica qual erro ela evita; o custo indica
 
 **Custo e limite:** pode haver rajada na fronteira da janela fixa de 1 s. Redis é dependência obrigatória e indisponibilidade falha fechada. A justiça da admissão é local; não há escalonador global. [Redis concorrente](../tests/integration/test_runtime.py) confere a quota entre clientes; [runtime](../tests/unit/test_runtime.py) confere recusa e devolução de capacidade após cancelamento.
 
-Uma alternativa seria usar um contador por processo, mais simples de operar, mas que multiplicaria a quota ao aumentar as réplicas. Uma janela deslizante reduziria rajadas na fronteira; exigiria outro algoritmo e custo de armazenamento. O laboratório mantém a janela fixa e documenta essa limitação.
+Uma alternativa seria usar um contador por processo, mais simples de operar, mas que multiplicaria a quota ao aumentar as réplicas. Uma janela deslizante reduziria rajadas na fronteira; exigiria outro algoritmo e custo de armazenamento. A janela fixa continua como padrão; o laboratório também oferece GCRA com capacidade de rajada explícita. [Políticas de quota](architecture.md#políticas-de-quota) descreve os contratos, custos e a transição entre elas.
 
 ## Cache com propriedade do lock e frescor explícito
 
@@ -68,7 +68,7 @@ Um timeout só de leitura seria menor em configuração, mas não encerraria nec
 
 **Justificativa técnica:** entregas podem repetir ou chegar fora de ordem. Um firing atrasado não pode reabrir um incidente recuperado; uma resolução antiga não pode encerrar a nova ocorrência. Por isso, a UI usa “Finalizados” no agrupamento e distingue “Resolvido” de “Encerrado pelo operador” em cada registro.
 
-**Custo e limite:** armazenamento local em volume, sem cluster de receivers. Retenção de 30 dias para finalizados, ativos sem expiração; a lista mostra até 100 registros e o detalhe até 100 eventos recentes. Contagem acumulada de entregas pode superar eventos retidos. [Testes do receiver](../tests/unit/test_receiver.py) cobrem concorrência, rollback e transições; [retenção](../tests/unit/test_receiver_retention.py) cobre a janela.
+**Custo e limite:** armazenamento local em volume, sem cluster de receivers. Retenção de 30 dias para finalizados, ativos sem expiração; a lista mostra até 100 registros por página e o detalhe até 100 eventos recentes. Contagem acumulada de entregas pode superar eventos retidos. [Testes do receiver](../tests/unit/test_receiver.py) cobrem concorrência, rollback e transições; [retenção](../tests/unit/test_receiver_retention.py) cobre a janela.
 
 PostgreSQL também poderia guardar os alertas, inclusive para um receiver distribuído. O SQLite mantém este componente independente da indisponibilidade do banco comercial e simplifica o laboratório; o custo é não oferecer múltiplos receivers coordenados.
 
@@ -80,7 +80,7 @@ PostgreSQL também poderia guardar os alertas, inclusive para um receiver distri
 
 **Custo e limite:** a página é uma leitura do instante; alterações exigem atualização. Sem JavaScript, o resultado do probe só é reavaliado no próximo carregamento. O renderer dos runbooks suporta títulos, listas e código, não Markdown completo. A UI não calcula métricas por tenant ou disponibilidade global. [Testes da interface](../tests/unit/test_receiver_ui.py), [rotas](../tests/unit/test_receiver.py) e [investigação](../tests/unit/test_receiver_diagnostics.py) conferem esses contratos.
 
-**Leitura da central:** a [central de incidentes](incident-console.md) mantém ID, estado, resumo, início e último registro visíveis; impacto e entregas ficam na expansão da linha. A busca por ID alcança ocorrências fora dos 100 itens carregados. Os gráficos usam dados do mesmo snapshot: totais retidos sem filtro e inícios em sete dias UTC somente nos registros do filtro atual, limitados a 100. “Finalizados” inclui encerramentos administrativos; esses totais não são indicadores de saúde ou recuperação.
+**Leitura da central:** a [central de incidentes](incident-console.md) mantém ID, estado, resumo, início e último registro visíveis; impacto e entregas ficam na expansão da linha. Ocorrências seguintes permite explorar as páginas; a busca por ID é um atalho para registros já conhecidos. Os gráficos usam dados do mesmo snapshot: totais retidos sem filtro e inícios em sete dias UTC somente nos registros da página atual do filtro, limitados a 100. “Finalizados” inclui encerramentos administrativos; esses totais não são indicadores de saúde ou recuperação.
 
 O detalhe separa o período informado na origem dos horários de recebimento. Condição, identificação e origem dos eventos aparecem por expansão, preservando a diferença entre recuperação recebida, entrega atrasada e ação manual. Os valores dos gráficos também estão em tabelas. [Resumo visual](../alert_receiver/visual_summary.py), [período registrado](../alert_receiver/incident_visual.py) e seus [testes](../tests/unit/test_visual_summary.py) conferem o escopo dos dados; não há uma segunda coleta de métricas nessa interface.
 

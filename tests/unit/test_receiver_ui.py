@@ -12,6 +12,39 @@ from alert_receiver.contracts import Incident, IncidentEvent, IncidentPage
 from alert_receiver.probe import ProbeResult, ProbeState
 
 
+def test_exported_preview_includes_referenced_public_assets(tmp_path: Path) -> None:
+    from scripts.render_ui_preview import ROOT, render
+
+    render(tmp_path)
+    for name in (
+        "favicon.svg",
+        "mark-light.svg",
+        "plex-sans-regular.woff2",
+        "plex-sans-semibold.woff2",
+    ):
+        assert (tmp_path / "assets" / name).read_bytes() == (
+            ROOT / "alert_receiver" / "assets" / name
+        ).read_bytes()
+    assert sorted(path.name for path in tmp_path.iterdir()) == [
+        "assets",
+        "disabled.html",
+        "empty.html",
+        "error.html",
+        "failure.html",
+        "firing.html",
+        "incidents",
+        "index.html",
+        "long.html",
+        "manifest.json",
+        "no-active.html",
+        "resolved.html",
+        "runbooks",
+        "snapshot.js",
+        "stale.html",
+        "styles.css",
+    ]
+
+
 def page(
     *, firing: int = 0, resolved: int = 0, records: list[Incident] | None = None
 ) -> IncidentPage:

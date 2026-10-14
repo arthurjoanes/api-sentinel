@@ -42,9 +42,11 @@ def compact_timestamp(value: datetime | None) -> str:
     return value.astimezone(UTC).strftime("%d/%m/%Y · %H:%M UTC")
 
 
-def central_url(status: str, incident_id: int | None = None) -> str:
+def central_url(status: str, incident_id: int | None = None, *, cursor: str | None = None) -> str:
     status = status if status in {"all", "firing", "resolved"} else "all"
     target = f"/?status={status}"
+    if cursor:
+        target += "&" + urlencode({"cursor": cursor})
     if incident_id is not None and 1 <= incident_id <= 2**63 - 1:
         target += f"#incidente-{incident_id}"
     return target
@@ -57,16 +59,20 @@ def tool_context(value: str, status: str, incident_id: int) -> str:
     return target.path + "?" + urlencode(query)
 
 
-def incident_lookup(status: str, *, error: str | None = None, value: str = "") -> str:
+def incident_lookup(
+    status: str, *, error: str | None = None, value: str = "", cursor: str | None = None
+) -> str:
     error_markup = (
         f'<p class="field-error" id="incident-id-error" role="alert">{escape_html(error)}</p>'
         if error
         else ""
     )
     invalid = ' aria-invalid="true" aria-describedby="incident-id-error"' if error else ""
+    origin = f'<input type="hidden" name="cursor" value="{escape_html(cursor)}">' if cursor else ""
     return f'''<form id="buscar-incidente" class="incident-lookup"
 action="/incident-lookup" method="get">
 <input type="hidden" name="status" value="{escape_html(status)}">
+{origin}
 <div class="lookup-fields"><label class="visually-hidden" for="incident-id">
 Abrir incidente por ID</label>
 <input id="incident-id" name="incident_id" type="text" inputmode="numeric" pattern="[0-9]{{1,19}}"
@@ -74,7 +80,7 @@ maxlength="19" autocomplete="off" spellcheck="false" required placeholder="ID do
 value="{escape_html(value)}"{invalid}>
 <button class="button secondary" type="submit" aria-label="Abrir incidente">Abrir →</button>
 </div>{error_markup}
-<p>Fora da lista? Use o ID da ocorrência.</p>
+<p>Já sabe o ID? Abra a ocorrência diretamente.</p>
 </form>'''
 
 
@@ -150,11 +156,13 @@ def resolution_label(incident: Incident) -> str:
     return "Recuperação"
 
 
-def incident_row(incident: Incident, status: str = "all") -> str:
+def incident_row(incident: Incident, status: str = "all", *, cursor: str | None = None) -> str:
     state, tone = incident_state(incident)
     observed = incident.last_received_at if incident.status == "firing" else incident.ends_at
     severity = SEVERITY_LABELS.get(incident.labels.get("severity", ""), "Atenção")
     detail_url = f"/incidents/{incident.id}?status={status}"
+    if cursor:
+        detail_url += "&" + urlencode({"cursor": cursor})
     return f"""<li class="incident-row {tone}" id="incidente-{incident.id}" tabindex="-1">
 <div class="row-state"><span class="badge {tone}">{state}</span>
 <span class="row-severity">{escape_html(severity)}</span></div>
@@ -299,7 +307,29 @@ def home(
     lookup_value: str = "",
 ) -> str:
     counts = page.counts
-    entries = "".join(incident_row(incident, status) for incident in page.records)
+    entries = "".join(
+        incident_row(incident, status, cursor=page.cursor) for incident in page.records
+    )
+    navigation = []
+    if page.cursor:
+        navigation.append(
+            f'<a class="button secondary" href="{escape_html(central_url(status))}#conteudo">'
+            "Primeira página</a>"
+        )
+    if page.next_cursor:
+        navigation.append(
+            f'<a class="button secondary" rel="next" '
+            f'href="{escape_html(central_url(status, cursor=page.next_cursor))}#conteudo">'
+            "Ocorrências seguintes →</a>"
+        )
+    pagination = (
+        '<nav class="pagination" aria-label="Páginas de ocorrências">'
+        + "".join(navigation)
+        + "</nav>"
+        if navigation
+        else ""
+    )
+    position = f" · a partir da posição {page.offset + 1}" if page.cursor else ""
     inbox = (
         f'<ol class="incident-list">{entries}</ol>'
         if entries
@@ -329,20 +359,20 @@ def home(
 {observation_details(page, probe)}</details></section>
 <section class="inbox" aria-label="Incidentes">
 <div class="queue-heading"><h2>Investigar ocorrências</h2>
-{incident_lookup(status, error=lookup_error, value=lookup_value)}</div>
+{incident_lookup(status, error=lookup_error, value=lookup_value, cursor=page.cursor)}</div>
 <div class="queue-controls">
 <nav class="filters" aria-label="Filtrar incidentes">{incident_filters(counts, status)}</nav>
 <div class="list-scope"><h2 class="visually-hidden">{list_title}</h2><span class="list-count">
-{len(page.records)} de {filtered_total} incidentes · limite de {page.limit}</span>
+{len(page.records)} de {filtered_total} incidentes · limite de {page.limit}{position}</span>
 <a href="#observacao">Ver probe</a>
-</div></div>{columns}{inbox}
+</div></div>{columns}{inbox}{pagination}
 <p class="retention">
 Finalizados: últimos {page.retention_days} dias · Em andamento: sem expiração · Atualização manual
 </p></section></div></div>"""
     return layout("Incidentes", content, snapshot=True)
 
 
-def incident_runbook(incident: Incident, status: str) -> str:
+def incident_runbook(incident: Incident, status: str, cursor: str | None = None) -> str:
     annotations = incident.annotations
     runbook = local_link(
         annotations.get("runbook_url", annotations.get("runbook", "")), "/runbooks/telemetry"
@@ -351,7 +381,9 @@ def incident_runbook(incident: Incident, status: str) -> str:
     slug = urlsplit(runbook).path.removeprefix("/runbooks/")
     if slug not in RUNBOOKS:
         slug = "telemetry"
-    return f"/runbooks/{slug}?incident_id={incident.id}&status={status}"
+    return f"/runbooks/{slug}?incident_id={incident.id}&status={status}" + (
+        "&" + urlencode({"cursor": cursor}) if cursor else ""
+    )
 
 
 def evidence_period(incident: Incident) -> tuple[datetime, datetime] | None:
@@ -456,6 +488,7 @@ def incident_detail(
     status: str = "all",
     *,
     generated_at: datetime | None = None,
+    cursor: str | None = None,
 ) -> str:
     state, tone = incident_state(incident)
     severity = SEVERITY_LABELS.get(incident.labels.get("severity", ""), "Atenção")
@@ -500,9 +533,12 @@ def incident_detail(
     snapshot_time = (
         timestamp(generated_at) if generated_at is not None else "Instante não registrado"
     )
+    detail_url = f"/incidents/{incident.id}?status={status}" + (
+        "&" + urlencode({"cursor": cursor}) if cursor else ""
+    )
     return layout(
         f"Incidente #{incident.id}",
-        f"""<a class="back" href="/?status={escape_html(status)}#incidente-{incident.id}">
+        f"""<a class="back" href="{escape_html(central_url(status, incident.id, cursor=cursor))}">
 ← Voltar à central</a>
 <div class="detail-heading {tone}"><div class="detail-labels">
 <span class="badge {tone}">{state}</span><span>Incidente #{incident.id}</span>
@@ -512,7 +548,7 @@ def incident_detail(
 <p class="state-description">{state_description}</p>
 <div class="detail-period"><p class="snapshot-meta">Leitura de {escape_html(snapshot_time)}
 · Atualização manual</p>
-<a class="text-link" href="/incidents/{incident.id}?status={escape_html(status)}">
+<a class="text-link" href="{escape_html(detail_url)}">
 Atualizar ocorrência</a></div>
 {period_graphic(incident)}
 <div class="decision-strip"><div><h2>{"Impacto" if active else "Impacto registrado"}</h2>
@@ -521,7 +557,7 @@ Atualizar ocorrência</a></div>
 <div class="decision-actions">
 {observation_link}
 <a class="{"button" if active else "text-link"}"
-href="{escape_html(incident_runbook(incident, status))}">Abrir runbook</a>
+href="{escape_html(incident_runbook(incident, status, cursor))}">Abrir runbook</a>
 </div><details class="decision-explanation"><summary>Ver orientação</summary>
 <p>{escape_html(next_step)}</p></details></div></div>
 <details class="incident-metadata"><summary>Datas e entregas</summary>
@@ -573,7 +609,12 @@ def inline_markdown(value: str) -> str:
 
 
 def runbook_page(
-    slug: str, markdown: str, *, incident_id: int | None = None, status: str = "all"
+    slug: str,
+    markdown: str,
+    *,
+    incident_id: int | None = None,
+    status: str = "all",
+    cursor: str | None = None,
 ) -> str:
     parts: list[str] = []
     sections: list[str] = []
@@ -618,13 +659,14 @@ def runbook_page(
     if code is not None:
         parts.append(code_block("\n".join(code), code_language))
     title = RUNBOOKS.get(slug, (slug, ""))[0]
+    origin = "&" + urlencode({"cursor": cursor}) if cursor else ""
     back = (
-        f'<a class="back" href="/incidents/{incident_id}?status={escape_html(status)}">'
+        f'<a class="back" href="/incidents/{incident_id}?status={escape_html(status + origin)}">'
         f"← Voltar ao incidente #{incident_id}</a>"
         if incident_id is not None
         else '<a class="back" href="/runbooks">← Todos os runbooks</a>'
     )
-    central = f"/?status={status}" + (f"#incidente-{incident_id}" if incident_id else "")
+    central = central_url(status, incident_id, cursor=cursor)
     return layout(
         f"Runbook · {title}",
         back + '<div class="runbook-workspace">'

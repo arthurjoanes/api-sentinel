@@ -4,7 +4,7 @@ O roteiro usa o [runner](../scripts/review.py), o [wrapper](../scripts/sentinel.
 
 O cliente da API é uma integração de lojas; o operador precisa reconhecer falha, encontrar a dependência envolvida e confirmar recuperação. Dados comerciais e ERP são sintéticos. PostgreSQL, Redis, proxy, regras e entrega de alertas são executados localmente.
 
-A [verificação atual](verification.md) e a [prova completa de 22/09 às 12:12 UTC](evidence/editorial-20260922/full-run.json) identificam a imagem e os resultados desta revisão. A [sequência de capturas das 12:49 UTC](evidence/editorial-20260922/capture-run.json) usa outra imagem, com sincronização do coletor corrigida, e não repete o benchmark. O roteiro abaixo pode ser repetido em um projeto Docker descartável.
+A [documentação de verificação](verification.md) descreve os comandos e critérios. A [prova completa de 22/09 às 12:12 UTC](evidence/editorial-20260922/full-run.json) identifica a imagem e os resultados daquela execução. A [sequência de capturas das 12:49 UTC](evidence/editorial-20260922/capture-run.json) usa outra imagem, com sincronização do coletor corrigida, e não repete o benchmark. O roteiro abaixo pode ser repetido em um projeto Docker descartável.
 
 Para acompanhar um exemplo já executado, veja a [consulta conhecida, incidente e recuperação](operational-story.md), com três capturas reais e observações da mesma execução. Esse cenário limitado tem identidade própria e não substitui a prova completa de carga.
 
@@ -39,7 +39,7 @@ O [guia da central](incident-console.md) explica os gráficos, o período e o hi
 
 1. Compare os totais retidos e os inícios da amostra de até 100 registros do filtro, nos sete dias UTC. Abra Ver dados. Confira também o instante da leitura e a validade da consulta de referência; probe vencido, pendente ou desativado não confirma saúde. Atualizar leitura recarrega a página; não há polling.
 2. Filtre Em andamento, confira o ID e abra Investigar. Leia início, último registro, impacto e próximo passo. Volte à fila e confira filtro e posição.
-3. Se o ID procurado estiver fora das 100 linhas, use a busca por ID. Um ID inválido precisa de correção junto ao campo; ausência do registro não prova ausência de falha no período.
+3. Use Ocorrências seguintes para explorar registros além da primeira página de 100 linhas; se já souber o ID, use a busca direta. Um ID inválido precisa de correção junto ao campo; ausência do registro não prova ausência de falha no período.
 4. No detalhe, separe o período completo registrado dos horários das entregas do receiver. Compare-o com o intervalo enviado a Grafana ou Jaeger, cujo recorte tem limite explícito de 24 horas. Ferramenta indisponível conserva orientação e retorno; trace ausente pode decorrer de amostragem, retenção ou coleta.
 5. Em Finalizados, abra uma recuperação recebida e um encerramento administrativo. Confira as diferenças na cronologia antes de concluir que o serviço recuperou. Atualizar ou tentar novamente mantém o contexto limitado da navegação.
 
@@ -140,7 +140,28 @@ Todos os serviços publicados ficam em loopback:
 | Coleta por réplica               | [localhost:9104/targets](http://127.0.0.1:9104/targets)         |
 | Alertmanager                     | [localhost:9194](http://127.0.0.1:9194/)                        |
 
-Os tokens ficam em `.runtime/demo.json`, ignorado pelo Git. Exemplo de consulta em PowerShell:
+Os tokens ficam em `.runtime/demo.json`, ignorado pelo Git. No Linux, execute na raiz do projeto com Python 3 para conferir a consulta de referência, sem imprimir o token:
+
+```sh
+python3 - <<'PY'
+import json
+from pathlib import Path
+from urllib.request import Request, urlopen
+
+tokens = json.loads(Path(".runtime/demo.json").read_text(encoding="utf-8"))
+request = Request(
+    "http://127.0.0.1:8104/v1/stores/7/summary?start=2026-01-01&end=2026-01-01",
+    headers={"Authorization": "Bearer " + tokens["probe"]},
+)
+with urlopen(request, timeout=10) as response:
+    summary = json.load(response)
+for field in ("revenue_cents", "order_count", "average_ticket_cents"):
+    print(f"{field}: {summary[field]}")
+# Esperado: 12500, 2, 6250.
+PY
+```
+
+Exemplo de consulta comercial em PowerShell:
 
 ```powershell
 $tokens = Get-Content .runtime/demo.json -Raw | ConvertFrom-Json

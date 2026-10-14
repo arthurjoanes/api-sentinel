@@ -1,3 +1,5 @@
+import base64
+import binascii
 import json
 import sqlite3
 from collections.abc import Iterator
@@ -34,7 +36,7 @@ class AlertStore:
             connection.execute("PRAGMA journal_mode=WAL")
             connection.executescript("""
                 CREATE TABLE IF NOT EXISTS incidents (
-                    id INTEGER PRIMARY KEY,
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
                     fingerprint TEXT NOT NULL,
                     starts_at TEXT NOT NULL,
                     status TEXT NOT NULL CHECK (status IN ('firing', 'resolved')),
@@ -70,6 +72,34 @@ class AlertStore:
             connection.execute(
                 "CREATE INDEX IF NOT EXISTS incidents_activity ON incidents(last_activity_at DESC)"
             )
+        self._migrate_incident_ids()
+
+    def _migrate_incident_ids(self) -> None:
+        # Rebuild only the legacy parent table. Foreign keys must be disabled before
+        # BEGIN, otherwise dropping the parent would cascade into delivery_events.
+        with self.connection() as connection:
+            connection.execute("PRAGMA foreign_keys=OFF")
+            connection.execute("BEGIN IMMEDIATE")
+            schema = connection.execute(
+                "SELECT sql FROM sqlite_master WHERE type='table' AND name='incidents'"
+            ).fetchone()[0]
+            if "AUTOINCREMENT" not in schema.upper():
+                connection.execute(
+                    schema.replace("incidents", "incidents_migrating", 1).replace(
+                        "INTEGER PRIMARY KEY", "INTEGER PRIMARY KEY AUTOINCREMENT", 1
+                    )
+                )
+                connection.execute("INSERT INTO incidents_migrating SELECT * FROM incidents")
+                connection.execute("DROP TABLE incidents")
+                connection.execute("ALTER TABLE incidents_migrating RENAME TO incidents")
+                connection.execute(
+                    "CREATE INDEX incidents_latest ON incidents(last_received_at DESC)"
+                )
+                connection.execute(
+                    "CREATE INDEX incidents_activity ON incidents(last_activity_at DESC)"
+                )
+            if connection.execute("PRAGMA foreign_key_check").fetchone() is not None:
+                raise sqlite3.IntegrityError("Histórico com referências de ocorrência inválidas.")
 
     def persist(self, webhook: Webhook) -> int:
         received_at = datetime.now(UTC).isoformat(timespec="microseconds")
@@ -153,7 +183,12 @@ class AlertStore:
         return self.page(status, limit).records
 
     def page(
-        self, status: str | None = None, limit: int = 100, *, now: datetime | None = None
+        self,
+        status: str | None = None,
+        limit: int = 100,
+        *,
+        now: datetime | None = None,
+        cursor: str | None = None,
     ) -> IncidentPage:
         if status not in (None, "firing", "resolved") or not 1 <= limit <= 200:
             raise ValueError("Filtro ou limite de ocorrências inválido.")
@@ -162,22 +197,54 @@ class AlertStore:
             raise ValueError("O instante da consulta deve informar o fuso.")
         observed_at = observed_at.astimezone(UTC)
         cutoff = observed_at - timedelta(days=self.retention_days)
+        after: tuple[int, str, int] | None = None
+        offset = 0
+        if cursor is not None:
+            cursor_cutoff, after, offset = self.decode_cursor(cursor, status)
+            cutoff = max(cutoff, cursor_cutoff)
         # Mesmo recorte lógico antes da limpeza física; uma entrega concorrente não
         # pode atualizar o contador no meio da leitura da página.
         with self.connection() as connection:
             connection.execute("BEGIN")
+            condition = ""
+            arguments: list[object] = [cutoff.isoformat(timespec="microseconds"), status, status]
+            if after is not None:
+                condition = (
+                    "AND (CASE status WHEN 'firing' THEN 1 ELSE 0 END, last_activity_at, id) "
+                    "< (?, ?, ?) "
+                )
+                arguments.extend(after)
+            arguments.append(limit + 1)
             rows = connection.execute(
                 "SELECT * FROM incidents WHERE (status='firing' OR last_activity_at>=?) "
                 "AND (? IS NULL OR status=?) "
-                "ORDER BY CASE status WHEN 'firing' THEN 0 ELSE 1 END, "
+                + condition
+                + "ORDER BY CASE status WHEN 'firing' THEN 0 ELSE 1 END, "
                 "last_activity_at DESC, id DESC LIMIT ?",
-                (cutoff.isoformat(timespec="microseconds"), status, status, limit),
+                arguments,
             ).fetchall()
             counts = connection.execute(
                 "SELECT status, COUNT(*) AS total FROM incidents "
                 "WHERE status='firing' OR last_activity_at>=? GROUP BY status",
                 (cutoff.isoformat(timespec="microseconds"),),
             ).fetchall()
+        next_cursor = None
+        if len(rows) > limit:
+            rows = rows[:limit]
+            last = rows[-1]
+            payload = [
+                1,
+                status,
+                self.retention_days,
+                cutoff.isoformat(),
+                [int(last["status"] == "firing"), last["last_activity_at"], last["id"]],
+                offset + len(rows),
+            ]
+            next_cursor = (
+                base64.urlsafe_b64encode(json.dumps(payload, separators=(",", ":")).encode("ascii"))
+                .decode("ascii")
+                .rstrip("=")
+            )
         return IncidentPage(
             records=[self._incident(row) for row in rows],
             counts={"firing": 0, "resolved": 0} | {row["status"]: row["total"] for row in counts},
@@ -185,7 +252,40 @@ class AlertStore:
             cutoff_at=cutoff,
             retention_days=self.retention_days,
             limit=limit,
+            cursor=cursor,
+            next_cursor=next_cursor,
+            offset=offset,
         )
+
+    def decode_cursor(
+        self, cursor: str, status: str | None
+    ) -> tuple[datetime, tuple[int, str, int], int]:
+        try:
+            if not 1 <= len(cursor) <= 1024:
+                raise ValueError
+            value = json.loads(
+                base64.b64decode(cursor + "=" * (-len(cursor) % 4), altchars=b"-_", validate=True)
+            )
+            version, selected, retention, cutoff, after, offset = value
+            if version != 1 or selected != status or retention != self.retention_days:
+                raise ValueError
+            boundary = datetime.fromisoformat(cutoff)
+            rank, activity, identity = after
+            activity_time = datetime.fromisoformat(activity)
+            if (
+                boundary.tzinfo is None
+                or activity_time.tzinfo is None
+                or type(rank) is not int
+                or rank not in (0, 1)
+                or type(identity) is not int
+                or not 1 <= identity <= 2**63 - 1
+                or type(offset) is not int
+                or not 0 <= offset <= 2**63 - 1
+            ):
+                raise ValueError
+            return boundary.astimezone(UTC), (rank, activity, identity), offset
+        except (ValueError, TypeError, UnicodeError, binascii.Error) as exc:
+            raise ValueError("Página inválida. Volte à primeira página da fila.") from exc
 
     def incident(self, incident_id: int) -> Incident | None:
         cutoff = (datetime.now(UTC) - timedelta(days=self.retention_days)).isoformat(
