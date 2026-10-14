@@ -80,6 +80,9 @@ class IncidentPage:
     cutoff_at: datetime
     retention_days: int
     limit: int
+    cursor: str | None = None
+    next_cursor: str | None = None
+    offset: int = 0
 
     @property
     def total(self) -> int:

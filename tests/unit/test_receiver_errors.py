@@ -64,7 +64,7 @@ def test_storage_failure_is_not_an_empty_or_healthy_history(
     client: TestClient,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    def fail(*args: object) -> None:
+    def fail(*args: object, **kwargs: object) -> None:
         raise sqlite3.OperationalError("PRIVATE_STORAGE_DETAIL")
 
     monkeypatch.setattr(client.app.state.store, "page", fail)

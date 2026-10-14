@@ -1,6 +1,6 @@
 # API Sentinel
 
-API de vendas por organização, com quota compartilhada e central de incidentes. Consulta comercial e ERP sintético executam no mesmo laboratório local.
+API de vendas por organização, com quota compartilhada e central de incidentes. A API e o ERP sintético rodam no mesmo ambiente local.
 
 <!-- Navegação do README -->
 <p>
@@ -69,7 +69,7 @@ Esperado: `revenue_cents: 12500`, `order_count: 2` e `average_ticket_cents: 6250
 
 ![Cliente com Bearer passa por NGINX e API; PostgreSQL guarda identidade e vendas, Redis coordena quota e cache, ERP fornece estoque; Prometheus e Jaeger acompanham o mesmo host](docs/readme/architecture.svg)
 
-O resumo comercial usa PostgreSQL e Redis; estoque consulta o ERP. Uma falha do ERP pode coexistir com vendas. [Sequências e limites](docs/architecture.md).
+O resumo comercial usa PostgreSQL e Redis; estoque consulta o ERP. As consultas de vendas não dependem da resposta do ERP. [Sequências e limites](docs/architecture.md).
 
 <details>
 <summary>Diagrama completo, portas e responsabilidades</summary>
@@ -155,7 +155,7 @@ A consulta de resumo segue Bearer → autorização → quota → admissão → 
 | Texto | `#1B2E40` | Conteúdo principal |
 | Texto secundário | `#4C6374` | Metadados e orientação |
 
-A paleta identifica a marca e a navegação. Estados de incidente mantêm verde, vermelho e âmbar acompanhados de texto; o acento petróleo não indica saúde do serviço. Os vetores da marca e os quatro selos de navegação tiveram cores alinhadas, preservando desenho e fontes. O selo do LinkedIn conserva a cor da plataforma.
+A paleta identifica a marca e a navegação. Estados de incidente mantêm verde, vermelho e âmbar acompanhados de texto; o acento petróleo não indica saúde do serviço. A marca e os quatro selos de navegação usam essa paleta. O selo do LinkedIn conserva a cor da plataforma.
 
 </details>
 
@@ -229,7 +229,7 @@ Captura histórica às 12:53:54 UTC: duas entregas da mesma ocorrência no ambie
 - `QUOTA_ALGORITHM=fixed-window` preserva a janela de um segundo e sua rajada na fronteira. `gcra` usa capacidade total `QUOTA_BURST_CAPACITY`, padrão 10; todas as réplicas precisam usar a mesma política. [Semântica e transição do ensaio](docs/architecture.md#políticas-de-quota).
 - Dados comerciais imutáveis e duas réplicas no mesmo host. O laboratório não demonstra SLO mensal, capacidade máxima ou disponibilidade entre máquinas. [Escopo das provas](docs/verification.md#escopo).
 - Serviços publicados em loopback; tokens e runtime ficam fora do Git. Scans dizem respeito às imagens e bases identificadas em cada execução. [Controles e limites](docs/security.md).
-- A [revisão de segurança de 03/10/2026](docs/SECURITY-REVIEW-2026-10-03.md) cobre os 18 itens recebidos, as correções de rate limit e os testes com PostgreSQL e Redis descartáveis.
+- A [revisão de segurança de 03/10/2026](docs/SECURITY-REVIEW-2026-10-03.md) registra a avaliação de 18 itens de segurança, as correções de rate limit e os testes com PostgreSQL e Redis descartáveis.
 - A central exige atualização manual. “Sem incidentes” não prova saúde. [Leitura dos registros e do probe](docs/incident-console.md) · [contrato da interface](docs/decisoes-tecnicas.md#histórico-durável-e-uma-interface-que-não-inventa-recuperação).
 
 </details>

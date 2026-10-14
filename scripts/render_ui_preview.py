@@ -5,6 +5,7 @@ import importlib.util
 import json
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from shutil import copytree
 from types import ModuleType
 
 from alert_receiver import ui
@@ -180,6 +181,7 @@ def render(output: Path, renderer: ModuleType = ui) -> None:
         target.write_text(document, encoding="utf-8", newline="\n")
     for name in ("styles.css", "snapshot.js"):
         (output / name).write_bytes((ROOT / "alert_receiver" / name).read_bytes())
+    copytree(ROOT / "alert_receiver" / "assets", output / "assets", dirs_exist_ok=True)
     (output / "manifest.json").write_text(
         json.dumps(
             {

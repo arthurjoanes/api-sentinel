@@ -14,8 +14,11 @@ from api_sentinel.seed import write_private_json
 def test_first_secret_creation_is_private(tmp_path: Path) -> None:
     target = tmp_path / "demo.json"
     write_private_json(target, {"probe": "credencial fictícia de teste"})
-    assert json.loads(target.read_text()) == {"probe": "credencial fictícia de teste"}
-    assert stat.S_IMODE(target.stat().st_mode) == 0o600
+    assert json.loads(target.read_text(encoding="utf-8")) == {
+        "probe": "credencial fictícia de teste"
+    }
+    if os.name == "posix":
+        assert stat.S_IMODE(target.stat().st_mode) == 0o600
 
 
 @pytest.mark.skipif(

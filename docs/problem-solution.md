@@ -1,6 +1,6 @@
 # Problemas resolvidos e como conferir
 
-Cada caso liga o contrato ao código e aos testes. Os valores monetários vêm da [fixture sintética](../data/fixtures/manual-sales.json); as contagens de carga pertencem à [execução completa de 22/09/2026](evidence/editorial-20260922/full-run.json).
+Os valores monetários vêm da [fixture sintética](../data/fixtures/manual-sales.json); as contagens de carga pertencem à [execução completa de 22/09/2026](evidence/editorial-20260922/full-run.json).
 
 Desenvolvi o laboratório para uma integração de lojas que consulta vendas e disponibilidade no ERP. Clientes, vendas e ERP são sintéticos. O resultado demonstrado é técnico: consultas com escopo correto, contenção de falhas e histórico verificável. Não houve piloto com operadores reais, medição de economia ou operação em produção.
 
@@ -60,13 +60,13 @@ Como: implementei em [storage.py](../alert_receiver/storage.py) a persistência 
 
 Na interface: central → filtro → ocorrência → runbook → retorno preserva filtro e referência. “Finalizados” reúne dois estados visuais: “Resolvido” exige a recuperação recebida; “Encerrado pelo operador” tem indicação neutra e explica a ausência desse webhook. A reconciliação administrativa existente é restrita ao alerta de perda de réplica da demo e não acrescenta uma entrega fictícia.
 
-A [central de incidentes](incident-console.md) mostra os totais retidos de “Em andamento” e “Finalizados” independentemente do filtro. O gráfico de inícios usa somente os primeiros 100 registros carregados desse filtro, em sete dias UTC ancorados ao instante da leitura. Datas indisponíveis não são contadas; um zero não comprova ausência de chamadas ou saúde do serviço. As tabelas preservam os valores e o escopo da amostra.
+A [central de incidentes](incident-console.md) mostra os totais retidos de “Em andamento” e “Finalizados” independentemente do filtro. O gráfico de inícios usa somente os até 100 registros da página atual desse filtro, em sete dias UTC ancorados ao instante da leitura. Datas indisponíveis não são contadas; um zero não comprova ausência de chamadas ou saúde do serviço. As tabelas preservam os valores e o escopo da amostra.
 
 ID, estado e datas ficam visíveis na fila; impacto e entregas aparecem por expansão. No detalhe, o período informado pelo alerta fica separado dos horários de recebimento e da origem dos eventos, evitando tratar atraso de entrega como duração de recuperação. Estado e eventos são lidos no mesmo snapshot SQLite.
 
 Uma consulta do probe validada também não comprova saúde global. Resultado vencido perde a indicação de validação; probe desativado ou sem observação não aparece saudável. [UI](../alert_receiver/ui.py), [expiração no navegador](../alert_receiver/snapshot.js) e [testes de estados](../tests/unit/test_receiver_ui.py) preservam essa distinção. Os links de investigação usam a configuração da mesma execução; sem ela, a navegação mostra erro explícito. Não há fallback para ferramentas de outra stack.
 
-A [história operacional](operational-story.md) mostra entregas reais e a mesma ocorrência recuperada. O cenário de entrega antiga fora de ordem é verificado pelos testes automatizados; não atribuo quatro entregas a uma captura que registra apenas duas.
+A [história operacional](operational-story.md) registra duas entregas reais da mesma ocorrência, incluindo a recuperação. A sequência de quatro entregas com firing atrasado é exercitada pelos testes automatizados.
 
 ## O que mudou depois das medições
 

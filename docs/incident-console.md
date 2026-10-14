@@ -17,7 +17,17 @@ Contagem ausente aparece como sem dado. Datas sem fuso, inválidas ou futuras s�
 
 Selecione Todos, Em andamento ou Finalizados. Confira o ID, título e período antes de abrir Investigar. Identificação e entregas ficam disponíveis por expansão na própria linha. Voltar à central preserva o filtro e aponta para a ocorrência.
 
-A fila carrega até 100 registros. Para abrir outro registro retido, use o campo ID do incidente. Ele aceita um inteiro positivo até `9223372036854775807`, com até 19 dígitos ASCII. Entrada inválida mostra erro junto ao campo e mantém o filtro. Registro ausente não demonstra ausência de falha naquele período.
+A fila carrega até 100 registros por página. Use **Ocorrências seguintes** para percorrer a fila e **Primeira página** para reiniciar; o botão Voltar do navegador recupera a página anterior. O detalhe e seu runbook mantêm o filtro e o cursor no retorno à central. A API `/api/incidents` devolve `next_cursor`; passe esse valor como `cursor` sem alterar o filtro. Cursor inválido retorna 422 com orientação para reiniciar.
+
+Cada página usa uma leitura consistente de lista e totais. A ordem usa estado, última atividade e ID como desempate; novas entregas podem mudar a posição de um incidente entre páginas. Não é um snapshot congelado durante toda a navegação: atualize a leitura para conferir mudanças. A posição exibida conta os registros percorridos e os gráficos diários continuam limitados à página atual.
+
+Para abrir diretamente um registro retido, use o campo ID do incidente. Ele aceita um inteiro positivo até `9223372036854775807`, com até 19 dígitos ASCII. Entrada inválida mostra erro junto ao campo e mantém o filtro. Registro ausente não demonstra ausência de falha naquele período.
+
+### Identidade e atualização de bases existentes
+
+IDs de novas ocorrências usam a sequência persistente do SQLite (`AUTOINCREMENT`), independente da retenção. Apagar o maior ID ou esvaziar o histórico não permite reutilizá-lo. Na inicialização, bases antigas são migradas em transação: IDs retidos e eventos são preservados, índices são recriados e as referências são verificadas antes do commit. Faça backup consistente do SQLite e pare o receiver antes de atualizar; não copie apenas o arquivo principal enquanto houver WAL ativo.
+
+A base antiga não registrava o maior ID já apagado. A migração conhece apenas os IDs ainda presentes: a garantia de não reutilização começa no maior ID preservado durante a atualização. Links de registros apagados **antes** dessa fronteira não são recuperáveis nem têm identidade garantida; não os use como evidência após migrar. Bases novas e exclusões após a migração têm a garantia completa. Não apague nem reduza `sqlite_sequence` durante a operação.
 
 ## Distinguir período e entregas
 

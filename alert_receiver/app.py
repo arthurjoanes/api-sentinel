@@ -33,6 +33,7 @@ RUNBOOKS = frozenset(ui.RUNBOOKS)
 IncidentId = Annotated[int, PathParameter(ge=1, le=2**63 - 1)]
 IncidentFilter = Literal["all", "firing", "resolved"]
 OriginIncidentId = Annotated[int | None, Query(ge=1, le=2**63 - 1)]
+PageCursor = Annotated[str | None, Query(max_length=1024)]
 
 
 def problem(status: int, code: str, detail: str) -> JSONResponse:
@@ -315,21 +316,30 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return JSONResponse({"status": "persisted", "alerts": count})
 
     @application.get("/api/incidents")
-    async def incidents(status: Literal["firing", "resolved"] | None = None) -> dict[str, object]:
-        page = await asyncio.to_thread(store.page, status)
-        return {
-            "incidents": [record.model_dump(mode="json") for record in page.records],
-            "counts": page.counts,
-            "scope": {
-                "generated_at": page.generated_at,
-                "cutoff_at": page.cutoff_at,
-                "retention_days": page.retention_days,
-                "limit": page.limit,
-                "shown": len(page.records),
-                "total": page.total,
-                "filtered_total": page.counts[status] if status else page.total,
-            },
-        }
+    async def incidents(
+        status: Literal["firing", "resolved"] | None = None, cursor: PageCursor = None
+    ) -> Response:
+        try:
+            page = await asyncio.to_thread(store.page, status, cursor=cursor)
+        except ValueError:
+            return problem(422, "invalid_cursor", "Página inválida. Reabra a primeira página.")
+        return JSONResponse(
+            {
+                "incidents": [record.model_dump(mode="json") for record in page.records],
+                "counts": page.counts,
+                "next_cursor": page.next_cursor,
+                "scope": {
+                    "generated_at": page.generated_at.isoformat(),
+                    "cutoff_at": page.cutoff_at.isoformat(),
+                    "retention_days": page.retention_days,
+                    "limit": page.limit,
+                    "shown": len(page.records),
+                    "total": page.total,
+                    "filtered_total": page.counts[status] if status else page.total,
+                    "offset": page.offset,
+                },
+            }
+        )
 
     @application.get("/api/incidents/{incident_id}")
     async def incident_json(incident_id: IncidentId) -> Response:
@@ -344,16 +354,38 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         )
 
     @application.get("/", response_class=HTMLResponse)
-    async def index(status: IncidentFilter = "all") -> str:
-        page = await asyncio.to_thread(store.page, None if status == "all" else status)
-        return ui.home(page, probe, status)
+    async def index(
+        request: Request, status: IncidentFilter = "all", cursor: PageCursor = None
+    ) -> Response:
+        try:
+            page = await asyncio.to_thread(
+                store.page, None if status == "all" else status, cursor=cursor
+            )
+        except ValueError:
+            return navigation_problem(
+                request, 422, "Página inválida", "Volte à central para iniciar uma nova leitura."
+            )
+        return HTMLResponse(ui.home(page, probe, status))
 
     @application.get("/incident-lookup")
-    async def lookup(incident_id: str = "", status: IncidentFilter = "all") -> Response:
+    async def lookup(
+        request: Request,
+        incident_id: str = "",
+        status: IncidentFilter = "all",
+        cursor: PageCursor = None,
+    ) -> Response:
+        try:
+            page = await asyncio.to_thread(
+                store.page, None if status == "all" else status, cursor=cursor
+            )
+        except ValueError:
+            return navigation_problem(request, 422, "Página inválida", "Volte à central.")
         identity = int(incident_id) if re.fullmatch(r"[0-9]{1,19}", incident_id) else 0
         if 1 <= identity <= 2**63 - 1:
-            return RedirectResponse(f"/incidents/{identity}?status={status}", status_code=303)
-        page = await asyncio.to_thread(store.page, None if status == "all" else status)
+            origin = "&" + urlencode({"cursor": cursor}) if cursor else ""
+            return RedirectResponse(
+                f"/incidents/{identity}?status={status}{origin}", status_code=303
+            )
         return HTMLResponse(
             ui.home(
                 page,
@@ -367,8 +399,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @application.get("/incidents/{incident_id}", response_class=HTMLResponse)
     async def incident_html(
-        request: Request, incident_id: IncidentId, status: IncidentFilter = "all"
+        request: Request,
+        incident_id: IncidentId,
+        status: IncidentFilter = "all",
+        cursor: PageCursor = None,
     ) -> Response:
+        if cursor is not None:
+            try:
+                store.decode_cursor(cursor, None if status == "all" else status)
+            except ValueError:
+                return navigation_problem(request, 422, "Página inválida", "Volte à central.")
         record, events, generated_at = await asyncio.to_thread(store.incident_snapshot, incident_id)
         if record is None:
             return navigation_problem(
@@ -377,7 +417,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 "Ocorrência não encontrada",
                 "Incidente não encontrado. O histórico de resolvidos pode ter expirado.",
             )
-        return HTMLResponse(ui.incident_detail(record, events, status, generated_at=generated_at))
+        return HTMLResponse(
+            ui.incident_detail(record, events, status, generated_at=generated_at, cursor=cursor)
+        )
 
     @application.get("/styles.css")
     async def styles() -> FileResponse:
@@ -450,7 +492,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         slug: str,
         incident_id: OriginIncidentId = None,
         status: IncidentFilter = "all",
+        cursor: PageCursor = None,
     ) -> Response:
+        if cursor is not None:
+            try:
+                store.decode_cursor(cursor, None if status == "all" else status)
+            except ValueError:
+                return navigation_problem(request, 422, "Página inválida", "Volte à central.")
         if slug not in RUNBOOKS:
             return navigation_problem(
                 request,
@@ -470,7 +518,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 "Runbook ausente. Confira docs/runbooks na imagem do receiver.",
                 retry=True,
             )
-        return HTMLResponse(ui.runbook_page(slug, markdown, incident_id=incident_id, status=status))
+        return HTMLResponse(
+            ui.runbook_page(slug, markdown, incident_id=incident_id, status=status, cursor=cursor)
+        )
 
     @application.get("/runbooks", response_class=HTMLResponse)
     async def runbooks() -> str:

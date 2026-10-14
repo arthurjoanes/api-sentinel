@@ -436,3 +436,4 @@ footer a { padding-block:4px; }
 @media (prefers-reduced-motion:reduce) {
   *,*::before,*::after { scroll-behavior:auto; transition:none !important; animation:none !important; }
 }
+.pagination { display: flex; flex-wrap: wrap; gap: 12px; margin-block: 16px; }
