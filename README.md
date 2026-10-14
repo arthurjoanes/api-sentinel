@@ -141,24 +141,6 @@ A consulta de resumo segue Bearer → autorização → quota → admissão → 
 
 </details>
 
-<details>
-<summary>Paleta de marca</summary>
-
-![Paleta do API Sentinel: azul sentinela, azul de ação, petróleo, gelo e tons de texto](docs/readme/palette.svg)
-
-| Cor | Código | Função |
-| --- | --- | --- |
-| Azul sentinela | `#14334B` | Estrutura, cabeçalho e marca |
-| Azul de ação | `#155BA6` | Links e ações |
-| Petróleo | `#087F8C` | Acento do contexto de leitura |
-| Gelo | `#F0F5F8` | Superfícies de apoio |
-| Texto | `#1B2E40` | Conteúdo principal |
-| Texto secundário | `#4C6374` | Metadados e orientação |
-
-A paleta identifica a marca e a navegação. Estados de incidente mantêm verde, vermelho e âmbar acompanhados de texto; o acento petróleo não indica saúde do serviço. A marca e os quatro selos de navegação usam essa paleta. O selo do LinkedIn conserva a cor da plataforma.
-
-</details>
-
 <a id="executar-e-verificar"></a>
 <a id="executar-e-conferir"></a>
 
