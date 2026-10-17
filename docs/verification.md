@@ -6,6 +6,26 @@ Para entender o produto, comece pela [consulta de R$ 125,00, falha e recuperaç�
 
 ## Verificar a versão atual
 
+### Checks de Python sem containers
+
+Com Python 3.12 e uv, na raiz do projeto:
+
+```sh
+python -m uv sync --frozen
+python -m uv run pytest tests/unit -q
+python -m uv run ruff check .
+python -m uv run ruff format --check .
+python -m uv run mypy
+```
+
+`tzdata` faz parte do lockfile para que `America/Sao_Paulo` funcione também sem
+uma base IANA instalada no sistema, conforme a [documentação de
+zoneinfo](https://docs.python.org/3/library/zoneinfo.html#data-sources).
+O teste `test_timezone_runtime.py` força essa condição em um processo separado.
+As integrações PostgreSQL/Redis e os testes pelo proxy continuam exigindo o
+ambiente descartável do runner. No Windows, os testes de permissões POSIX ficam
+reservados ao Linux.
+
 ### Rodada completa no Linux de 12/10/2026
 
 `python scripts/review.py --scenario all` passou no [CI 38204283171](https://github.com/arthurjoanes/api-sentinel/actions/runs/38204283171), no snapshot `bf7131886c38afe9991e35539e0f330651e435f3`. A execução `20261012t043755793312z` ocorreu de 01:37:55 a 01:47:20 em São Paulo. O [resumo publicado](evidence/evolution-20261012/summary.json) e o [recibo operacional](evidence/evolution-20261012/operational-run.json) identificam comandos, imagens, resultados e limpeza. Este incremento documental publica essa prova; mudanças posteriores exigem sua própria verificação.
