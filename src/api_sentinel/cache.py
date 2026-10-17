@@ -33,6 +33,16 @@ class SummaryCache:
         )
         return result
 
+    async def _cached(self, key: str) -> dict | None:
+        try:
+            raw = await self.redis.get(key)
+            return self.with_age(json.loads(raw)) if raw is not None else None
+        except (ValueError, TypeError, KeyError):
+            # An unreadable cache entry is a miss. The fill owner replaces it;
+            # deleting it here could remove a concurrent owner's valid result.
+            CACHE_REQUESTS.labels("error").inc()
+            return None
+
     async def get_or_fill(self, key: str, compute: Callable[[], Awaitable[dict]]) -> dict:
         started = time.monotonic()
         lock = f"fill:{key}"
@@ -40,10 +50,10 @@ class SummaryCache:
         acquired = False
         computed: dict | None = None
         try:
-            cached = await self.redis.get(key)
+            cached = await self._cached(key)
             if cached is not None:
                 CACHE_REQUESTS.labels("hit").inc()
-                return self.with_age(json.loads(cached))
+                return cached
             CACHE_REQUESTS.labels("miss").inc()
             acquired = bool(await self.redis.set(lock, token, nx=True, px=2000))
             if not acquired:
@@ -51,17 +61,17 @@ class SummaryCache:
                 deadline = time.monotonic() + 0.25
                 while time.monotonic() < deadline:
                     await asyncio.sleep(0.015)
-                    cached = await self.redis.get(key)
+                    cached = await self._cached(key)
                     if cached is not None:
                         CACHE_REQUESTS.labels("hit").inc()
-                        return self.with_age(json.loads(cached))
+                        return cached
                 CACHE_FILL.labels("timeout").inc()
                 raise Problem(503, "cache_fill_busy", "Resumo em cálculo; tente novamente.", 1)
             CACHE_FILL.labels("owner").inc()
             # Outra réplica pode concluir entre o GET e a obtenção do lock.
-            cached = await self.redis.get(key)
+            cached = await self._cached(key)
             if cached is not None:
-                return self.with_age(json.loads(cached))
+                return cached
             computed = await compute()
             await self.redis.set(key, json.dumps(computed), ex=self.ttl)
             return self.with_age(computed)

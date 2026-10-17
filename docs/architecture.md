@@ -163,6 +163,8 @@ A autenticação admite até oito operações e usa um pool próprio de duas con
 
 Chave inclui contrato, versão lida do banco, tenant, loja, datas normalizadas. Autorização sempre precede lookup. `data_updated_at` corresponde à massa, `observed_at` ao cálculo e `cache_age_seconds` cresce no hit. Não há stale nem alegação de consistência forte. Lock Redis usa token e remoção condicional. A indisponibilidade exclusiva do cache permite SQL sob admissão; Redis inteiro indisponível faz a quota falhar fechada com 503. Injeções são comandos locais/arquivos internos, nunca endpoints públicos de falha.
 
+JSON ilegível ou `observed_at` inválido no cache é tratado como miss. O proprietário do lock recalcula e substitui a entrada; a leitura não apaga a chave, para preservar um preenchimento concorrente. Os [testes do cache](../tests/unit/test_summary_cache.py) cobrem a recuperação e o hit seguinte.
+
 ## Políticas de quota
 
 `QUOTA_ALGORITHM` aceita `fixed-window` ou `gcra`; o padrão é `fixed-window`. A taxa `Q` vem da quota por segundo da organização autenticada e vale para todas as suas credenciais. Autorização precede o consumo da quota em ambas as políticas. Cada réplica conserva sua admissão simultânea, seu rate de autenticação e seu circuito ERP, que protegem recursos diferentes.
