@@ -32,6 +32,7 @@ logger = logging.getLogger("sentinel.receiver")
 RUNBOOKS = frozenset(ui.RUNBOOKS)
 IncidentId = Annotated[int, PathParameter(ge=1, le=2**63 - 1)]
 IncidentFilter = Literal["all", "firing", "resolved"]
+ActivityDays = Literal["1", "7", "30"]
 OriginIncidentId = Annotated[int | None, Query(ge=1, le=2**63 - 1)]
 PageCursor = Annotated[str | None, Query(max_length=1024)]
 
@@ -144,6 +145,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         retry: bool = False,
     ) -> HTMLResponse:
         incident_filter, incident_id = navigation_context(request)
+        window = request.query_params.get("sentinel_days", request.query_params.get("days", "7"))
+        days = int(window) if window in {"1", "7", "30"} else 7
         retry_url = None
         if retry:
             if request.url.path.startswith("/incidents/") and incident_id is not None:
@@ -160,9 +163,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 )
                 retry_url = request.url.path + ("?" + query if query else "")
                 if incident_id is not None:
-                    retry_url = ui.tool_context(retry_url, incident_filter, incident_id)
+                    retry_url = ui.tool_context(retry_url, incident_filter, incident_id, days=days)
             else:
-                retry_url = ui.central_url(incident_filter)
+                retry_url = ui.central_url(incident_filter, days=days)
+            if days != 7 and "days=" not in retry_url:
+                retry_url += ("&" if "?" in retry_url else "?") + (
+                    f"sentinel_days={days}"
+                    if request.url.path.startswith("/tools/")
+                    else f"days={days}"
+                )
         return HTMLResponse(
             ui.problem_page(
                 status,
@@ -171,6 +180,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 incident_filter=incident_filter,
                 incident_id=incident_id,
                 retry_url=retry_url,
+                days=days,
             ),
             status_code=status,
         )
@@ -355,11 +365,17 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @application.get("/", response_class=HTMLResponse)
     async def index(
-        request: Request, status: IncidentFilter = "all", cursor: PageCursor = None
+        request: Request,
+        status: IncidentFilter = "all",
+        cursor: PageCursor = None,
+        days: ActivityDays = "7",
     ) -> Response:
         try:
             page = await asyncio.to_thread(
-                store.page, None if status == "all" else status, cursor=cursor
+                store.page,
+                None if status == "all" else status,
+                cursor=cursor,
+                activity_days=int(days),
             )
         except ValueError:
             return navigation_problem(
@@ -373,16 +389,22 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         incident_id: str = "",
         status: IncidentFilter = "all",
         cursor: PageCursor = None,
+        days: ActivityDays = "7",
     ) -> Response:
         try:
             page = await asyncio.to_thread(
-                store.page, None if status == "all" else status, cursor=cursor
+                store.page,
+                None if status == "all" else status,
+                cursor=cursor,
+                activity_days=int(days),
             )
         except ValueError:
             return navigation_problem(request, 422, "Página inválida", "Volte à central.")
         identity = int(incident_id) if re.fullmatch(r"[0-9]{1,19}", incident_id) else 0
         if 1 <= identity <= 2**63 - 1:
             origin = "&" + urlencode({"cursor": cursor}) if cursor else ""
+            if days != "7":
+                origin += f"&days={days}"
             return RedirectResponse(
                 f"/incidents/{identity}?status={status}{origin}", status_code=303
             )
@@ -403,6 +425,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         incident_id: IncidentId,
         status: IncidentFilter = "all",
         cursor: PageCursor = None,
+        days: ActivityDays = "7",
     ) -> Response:
         if cursor is not None:
             try:
@@ -418,7 +441,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 "Incidente não encontrado. O histórico de resolvidos pode ter expirado.",
             )
         return HTMLResponse(
-            ui.incident_detail(record, events, status, generated_at=generated_at, cursor=cursor)
+            ui.incident_detail(
+                record, events, status, generated_at=generated_at, cursor=cursor, days=int(days)
+            )
         )
 
     @application.get("/styles.css")
@@ -448,7 +473,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             [
                 (key, value)
                 for key, value in parse_qsl(request.url.query)
-                if key not in {"sentinel_status", "sentinel_incident"}
+                if key not in {"sentinel_status", "sentinel_incident", "sentinel_days"}
             ]
         )
         try:
@@ -493,6 +518,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         incident_id: OriginIncidentId = None,
         status: IncidentFilter = "all",
         cursor: PageCursor = None,
+        days: ActivityDays = "7",
     ) -> Response:
         if cursor is not None:
             try:
@@ -519,7 +545,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 retry=True,
             )
         return HTMLResponse(
-            ui.runbook_page(slug, markdown, incident_id=incident_id, status=status, cursor=cursor)
+            ui.runbook_page(
+                slug,
+                markdown,
+                incident_id=incident_id,
+                status=status,
+                cursor=cursor,
+                days=int(days),
+            )
         )
 
     @application.get("/runbooks", response_class=HTMLResponse)

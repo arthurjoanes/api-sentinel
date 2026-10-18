@@ -42,25 +42,36 @@ def compact_timestamp(value: datetime | None) -> str:
     return value.astimezone(UTC).strftime("%d/%m/%Y · %H:%M UTC")
 
 
-def central_url(status: str, incident_id: int | None = None, *, cursor: str | None = None) -> str:
+def central_url(
+    status: str, incident_id: int | None = None, *, cursor: str | None = None, days: int = 7
+) -> str:
     status = status if status in {"all", "firing", "resolved"} else "all"
     target = f"/?status={status}"
     if cursor:
         target += "&" + urlencode({"cursor": cursor})
+    if days in (1, 30):
+        target += f"&days={days}"
     if incident_id is not None and 1 <= incident_id <= 2**63 - 1:
         target += f"#incidente-{incident_id}"
     return target
 
 
-def tool_context(value: str, status: str, incident_id: int) -> str:
+def tool_context(value: str, status: str, incident_id: int, *, days: int = 7) -> str:
     target = urlsplit(value)
     query = dict(parse_qsl(target.query))
     query.update(sentinel_status=status, sentinel_incident=str(incident_id))
+    if days in (1, 30):
+        query["sentinel_days"] = str(days)
     return target.path + "?" + urlencode(query)
 
 
 def incident_lookup(
-    status: str, *, error: str | None = None, value: str = "", cursor: str | None = None
+    status: str,
+    *,
+    error: str | None = None,
+    value: str = "",
+    cursor: str | None = None,
+    days: int = 7,
 ) -> str:
     error_markup = (
         f'<p class="field-error" id="incident-id-error" role="alert">{escape_html(error)}</p>'
@@ -69,6 +80,8 @@ def incident_lookup(
     )
     invalid = ' aria-invalid="true" aria-describedby="incident-id-error"' if error else ""
     origin = f'<input type="hidden" name="cursor" value="{escape_html(cursor)}">' if cursor else ""
+    if days in (1, 30):
+        origin += f'<input type="hidden" name="days" value="{days}">'
     return f'''<form id="buscar-incidente" class="incident-lookup"
 action="/incident-lookup" method="get">
 <input type="hidden" name="status" value="{escape_html(status)}">
@@ -156,13 +169,17 @@ def resolution_label(incident: Incident) -> str:
     return "Recuperação"
 
 
-def incident_row(incident: Incident, status: str = "all", *, cursor: str | None = None) -> str:
+def incident_row(
+    incident: Incident, status: str = "all", *, cursor: str | None = None, days: int = 7
+) -> str:
     state, tone = incident_state(incident)
     observed = incident.last_received_at if incident.status == "firing" else incident.ends_at
     severity = SEVERITY_LABELS.get(incident.labels.get("severity", ""), "Atenção")
     detail_url = f"/incidents/{incident.id}?status={status}"
     if cursor:
         detail_url += "&" + urlencode({"cursor": cursor})
+    if days in (1, 30):
+        detail_url += f"&days={days}"
     return f"""<li class="incident-row {tone}" id="incidente-{incident.id}" tabindex="-1">
 <div class="row-state"><span class="badge {tone}">{state}</span>
 <span class="row-severity">{escape_html(severity)}</span></div>
@@ -227,7 +244,7 @@ def probe_observation(probe: ProbeState, observed_at: datetime) -> str:
 </div></section>'''
 
 
-def incident_filters(counts: dict[str, int], status: str) -> str:
+def incident_filters(counts: dict[str, int], status: str, *, days: int = 7) -> str:
     choices = (
         ("all", "Todos", sum(counts.values())),
         ("firing", "Em andamento", counts["firing"]),
@@ -235,7 +252,8 @@ def incident_filters(counts: dict[str, int], status: str) -> str:
     )
     return "".join(
         f'<a class="filter {"selected" if status == code else ""}" '
-        f'{"aria-current=page" if status == code else ""} href="/?status={code}">'
+        f"{'aria-current=page' if status == code else ''} "
+        f'href="{escape_html(central_url(code, days=days))}">'
         f'<span class="filter-label">{label}</span><strong>{count}</strong></a>'
         for code, label, count in choices
     )
@@ -307,19 +325,21 @@ def home(
     lookup_value: str = "",
 ) -> str:
     counts = page.counts
+    days = page.activity_days
     entries = "".join(
-        incident_row(incident, status, cursor=page.cursor) for incident in page.records
+        incident_row(incident, status, cursor=page.cursor, days=days) for incident in page.records
     )
     navigation = []
     if page.cursor:
+        first_url = escape_html(central_url(status, days=days))
         navigation.append(
-            f'<a class="button secondary" href="{escape_html(central_url(status))}#conteudo">'
-            "Primeira página</a>"
+            f'<a class="button secondary" href="{first_url}#conteudo">Primeira página</a>'
         )
     if page.next_cursor:
+        next_url = escape_html(central_url(status, cursor=page.next_cursor, days=days))
         navigation.append(
             f'<a class="button secondary" rel="next" '
-            f'href="{escape_html(central_url(status, cursor=page.next_cursor))}#conteudo">'
+            f'href="{next_url}#conteudo">'
             "Ocorrências seguintes →</a>"
         )
     pagination = (
@@ -347,11 +367,33 @@ def home(
         if entries
         else ""
     )
+    period = "".join(
+        f'<option value="{value}"{" selected" if value == days else ""}>{label}</option>'
+        for value, label in ((1, "Hoje"), (7, "7 dias"), (30, "30 dias"))
+    )
+    origin = (
+        f'<input type="hidden" name="cursor" value="{escape_html(page.cursor)}">'
+        if page.cursor
+        else ""
+    )
+    refresh_url = escape_html(central_url(status, days=days))
+    lookup = incident_lookup(
+        status, error=lookup_error, value=lookup_value, cursor=page.cursor, days=days
+    )
+    filters = incident_filters(counts, status, days=days)
+    metrics = activity_metrics(page, status)
     content = f"""<div class="incident-central"><div class="page-heading"><div><h1>Incidentes</h1>
 <p class="reading-meta snapshot-meta">Leitura de {escape_html(timestamp(page.generated_at))}
 · Atualização manual</p></div>
-<a class="button secondary" href="/?status={escape_html(status)}">Atualizar leitura</a></div>
+<a class="button secondary" href="{refresh_url}">Atualizar leitura</a></div>
+<div class="activity-toolbar"><h2>Atividade registrada</h2>
+<form method="get" action="/" class="activity-period">
+<input type="hidden" name="status" value="{escape_html(status)}">{origin}
+<label for="activity-days">Período dos inícios (UTC)</label>
+<select name="days" id="activity-days">{period}</select>
+<button class="button secondary" type="submit">Aplicar</button></form></div>
 {overview_charts(page, status)}
+{metrics}
 <div class="triage-workspace">
 <section class="observation-workspace" aria-label="Observação e escopo">
 {probe_observation(probe, datetime.now(UTC))}
@@ -359,9 +401,9 @@ def home(
 {observation_details(page, probe)}</details></section>
 <section class="inbox" aria-label="Incidentes">
 <div class="queue-heading"><h2>Investigar ocorrências</h2>
-{incident_lookup(status, error=lookup_error, value=lookup_value, cursor=page.cursor)}</div>
+{lookup}</div>
 <div class="queue-controls">
-<nav class="filters" aria-label="Filtrar incidentes">{incident_filters(counts, status)}</nav>
+<nav class="filters" aria-label="Filtrar incidentes">{filters}</nav>
 <div class="list-scope"><h2 class="visually-hidden">{list_title}</h2><span class="list-count">
 {len(page.records)} de {filtered_total} incidentes · limite de {page.limit}{position}</span>
 <a href="#observacao">Ver probe</a>
@@ -372,7 +414,37 @@ Finalizados: últimos {page.retention_days} dias · Em andamento: sem expiraçã
     return layout("Incidentes", content, snapshot=True)
 
 
-def incident_runbook(incident: Incident, status: str, cursor: str | None = None) -> str:
+def activity_metrics(page: IncidentPage, status: str = "all") -> str:
+    observed = page.generated_at
+    if observed.tzinfo is None or page.activity_days not in (1, 7, 30):
+        return ""
+    try:
+        observed = observed.astimezone(UTC)
+        start = (observed - timedelta(days=page.activity_days - 1)).replace(
+            hour=0, minute=0, second=0, microsecond=0
+        )
+        values: dict[str, str | int] = {
+            "from": int(start.timestamp() * 1000),
+            "to": int(observed.timestamp() * 1000),
+        }
+        if status in {"firing", "resolved"}:
+            values["sentinel_status"] = status
+        if page.activity_days in (1, 30):
+            values["sentinel_days"] = page.activity_days
+        query = urlencode(values)
+    except (OverflowError, ValueError, OSError):
+        return ""
+    return (
+        '<p class="activity-metrics"><a href="/tools/grafana/d/sentinel/api-sentinel?'
+        + escape_html(query)
+        + '">Uso, quota e latência no Grafana ↗</a>'
+        "<span>Mesmo período; séries do Prometheus, conforme a retenção disponível.</span></p>"
+    )
+
+
+def incident_runbook(
+    incident: Incident, status: str, cursor: str | None = None, *, days: int = 7
+) -> str:
     annotations = incident.annotations
     runbook = local_link(
         annotations.get("runbook_url", annotations.get("runbook", "")), "/runbooks/telemetry"
@@ -381,8 +453,10 @@ def incident_runbook(incident: Incident, status: str, cursor: str | None = None)
     slug = urlsplit(runbook).path.removeprefix("/runbooks/")
     if slug not in RUNBOOKS:
         slug = "telemetry"
-    return f"/runbooks/{slug}?incident_id={incident.id}&status={status}" + (
-        "&" + urlencode({"cursor": cursor}) if cursor else ""
+    return (
+        f"/runbooks/{slug}?incident_id={incident.id}&status={status}"
+        + (f"&days={days}" if days in (1, 30) else "")
+        + ("&" + urlencode({"cursor": cursor}) if cursor else "")
     )
 
 
@@ -398,7 +472,7 @@ def evidence_period(incident: Incident) -> tuple[datetime, datetime] | None:
     return max(start, end - timedelta(hours=24)), end + timedelta(seconds=end == start)
 
 
-def incident_card(incident: Incident, status: str = "all") -> str:
+def incident_card(incident: Incident, status: str = "all", *, days: int = 7) -> str:
     annotations = incident.annotations
     dashboard = local_link(
         annotations.get("dashboard_url", annotations.get("dashboard", "")),
@@ -418,7 +492,7 @@ def incident_card(incident: Incident, status: str = "all") -> str:
         )
         parameters["from"] = parameters.pop("from_")
         metrics = tool_context(
-            dashboard_target.path + "?" + urlencode(parameters), status, incident.id
+            dashboard_target.path + "?" + urlencode(parameters), status, incident.id, days=days
         )
         traces = tool_context(
             "/tools/jaeger/search?"
@@ -433,6 +507,7 @@ def incident_card(incident: Incident, status: str = "all") -> str:
             ),
             status,
             incident.id,
+            days=days,
         )
         recut = (
             "Recorte de até 24 horas, até o último registro. " if start > incident.starts_at else ""
@@ -442,7 +517,7 @@ def incident_card(incident: Incident, status: str = "all") -> str:
 <a href="{escape_html(traces)}">Traces do período no Jaeger ↗</a></div>
 <p class="evidence-scope">{recut}{escape_html(timestamp(start))} até {escape_html(timestamp(end))}.
 Traces são amostrados; a ausência de resultados não comprova ausência de chamadas.</p>'''
-    rules = tool_context("/tools/prometheus/alerts", status, incident.id)
+    rules = tool_context("/tools/prometheus/alerts", status, incident.id, days=days)
     return f'''<section class="incident-context" aria-label="Condição e investigação">
 <div class="context-block"><details><summary>Condição do alerta</summary>
 <div class="disclosure-content">
@@ -489,6 +564,7 @@ def incident_detail(
     *,
     generated_at: datetime | None = None,
     cursor: str | None = None,
+    days: int = 7,
 ) -> str:
     state, tone = incident_state(incident)
     severity = SEVERITY_LABELS.get(incident.labels.get("severity", ""), "Atenção")
@@ -512,7 +588,7 @@ def incident_detail(
         else ""
     )
     observation_link = (
-        f'<a class="button" href="/?status={escape_html(status)}#observacao">'
+        f'<a class="button" href="{escape_html(central_url(status, days=days))}#observacao">'
         "Conferir observação atual</a>"
         if not active
         else ""
@@ -536,9 +612,12 @@ def incident_detail(
     detail_url = f"/incidents/{incident.id}?status={status}" + (
         "&" + urlencode({"cursor": cursor}) if cursor else ""
     )
+    if days in (1, 30):
+        detail_url += f"&days={days}"
+    back_url = escape_html(central_url(status, incident.id, cursor=cursor, days=days))
     return layout(
         f"Incidente #{incident.id}",
-        f"""<a class="back" href="{escape_html(central_url(status, incident.id, cursor=cursor))}">
+        f"""<a class="back" href="{back_url}">
 ← Voltar à central</a>
 <div class="detail-heading {tone}"><div class="detail-labels">
 <span class="badge {tone}">{state}</span><span>Incidente #{incident.id}</span>
@@ -557,7 +636,7 @@ Atualizar ocorrência</a></div>
 <div class="decision-actions">
 {observation_link}
 <a class="{"button" if active else "text-link"}"
-href="{escape_html(incident_runbook(incident, status, cursor))}">Abrir runbook</a>
+href="{escape_html(incident_runbook(incident, status, cursor, days=days))}">Abrir runbook</a>
 </div><details class="decision-explanation"><summary>Ver orientação</summary>
 <p>{escape_html(next_step)}</p></details></div></div>
 <details class="incident-metadata"><summary>Datas e entregas</summary>
@@ -577,7 +656,7 @@ href="{escape_html(incident_runbook(incident, status, cursor))}">Abrir runbook</
 <p>Fingerprint: <code>{escape_html(incident.fingerprint)}</code></p>
 <p>Início: {escape_html(timestamp(incident.starts_at))}</p>
 <a class="text-link" href="/api/incidents/{incident.id}">Abrir registro JSON →</a></div></details>
-</section>{incident_card(incident, status)}</div>""",
+</section>{incident_card(incident, status, days=days)}</div>""",
     )
 
 
@@ -615,6 +694,7 @@ def runbook_page(
     incident_id: int | None = None,
     status: str = "all",
     cursor: str | None = None,
+    days: int = 7,
 ) -> str:
     parts: list[str] = []
     sections: list[str] = []
@@ -660,13 +740,15 @@ def runbook_page(
         parts.append(code_block("\n".join(code), code_language))
     title = RUNBOOKS.get(slug, (slug, ""))[0]
     origin = "&" + urlencode({"cursor": cursor}) if cursor else ""
+    if days in (1, 30):
+        origin += f"&days={days}"
     back = (
         f'<a class="back" href="/incidents/{incident_id}?status={escape_html(status + origin)}">'
         f"← Voltar ao incidente #{incident_id}</a>"
         if incident_id is not None
         else '<a class="back" href="/runbooks">← Todos os runbooks</a>'
     )
-    central = central_url(status, incident_id, cursor=cursor)
+    central = central_url(status, incident_id, cursor=cursor, days=days)
     return layout(
         f"Runbook · {title}",
         back + '<div class="runbook-workspace">'
@@ -690,9 +772,10 @@ def problem_page(
     incident_filter: str = "all",
     incident_id: int | None = None,
     retry_url: str | None = None,
+    days: int = 7,
 ) -> str:
-    back = central_url(incident_filter, incident_id)
-    if incident_filter == "all" and incident_id is None:
+    back = central_url(incident_filter, incident_id, days=days)
+    if incident_filter == "all" and incident_id is None and days == 7:
         back = "/"
     retry = ""
     if (

@@ -189,14 +189,20 @@ class AlertStore:
         *,
         now: datetime | None = None,
         cursor: str | None = None,
+        activity_days: int = 7,
     ) -> IncidentPage:
         if status not in (None, "firing", "resolved") or not 1 <= limit <= 200:
             raise ValueError("Filtro ou limite de ocorrências inválido.")
+        if type(activity_days) is not int or activity_days not in (1, 7, 30):
+            raise ValueError("Janela de atividade inválida.")
         observed_at = now or datetime.now(UTC)
         if observed_at.tzinfo is None:
             raise ValueError("O instante da consulta deve informar o fuso.")
         observed_at = observed_at.astimezone(UTC)
         cutoff = observed_at - timedelta(days=self.retention_days)
+        activity_start = (observed_at - timedelta(days=activity_days - 1)).replace(
+            hour=0, minute=0, second=0, microsecond=0
+        )
         after: tuple[int, str, int] | None = None
         offset = 0
         if cursor is not None:
@@ -228,6 +234,19 @@ class AlertStore:
                 "WHERE status='firing' OR last_activity_at>=? GROUP BY status",
                 (cutoff.isoformat(timespec="microseconds"),),
             ).fetchall()
+            activity = connection.execute(
+                "SELECT date(starts_at) AS day, COUNT(*) AS total FROM incidents "
+                "WHERE (status='firing' OR last_activity_at>=?) "
+                "AND (? IS NULL OR status=?) AND starts_at>=? AND starts_at<=? "
+                "GROUP BY date(starts_at) ORDER BY day",
+                (
+                    cutoff.isoformat(timespec="microseconds"),
+                    status,
+                    status,
+                    activity_start.isoformat(timespec="microseconds"),
+                    observed_at.isoformat(timespec="microseconds"),
+                ),
+            ).fetchall()
         next_cursor = None
         if len(rows) > limit:
             rows = rows[:limit]
@@ -255,6 +274,8 @@ class AlertStore:
             cursor=cursor,
             next_cursor=next_cursor,
             offset=offset,
+            activity_counts={row["day"]: row["total"] for row in activity},
+            activity_days=activity_days,
         )
 
     def decode_cursor(

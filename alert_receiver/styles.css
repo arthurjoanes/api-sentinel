@@ -437,3 +437,19 @@ footer a { padding-block:4px; }
   *,*::before,*::after { scroll-behavior:auto; transition:none !important; animation:none !important; }
 }
 .pagination { display: flex; flex-wrap: wrap; gap: 12px; margin-block: 16px; }
+.activity-toolbar { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px 20px; padding-top:4px; }
+.activity-toolbar h2 { font-size:18px; font-weight:600; }
+.activity-period { display:flex; flex-wrap:wrap; align-items:center; gap:8px; font-size:13px; }
+.activity-period label { color:var(--muted); }
+.activity-period select { min-height:44px; padding:8px 28px 8px 12px; background:var(--context); color:var(--ink); border:1px solid var(--line); border-radius:4px; font:inherit; }
+.activity-period select:focus-visible { outline:3px solid var(--accent); outline-offset:3px; }
+.activity-metrics { display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 16px; margin:0 0 20px; font-size:13px; }
+.activity-metrics span { color:var(--muted); font-size:12px; }
+.activity-days-1 { grid-template-columns:1fr; }
+.activity-days-30 { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.activity-days-30 .chart-day:first-child { text-align:left; }
+.activity-days-30 .chart-day:last-child { text-align:right; }
+.chart-bar-activity { animation:activity-appear 180ms cubic-bezier(.23,1,.32,1); }
+@keyframes activity-appear { from { opacity:.45; transform:translateY(2px); } to { opacity:1; transform:translateY(0); } }
+@media (max-width:600px) { .activity-toolbar { align-items:flex-start; } .activity-period { width:100%; } .activity-period label { flex-basis:100%; } .activity-period select { flex:1; } }
+@media (prefers-reduced-motion:reduce) { .chart-bar-activity { animation:none; } }

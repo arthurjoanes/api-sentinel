@@ -109,16 +109,29 @@ def _states(page: IncidentPage) -> str:
 
 def _activity(page: IncidentPage, status: str) -> str:
     title = "Inícios por dia"
+    days = (
+        page.activity_days
+        if type(page.activity_days) is int and page.activity_days in (1, 7, 30)
+        else 7
+    )
+    complete = page.activity_counts is not None
     records = page.records[:_SAMPLE_LIMIT]
     items = "item" if len(records) == 1 else "itens"
-    caption = f"7 dias UTC · {len(records)} {items} deste filtro"
+    caption = (
+        f"{days} dias UTC · registros retidos"
+        if complete
+        else f"{days} dias UTC · {len(records)} {items} deste filtro"
+    )
     table_caption = (
-        f"Inícios somente nos {len(records)} registros carregados (limite de 100). "
+        f"Inícios nos registros retidos. Filtro: {_FILTERS.get(status, 'Todos')}. "
+        "Independente da página da fila."
+        if complete
+        else f"Inícios somente nos {len(records)} registros carregados (limite de 100). "
         f"Filtro: {_FILTERS.get(status, 'Todos')}. Não representa todo o histórico."
     )
     observed = _utc(page.generated_at)
     try:
-        first_day = observed.date() - timedelta(days=6) if observed else None
+        first_day = observed.date() - timedelta(days=days - 1) if observed else None
     except OverflowError:
         first_day = None
     if observed is None or first_day is None:
@@ -128,18 +141,32 @@ def _activity(page: IncidentPage, status: str) -> str:
             '<p class="chart-empty">Período indisponível.</p>',
             _table(table_caption, "Dia UTC", [("Período indisponível", None)]),
         )
-    counts: dict[date, int] = {first_day + timedelta(days=index): 0 for index in range(7)}
+    counts: dict[date, int] = {first_day + timedelta(days=index): 0 for index in range(days)}
     invalid = 0
     valid = 0
-    for incident in records:
-        starts_at = _utc(incident.starts_at)
-        if starts_at is None or starts_at > observed:
-            invalid += 1
-            continue
-        valid += 1
-        if starts_at.date() in counts:
-            counts[starts_at.date()] += 1
-    unknown = bool(records) and valid == 0
+    if page.activity_counts is not None:
+        for day_key, value in page.activity_counts.items():
+            try:
+                parsed = date.fromisoformat(day_key)
+            except (TypeError, ValueError):
+                invalid += 1
+                continue
+            if parsed not in counts or _count(value) is None:
+                invalid += 1
+                continue
+            counts[parsed] = value
+            valid += 1
+        unknown = bool(invalid)
+    else:
+        for incident in records:
+            starts_at = _utc(incident.starts_at)
+            if starts_at is None or starts_at > observed:
+                invalid += 1
+                continue
+            valid += 1
+            if starts_at.date() in counts:
+                counts[starts_at.date()] += 1
+        unknown = bool(records) and valid == 0
     table = _table(
         table_caption,
         "Dia UTC",
@@ -150,30 +177,43 @@ def _activity(page: IncidentPage, status: str) -> str:
             title, caption, '<p class="chart-empty">Datas de início indisponíveis.</p>', table
         )
     maximum = max(counts.values()) or 1
+    if complete:
+        total = sum(counts.values())
+        caption = (
+            f"{days} dias UTC · {total} {'início retido' if total == 1 else 'inícios retidos'}"
+        )
     bars = []
     labels = []
     for index, (day, value) in enumerate(counts.items()):
-        x = 440 * (index + 0.5) / 7 - 14
+        width = min(28, 330 / days)
+        x = 440 * (index + 0.5) / days - width / 2
         height = 96 * value / maximum
         bars.append(
-            f"<g><title>{day.isoformat()} UTC: {value} inícios na amostra</title>"
+            f"<g><title>{day.isoformat()} UTC: {value} inícios "
+            f"{'nos registros retidos' if complete else 'na amostra'}</title>"
             f'<rect class="chart-bar-activity" x="{x:.3f}" y="{106 - height:.3f}" '
-            f'width="28" height="{height:.3f}" rx="3" fill="#155BA6"/>'
+            f'width="{width:.3f}" height="{height:.3f}" rx="3" fill="#155BA6"/>'
             "</g>"
         )
-        labels.append(
-            f'<div class="chart-day"><strong class="chart-value">{value}</strong>'
-            '<span class="visually-hidden">inícios</span>'
-            f'<time class="chart-tick" datetime="{day.isoformat()}" '
-            f'title="{day.isoformat()} UTC">{day:%d/%m}</time></div>'
-        )
+        if days <= 7 or index in (0, days // 2, days - 1):
+            labels.append(
+                f'<div class="chart-day"><strong class="chart-value">{value}</strong>'
+                '<span class="visually-hidden">inícios</span>'
+                f'<time class="chart-tick" datetime="{day.isoformat()}" '
+                f'title="{day.isoformat()} UTC">{day:%d/%m}</time></div>'
+            )
     description = (
         f"De {first_day.isoformat()} até {observed.date().isoformat()}, em UTC. "
-        f"{sum(counts.values())} inícios nos {len(records)} itens deste filtro. "
-        "Amostra parcial dos registros carregados; zero indica "
-        "nenhum início com data válida contado; datas indisponíveis não são contadas."
+        + (
+            f"{sum(counts.values())} inícios nos registros retidos deste filtro. "
+            "Contagem independente da paginação; zero indica "
+            if complete
+            else f"{sum(counts.values())} inícios nos {len(records)} itens deste filtro. "
+            "Amostra parcial dos registros carregados; zero indica "
+        )
+        + "nenhum início com data válida contado; datas indisponíveis não são contadas."
     )
-    note = ""
+    note = "Nenhum início no período selecionado." if complete and not sum(counts.values()) else ""
     if invalid:
         note = (
             f"{invalid} data de início sem leitura."
@@ -181,14 +221,17 @@ def _activity(page: IncidentPage, status: str) -> str:
             else f"{invalid} datas de início sem leitura."
         )
     graphic = _svg("summary-activity", title, description, "".join(bars))
-    graphic += '<div class="chart-activity-labels">' + "".join(labels) + "</div>"
+    graphic += (
+        f'<div class="chart-activity-labels activity-days-{days}">' + "".join(labels) + "</div>"
+    )
     return _figure(title, caption, graphic, table, note)
 
 
 def overview_charts(page: IncidentPage, status: str = "all") -> str:
-    """Render retained totals and a bounded, filtered sample of starts on seven UTC days.
+    """Render retained totals and a UTC activity window from the same saved read.
 
-    These are saved incident records, not service health, delivery rates or recovery SLIs.
+    Older standalone fixtures without aggregates retain their explicit partial-sample scope.
+    These are incident records, not service health, delivery rates or recovery SLIs.
     The read timestamp is the sole clock; invalid clocks never manufacture a fresh period.
     """
     return '<div class="visual-summary">' + _states(page) + _activity(page, status) + "</div>"

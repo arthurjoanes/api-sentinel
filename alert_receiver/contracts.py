@@ -83,6 +83,8 @@ class IncidentPage:
     cursor: str | None = None
     next_cursor: str | None = None
     offset: int = 0
+    activity_counts: dict[str, int] | None = None
+    activity_days: int = 7
 
     @property
     def total(self) -> int:

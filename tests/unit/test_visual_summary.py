@@ -1,3 +1,4 @@
+from dataclasses import replace
 from datetime import UTC, datetime, timedelta, timezone
 from html.parser import HTMLParser
 from typing import Literal, cast
@@ -99,6 +100,30 @@ def test_totals_use_the_unfiltered_snapshot_and_do_not_claim_recovery() -> None:
     assert "Finalizados inclui encerramentos administrativos" in document
     assert "Recuperados" not in document
     assert "Finalizados: 30 dias · ativos: sem expiração" in document
+
+
+@pytest.mark.parametrize("days", [1, 7, 30])
+def test_retained_activity_uses_complete_aggregate_instead_of_loaded_records(days: int) -> None:
+    snapshot = replace(
+        page([incident(_NOW)], counts={"firing": 125, "resolved": 0}),
+        activity_counts={"2026-10-12": 125},
+        activity_days=days,
+    )
+    document = overview_charts(snapshot, "firing")
+    assert len(values(document, 1)) == days
+    assert values(document, 1)["2026-10-12 UTC"] == "125"
+    assert "Independente da página da fila" in document
+    assert "125 inícios retidos" in document
+    assert "Amostra parcial" not in document
+
+
+def test_empty_aggregate_is_distinct_from_unavailable_data() -> None:
+    snapshot = replace(page([incident(_NOW - timedelta(days=20))]), activity_counts={})
+    assert "Nenhum início no período selecionado" in overview_charts(snapshot)
+    assert set(values(overview_charts(snapshot), 1).values()) == {"0"}
+    invalid = replace(snapshot, activity_counts={"2026-10-12": -1})
+    assert "Datas de início indisponíveis" in overview_charts(invalid)
+    assert set(values(overview_charts(invalid), 1).values()) == {"Sem dado"}
 
 
 def test_seven_days_use_utc_and_the_saved_read_clock() -> None:
