@@ -4,7 +4,12 @@ A sequência está registrada na [execução de 22/09/2026, 12:49 UTC](evidence/
 
 **Registro histórico:** as imagens desta página pertencem às execuções identificadas abaixo e preservam seus bytes originais. O comportamento atual está no guia da [central de incidentes](incident-console.md).
 
-A central atual mostra totais retidos sem filtro e inícios em sete dias UTC na amostra de até 100 registros do filtro selecionado. Na fila, impacto e entregas ficam em expansões. O detalhe distingue período informado pelo alerta e horários de recebimento; condição, identificação e origem dos eventos também podem ser expandidas. Os gráficos não representam disponibilidade global nem uma taxa de recuperação.
+A central atual mostra totais retidos e inícios por período UTC, com janelas de
+hoje, 7 ou 30 dias. O gráfico usa todos os incidentes retidos do filtro de estado,
+independente da página da fila. Impacto e entregas ficam em expansões. O detalhe
+distingue o período informado pelo alerta dos horários de recebimento. Os gráficos
+não representam disponibilidade global nem taxa de recuperação; as capturas
+históricas abaixo conservam a interface e o alcance da execução original.
 
 O operador precisa distinguir três coisas: a conta comercial está correta, a consulta falhou e a mesma ocorrência recebeu uma recuperação. A ausência de incidentes, sozinha, não responde à primeira pergunta.
 

@@ -1,6 +1,6 @@
 # API Sentinel
 
-API de vendas por organização, com quota compartilhada e central de incidentes. A API e o ERP sintético rodam no mesmo ambiente local.
+API de vendas com autorização por loja e organização, quota compartilhada e integração com ERP. A central reúne incidentes, entregas e links para investigar o período no Grafana e no Jaeger. Dados e ERP são sintéticos.
 
 <!-- Navegação do README -->
 <p>
@@ -15,22 +15,30 @@ API de vendas por organização, com quota compartilhada e central de incidentes
 
 ## Demonstração
 
-![Central do API Sentinel com situação dos incidentes, inícios por dia, consulta de referência e fila de investigação](docs/readme/incidents.png)
+![Central com filtro de período UTC, inícios dos incidentes retidos e fila de investigação](docs/readme/incidents.png)
 
-Dados sintéticos da central, com probe desativado nesta prévia. Referência dos dados: 12/10/2026, 06:00 UTC. [Guia de uso](docs/incident-console.md) · [detalhe da ocorrência](docs/readme/incident-detail.png) · [galeria](docs/screenshots.md).
+Captura da interface atual com dados sintéticos de referência de 12/10/2026,
+06:00 UTC e probe desativado. [Guia de uso](docs/incident-console.md) ·
+[detalhe da ocorrência](docs/readme/incident-detail.png) · [desktop e mobile](docs/screenshots.md).
 
-Filtrar → localizar o ID → investigar o período → conferir as entregas. Recuperação recebida e encerramento administrativo têm registros distintos.
+Selecione hoje, 7 ou 30 dias UTC e filtre por estado. O gráfico conta os inícios
+em todos os incidentes retidos do filtro, mesmo ao mudar a página da fila. Abra
+uma ocorrência para conferir as entregas e investigar as métricas do período.
 
 <details>
 <summary>Escopo e contratos do laboratório</summary>
 
 Uma integração consulta faturamento e disponibilidade de produtos. A aplicação separa o caminho comercial do ERP e limita o trabalho em andamento. Os dados e o ERP são sintéticos; PostgreSQL, Redis, HTTP e observabilidade executam em containers no mesmo computador.
 
-O que implementei: autorização por loja e organização, cálculos em centavos, quota compartilhada, cache com controle de preenchimento, cliente ERP com prazo total e central com histórico de entregas. [Código e contratos](docs/problem-solution.md).
+A implementação inclui cálculos em centavos, quota compartilhada, cache com
+controle de preenchimento e cliente ERP com prazo total. [Código e contratos](docs/problem-solution.md).
 
 A quota permite escolher janela fixa ou GCRA, com taxa por organização e capacidade de rajada explícita. A janela fixa continua como padrão. O verificador HTTP gera casos a partir do OpenAPI, executa pelo proxy descartável e registra cobertura, falhas e reprodução sem credenciais. [Políticas de quota](docs/architecture.md#políticas-de-quota) · [contratos HTTP](docs/data-contract.md#contrato-http-executável).
 
-A central apresenta o instante da leitura e a validade da consulta antes da fila. Investigar abre o detalhe com período e contexto; busca por ID localiza uma ocorrência retida fora das 100 linhas iniciais. Filtros e retorno preservam a posição. A captura de apresentação não executou nova falha ou recuperação do serviço.
+A central mantém o período, o estado e a página ao investigar uma ocorrência e
+voltar pelo runbook. Recuperação recebida e encerramento administrativo têm
+registros distintos. Uso, quota e latência vêm do Prometheus/Grafana; a contagem
+de incidentes não substitui essas séries.
 
 </details>
 

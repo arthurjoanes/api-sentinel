@@ -80,7 +80,14 @@ PostgreSQL também poderia guardar os alertas, inclusive para um receiver distri
 
 **Custo e limite:** a página é uma leitura do instante; alterações exigem atualização. Sem JavaScript, o resultado do probe só é reavaliado no próximo carregamento. O renderer dos runbooks suporta títulos, listas e código, não Markdown completo. A UI não calcula métricas por tenant ou disponibilidade global. [Testes da interface](../tests/unit/test_receiver_ui.py), [rotas](../tests/unit/test_receiver.py) e [investigação](../tests/unit/test_receiver_diagnostics.py) conferem esses contratos.
 
-**Leitura da central:** a [central de incidentes](incident-console.md) mantém ID, estado, resumo, início e último registro visíveis; impacto e entregas ficam na expansão da linha. Ocorrências seguintes permite explorar as páginas; a busca por ID é um atalho para registros já conhecidos. Os gráficos usam dados do mesmo snapshot: totais retidos sem filtro e inícios em sete dias UTC somente nos registros da página atual do filtro, limitados a 100. “Finalizados” inclui encerramentos administrativos; esses totais não são indicadores de saúde ou recuperação.
+**Leitura da central:** a [central de incidentes](incident-console.md) mantém ID,
+estado, resumo, início e último registro visíveis; impacto e entregas ficam na
+expansão da linha. A fila é paginada, com busca direta por ID. Os totais retidos e
+os inícios diários usam a mesma transação de leitura SQLite. O gráfico agrega todos
+os incidentes retidos do estado escolhido, em hoje, 7 ou 30 dias UTC, independente
+da página. Isso evita que mudar a página pareça mudar a atividade do período.
+“Finalizados” inclui encerramentos administrativos; esses totais não são indicadores
+de saúde ou recuperação. As séries de tráfego, quota e latência permanecem no Prometheus.
 
 O detalhe separa o período informado na origem dos horários de recebimento. Condição, identificação e origem dos eventos aparecem por expansão, preservando a diferença entre recuperação recebida, entrega atrasada e ação manual. Os valores dos gráficos também estão em tabelas. [Resumo visual](../alert_receiver/visual_summary.py), [período registrado](../alert_receiver/incident_visual.py) e seus [testes](../tests/unit/test_visual_summary.py) conferem o escopo dos dados; não há uma segunda coleta de métricas nessa interface.
 

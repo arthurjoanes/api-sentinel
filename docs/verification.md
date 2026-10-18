@@ -115,7 +115,14 @@ O scan mantém o gate HIGH/CRITICAL da aplicação e do proxy, além de Gitleaks
 
 ### Contrato da central de incidentes
 
-A [central de incidentes](incident-console.md) documenta a leitura manual, os totais retidos sem filtro, os inícios em sete dias UTC na amostra de até 100 registros filtrados e a separação entre período de origem e recebimento. Metadados e origem dos eventos aparecem por expansão. [Testes do resumo](../tests/unit/test_visual_summary.py), [do período](../tests/unit/test_incident_visual.py), [da leitura transacional](../tests/unit/test_receiver_storage_snapshot.py) e [da navegação](../tests/unit/test_receiver_ui.py) verificam esses contratos.
+A [central de incidentes](incident-console.md) documenta a leitura manual, os
+totais retidos e os inícios em janelas de hoje, 7 ou 30 dias UTC. O agregado diário
+não depende da página da fila. [Testes de atividade](../tests/unit/test_receiver_activity.py)
+conferem limites UTC, retenção, estado, paginação e consistência sob entrega
+concorrente. [Resumo](../tests/unit/test_visual_summary.py),
+[período da ocorrência](../tests/unit/test_incident_visual.py),
+[leitura transacional](../tests/unit/test_receiver_storage_snapshot.py) e
+[navegação](../tests/unit/test_receiver_ui.py) cobrem a apresentação desses registros.
 
 O [workflow](../.github/workflows/ci.yml) publica os XMLs das suítes isolada e HTTP nos artefatos de cada execução. A aprovação pertence ao SHA e aos resultados daquele run; a presença dos testes no código não aprova alterações posteriores.
 

@@ -37,7 +37,10 @@ Essa variante executa checks, testes, dois ciclos reais de incidentes e correla�
 
 O [guia da central](incident-console.md) explica os gráficos, o período e o histórico. Use a URL do receiver da sua execução; imagens com dados sintéticos não demonstram um incidente novo.
 
-1. Compare os totais retidos e os inícios da amostra de até 100 registros do filtro, nos sete dias UTC. Abra Ver dados. Confira também o instante da leitura e a validade da consulta de referência; probe vencido, pendente ou desativado não confirma saúde. Atualizar leitura recarrega a página; não há polling.
+1. Selecione hoje, 7 ou 30 dias UTC e pressione Aplicar. Compare os totais retidos
+   com os inícios do período, abra Ver dados e filtre por estado. A paginação muda
+   a fila, mantendo o agregado diário dos registros retidos. Confira o instante
+   da leitura e a validade do probe; Atualizar leitura recarrega a página, sem polling.
 2. Filtre Em andamento, confira o ID e abra Investigar. Leia início, último registro, impacto e próximo passo. Volte à fila e confira filtro e posição.
 3. Use Ocorrências seguintes para explorar registros além da primeira página de 100 linhas; se já souber o ID, use a busca direta. Um ID inválido precisa de correção junto ao campo; ausência do registro não prova ausência de falha no período.
 4. No detalhe, separe o período completo registrado dos horários das entregas do receiver. Compare-o com o intervalo enviado a Grafana ou Jaeger, cujo recorte tem limite explícito de 24 horas. Ferramenta indisponível conserva orientação e retorno; trace ausente pode decorrer de amostragem, retenção ou coleta.

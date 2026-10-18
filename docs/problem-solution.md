@@ -60,7 +60,12 @@ Como: implementei em [storage.py](../alert_receiver/storage.py) a persistência 
 
 Na interface: central → filtro → ocorrência → runbook → retorno preserva filtro e referência. “Finalizados” reúne dois estados visuais: “Resolvido” exige a recuperação recebida; “Encerrado pelo operador” tem indicação neutra e explica a ausência desse webhook. A reconciliação administrativa existente é restrita ao alerta de perda de réplica da demo e não acrescenta uma entrega fictícia.
 
-A [central de incidentes](incident-console.md) mostra os totais retidos de “Em andamento” e “Finalizados” independentemente do filtro. O gráfico de inícios usa somente os até 100 registros da página atual desse filtro, em sete dias UTC ancorados ao instante da leitura. Datas indisponíveis não são contadas; um zero não comprova ausência de chamadas ou saúde do serviço. As tabelas preservam os valores e o escopo da amostra.
+A [central de incidentes](incident-console.md) mostra os totais retidos de “Em
+andamento” e “Finalizados”. O gráfico de inícios agrega os incidentes retidos do
+filtro em hoje, 7 ou 30 dias UTC, até o instante da leitura. A paginação da fila
+não altera esse recorte. Um zero indica ausência de inícios retidos, sem afirmar
+saúde do serviço. As tabelas preservam os valores; o Grafana recebe o mesmo
+intervalo para consultar tráfego, quota e latência no Prometheus.
 
 ID, estado e datas ficam visíveis na fila; impacto e entregas aparecem por expansão. No detalhe, o período informado pelo alerta fica separado dos horários de recebimento e da origem dos eventos, evitando tratar atraso de entrega como duração de recuperação. Estado e eventos são lidos no mesmo snapshot SQLite.
 

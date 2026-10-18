@@ -7,11 +7,31 @@ Use a central para localizar uma ocorrência, conferir seu período e abrir mét
 | Gráfico | O que conta | Escopo |
 | --- | --- | --- |
 | Situação dos incidentes | Em andamento e Finalizados | Totais retidos, independentemente do filtro da fila. Finalizados inclui recuperações e encerramentos administrativos. |
-| Inícios por dia | Inícios nos sete dias UTC até a leitura | Apenas os até 100 registros carregados pelo filtro atual; não representa todo o histórico. |
+| Inícios por dia | Inícios em hoje, 7 ou 30 dias UTC até a leitura | Todos os incidentes retidos do estado escolhido, sem depender da página da fila. |
 
-Os dois gráficos da central têm rótulos e tabelas em Ver dados. Mudar o filtro altera a fila e a amostra diária; os totais retidos continuam contando todos os estados. Incidentes ativos não expiram. Finalizados seguem o prazo de retenção indicado na página.
+Escolha o **Período dos inícios (UTC)** e pressione **Aplicar**. Hoje começa à
+meia-noite UTC; 7 e 30 dias incluem o dia da leitura e os 6 ou 29 anteriores.
+Inícios posteriores ao instante da leitura não entram na contagem. Mudar esse
+período altera o gráfico, sem esconder ocorrências da fila. O filtro de estado
+vale para a fila e para o gráfico; os totais retidos continuam contando os dois estados.
 
-Contagem ausente aparece como sem dado. Datas sem fuso, inválidas ou futuras são excluídas da amostra diária com aviso; sem horário de leitura válido, o período fica indisponível. Zero significa nenhum início válido contado naquele dia e naquela amostra. Os gráficos não medem disponibilidade, volume de entregas ou taxa de falhas da API.
+As contagens diárias, a página e os totais vêm da mesma transação de leitura.
+Paginar não muda o universo do gráfico; atualizar a leitura pode trazer novas
+entregas. Incidentes ativos não expiram. Finalizados seguem a retenção indicada.
+Registros já removidos não reaparecem ao escolher 30 dias.
+
+Os gráficos têm rótulos e tabelas em **Ver dados**. O link **Uso, quota e latência
+no Grafana** abre as séries do Prometheus no mesmo intervalo UTC, conforme a
+retenção disponível. Tráfego, recusas por quota/capacidade e percentis de latência
+continuam sendo métricas da API, não valores calculados a partir dos incidentes.
+
+Exemplos estáticos antigos, sem o agregado diário, conservam a indicação de
+amostra parcial de até 100 registros. Eles não representam o gráfico da central atual.
+
+Contagem ausente aparece como sem dado. Sem horário de leitura válido, o período
+fica indisponível. Zero significa nenhum início retido contado naquele dia; um
+intervalo vazio recebe uma indicação própria. Os gráficos não medem
+disponibilidade, volume de entregas ou taxa de falhas da API.
 
 ## Localizar uma ocorrência
 
@@ -19,7 +39,11 @@ Selecione Todos, Em andamento ou Finalizados. Confira o ID, título e período a
 
 A fila carrega até 100 registros por página. Use **Ocorrências seguintes** para percorrer a fila e **Primeira página** para reiniciar; o botão Voltar do navegador recupera a página anterior. O detalhe e seu runbook mantêm o filtro e o cursor no retorno à central. A API `/api/incidents` devolve `next_cursor`; passe esse valor como `cursor` sem alterar o filtro. Cursor inválido retorna 422 com orientação para reiniciar.
 
-Cada página usa uma leitura consistente de lista e totais. A ordem usa estado, última atividade e ID como desempate; novas entregas podem mudar a posição de um incidente entre páginas. Não é um snapshot congelado durante toda a navegação: atualize a leitura para conferir mudanças. A posição exibida conta os registros percorridos e os gráficos diários continuam limitados à página atual.
+Cada página usa uma leitura consistente de lista, totais e atividade. A ordem usa
+estado, última atividade e ID como desempate; novas entregas podem mudar a posição
+de um incidente entre páginas. Atualize a leitura para conferir mudanças. A posição
+exibida conta os registros percorridos; o gráfico diário continua abrangendo os
+incidentes retidos do filtro, sem se limitar à página atual.
 
 Para abrir diretamente um registro retido, use o campo ID do incidente. Ele aceita um inteiro positivo até `9223372036854775807`, com até 19 dígitos ASCII. Entrada inválida mostra erro junto ao campo e mantém o filtro. Registro ausente não demonstra ausência de falha naquele período.
 
