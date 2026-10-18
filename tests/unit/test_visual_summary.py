@@ -252,7 +252,7 @@ def test_graphics_have_accessible_names_closed_tables_and_no_executable_metadata
         in descriptions["Situação dos incidentes"]
     )
     assert "De 2026-10-06 até 2026-10-12, em UTC" in descriptions["Inícios por dia"]
-    assert "1 inícios nos 1 itens deste filtro" in descriptions["Inícios por dia"]
+    assert "1 início em 1 item deste filtro" in descriptions["Inícios por dia"]
     assert "datas indisponíveis não são contadas" in descriptions["Inícios por dia"]
     assert all("open" not in attrs for tag, attrs in parsed.tags if tag == "details")
     assert not any(tag == "text" for tag, _ in parsed.tags)

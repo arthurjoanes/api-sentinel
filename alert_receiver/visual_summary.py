@@ -117,10 +117,11 @@ def _activity(page: IncidentPage, status: str) -> str:
     complete = page.activity_counts is not None
     records = page.records[:_SAMPLE_LIMIT]
     items = "item" if len(records) == 1 else "itens"
+    period = "Hoje, UTC" if days == 1 else f"{days} dias UTC"
     caption = (
-        f"{days} dias UTC · registros retidos"
+        f"{period} · registros retidos"
         if complete
-        else f"{days} dias UTC · {len(records)} {items} deste filtro"
+        else f"{period} · {len(records)} {items} deste filtro"
     )
     table_caption = (
         f"Inícios nos registros retidos. Filtro: {_FILTERS.get(status, 'Todos')}. "
@@ -177,19 +178,19 @@ def _activity(page: IncidentPage, status: str) -> str:
             title, caption, '<p class="chart-empty">Datas de início indisponíveis.</p>', table
         )
     maximum = max(counts.values()) or 1
+    total = sum(counts.values())
+    total_label = "início" if total == 1 else "inícios"
     if complete:
-        total = sum(counts.values())
-        caption = (
-            f"{days} dias UTC · {total} {'início retido' if total == 1 else 'inícios retidos'}"
-        )
+        caption = f"{period} · {total} {'início retido' if total == 1 else 'inícios retidos'}"
     bars = []
     labels = []
     for index, (day, value) in enumerate(counts.items()):
+        count_label = "início" if value == 1 else "inícios"
         width = min(28, 330 / days)
         x = 440 * (index + 0.5) / days - width / 2
         height = 96 * value / maximum
         bars.append(
-            f"<g><title>{day.isoformat()} UTC: {value} inícios "
+            f"<g><title>{day.isoformat()} UTC: {value} {count_label} "
             f"{'nos registros retidos' if complete else 'na amostra'}</title>"
             f'<rect class="chart-bar-activity" x="{x:.3f}" y="{106 - height:.3f}" '
             f'width="{width:.3f}" height="{height:.3f}" rx="3" fill="#155BA6"/>'
@@ -198,22 +199,22 @@ def _activity(page: IncidentPage, status: str) -> str:
         if days <= 7 or index in (0, days // 2, days - 1):
             labels.append(
                 f'<div class="chart-day"><strong class="chart-value">{value}</strong>'
-                '<span class="visually-hidden">inícios</span>'
+                f'<span class="visually-hidden">{count_label}</span>'
                 f'<time class="chart-tick" datetime="{day.isoformat()}" '
                 f'title="{day.isoformat()} UTC">{day:%d/%m}</time></div>'
             )
     description = (
         f"De {first_day.isoformat()} até {observed.date().isoformat()}, em UTC. "
         + (
-            f"{sum(counts.values())} inícios nos registros retidos deste filtro. "
+            f"{total} {total_label} nos registros retidos deste filtro. "
             "Contagem independente da paginação; zero indica "
             if complete
-            else f"{sum(counts.values())} inícios nos {len(records)} itens deste filtro. "
+            else f"{total} {total_label} em {len(records)} {items} deste filtro. "
             "Amostra parcial dos registros carregados; zero indica "
         )
         + "nenhum início com data válida contado; datas indisponíveis não são contadas."
     )
-    note = "Nenhum início no período selecionado." if complete and not sum(counts.values()) else ""
+    note = "Nenhum início no período selecionado." if complete and not total else ""
     if invalid:
         note = (
             f"{invalid} data de início sem leitura."
